@@ -20,8 +20,8 @@ class Artist extends Entity
     protected function getMapper()
     {
         return Mapper::of(get_class($this))
-            ->addField(new MethodField('ArtistId', __CLASS__))
-            ->addField(new AttributeField('Name', __CLASS__));
+            ->addField(new MethodField('ArtistId', Bitmap::TYPE_INTEGER, __CLASS__))
+            ->addField(new AttributeField('Name', Bitmap::TYPE_STRING, __CLASS__));
     }
 
 

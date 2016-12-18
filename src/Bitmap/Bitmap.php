@@ -2,6 +2,8 @@
 
 namespace PierreLemee\Bitmap;
 
+use PierreLemee\Bitmap\Transformers\IntegerTransformer;
+use PierreLemee\Bitmap\Transformers\StringTransformer;
 use PDO;
 
 class Bitmap
@@ -18,11 +20,24 @@ class Bitmap
      * @var Mapper[]
      */
     protected $mappers = [];
-
     /**
      * @var Bitmap
      */
     private static $BITMAP;
+
+    const TYPE_INTEGER = "int";
+    const TYPE_FLOAT = "float";
+    const TYPE_STRING = "string";
+    const TYPE_OBJECT = "object";
+
+    protected $transformers = [];
+
+    public function __construct()
+    {
+        foreach ([new IntegerTransformer(), new StringTransformer()] as $transformer) {
+            $this->transformers[$transformer->getName()] = $transformer;
+        }
+    }
 
     /**
      * Singleton accessor, with on-the-fly initialization
@@ -88,6 +103,32 @@ class Bitmap
     public static function getMapper($class)
     {
         return self::current()->mappers[$class];
+    }
+
+    /**
+     *
+     *
+     * @param Transformer $transformer
+     */
+    public static function addTransformer(Transformer $transformer)
+    {
+        self::current()->transformers[$transformer->getName()] = $transformer;
+    }
+
+    public static function hasTransformer($name)
+    {
+        return isset(self::current()->transformers[$name]);
+    }
+
+    /**
+     * @param $name
+     * @return Transformer
+     */
+    public static function getTransformer($name)
+    {
+        return self::hasTransformer($name) ?
+            self::current()->transformers[$name] :
+            self::current()->transformers[self::TYPE_STRING];
     }
 
     /**
