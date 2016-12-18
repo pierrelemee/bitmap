@@ -11,9 +11,13 @@
     ],
     "minimum-stability": "dev",
     "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "5.5.4"
+    },
     "autoload": {
         "psr-4": {
-            "PierreLemee\\": "src/"
+            "PierreLemee\\": "src/",
+            "Chinook\\": "tests/Bitmap/models/Chinook/"
         }
     }
 }

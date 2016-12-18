@@ -6,6 +6,18 @@ use PierreLemee\Bitmap\Transformers\IntegerTransformer;
 use PierreLemee\Bitmap\Transformers\StringTransformer;
 use PDO;
 
+/**
+ * Class Bitmap
+ * @package PierreLemee\Bitmap
+ *
+ * TODO:
+ *  - add unit tests
+ *  - class annotations mapper
+ *  - field alias
+ *  - custom setter
+ *  - add save method
+ *  - ono-to-one association
+ */
 class Bitmap
 {
     /**
@@ -64,12 +76,14 @@ class Bitmap
      */
     public static function addConnection($name, $dsn, $default = true)
     {
-        $default = $default || sizeof(self::current()->connections) == 0;
+        if (!isset(self::current()->connections[$name])) {
+            $default = $default || sizeof(self::current()->connections) == 0;
 
-        self::current()->connections[$name] = new PDO($dsn);
+            self::current()->connections[$name] = new PDO($dsn);
 
-        if ($default) {
-            self::current()->default = self::current()->connections[$name];
+            if ($default) {
+                self::current()->default = self::current()->connections[$name];
+            }
         }
     }
 
