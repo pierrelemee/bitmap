@@ -15,6 +15,11 @@ class Bitmap
      */
     protected $default;
     /**
+     * @var Mapper[]
+     */
+    protected $mappers = [];
+
+    /**
      * @var Bitmap
      */
     private static $BITMAP;
@@ -51,6 +56,38 @@ class Bitmap
         if ($default) {
             self::current()->default = self::current()->connections[$name];
         }
+    }
+
+    /**
+     * @param Mapper $mapper
+     */
+    public static function addMapper(Mapper $mapper)
+    {
+        self::current()->mappers[$mapper->getClass()] = $mapper;
+    }
+
+    /**
+     * Checks whether mapper for class $class has been defined yet
+     *
+     * @param string $class
+     *
+     * @return boolean
+     */
+    public static function hasMapper($class)
+    {
+        return isset(self::current()->mappers[$class]);
+    }
+
+    /**
+     * Retrieves mapper defined for class $class
+     *
+     * @param string $class
+     *
+     * @return Mapper
+     */
+    public static function getMapper($class)
+    {
+        return self::current()->mappers[$class];
     }
 
     /**
