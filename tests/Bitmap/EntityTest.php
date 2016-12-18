@@ -65,7 +65,7 @@ class EntityTest extends TestCase
         }
     }
 
-    public function getAlbumById()
+    public function testGetAlbumById()
     {
         $album = Album::findOne(sprintf('select * from `Album` where AlbumId = %d', 275));
 

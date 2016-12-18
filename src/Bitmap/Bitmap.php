@@ -11,8 +11,6 @@ use PDO;
  * @package PierreLemee\Bitmap
  *
  * TODO:
- *  - field alias
- *  - custom setter
  *  - add save method
  *  - ono-to-one association
  */
@@ -35,7 +33,7 @@ class Bitmap
      */
     private static $BITMAP;
 
-    const TYPE_INTEGER = "int";
+    const TYPE_INTEGER = "integer";
     const TYPE_FLOAT = "float";
     const TYPE_STRING = "string";
     const TYPE_OBJECT = "object";

@@ -41,7 +41,8 @@ class AnnotationMapper extends Mapper
                             $property->getName(),
                             isset($annotations['type']) ? $annotations['type'][0] : Bitmap::TYPE_STRING,
                             $class,
-                            isset($annotations['setter']) ? $annotations['setter'] : null
+                            isset($annotations['setter']) && sizeof($annotations['setter']) > 0 ? $annotations['setter'][0] : null,
+                            sizeof($annotations['field']) > 0 ? $annotations['field'][0] : null
                         )
                     );
                 }

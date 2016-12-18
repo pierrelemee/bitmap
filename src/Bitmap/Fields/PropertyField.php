@@ -10,10 +10,11 @@ class PropertyField extends Field
 {
     protected $attribute;
 
-    public function __construct($name, $type, $class)
+    public function __construct($name, $type, $class, $alias = null)
     {
+        $name = $alias ? : $name;
         parent::__construct($name, $type, $class);
-        $this->attribute = new ReflectionProperty($class, $this->name);
+        $this->attribute = new ReflectionProperty($class, $name);
     }
 
     public function getValue(Entity $entity)
