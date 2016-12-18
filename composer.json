@@ -1,0 +1,19 @@
+{
+    "name": "pierrelemee/bitmap",
+    "description": "My custom data mapper",
+    "version": "0.0.1",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Pierre",
+            "email": "pierre@pierrelemee.fr"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "PierreLemee\\": "src/"
+        }
+    }
+}
