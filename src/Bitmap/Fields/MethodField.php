@@ -16,7 +16,7 @@ class MethodField extends Field
         $name = preg_match("/^get/", $name) ? lcfirst(substr($name, 3)) : $name;
         parent::__construct($name, $type, $class);
         $this->getter = new ReflectionMethod($class, 'get' . ucfirst($this->name));
-        $this->setter = new ReflectionMethod($class, 'set' . ucfirst($name));
+        $this->setter = $setter ? : new ReflectionMethod($class, 'set' . ucfirst($this->name));
     }
 
     public function getValue(Entity $entity)

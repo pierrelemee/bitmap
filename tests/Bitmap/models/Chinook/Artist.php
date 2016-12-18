@@ -4,7 +4,7 @@ namespace Chinook;
 
 use PierreLemee\Bitmap\Bitmap;
 use PierreLemee\Bitmap\Entity;
-use PierreLemee\Bitmap\Fields\AttributeField;
+use PierreLemee\Bitmap\Fields\PropertyField;
 use PierreLemee\Bitmap\Fields\MethodField;
 use PierreLemee\Bitmap\Mapper;
 
@@ -17,7 +17,7 @@ class Artist extends Entity
     {
         return Mapper::of(get_class($this))
             ->addField(new MethodField('ArtistId', Bitmap::TYPE_INTEGER, __CLASS__))
-            ->addField(new AttributeField('Name', Bitmap::TYPE_STRING, __CLASS__));
+            ->addField(new PropertyField('Name', Bitmap::TYPE_STRING, __CLASS__));
     }
 
 

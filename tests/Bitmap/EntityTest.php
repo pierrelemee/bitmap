@@ -2,6 +2,7 @@
 
 namespace Bitmap;
 
+use Chinook\Album;
 use Chinook\Artist;
 use PHPUnit\Framework\TestCase;
 use PierreLemee\Bitmap\Bitmap;
@@ -24,23 +25,20 @@ class EntityTest extends TestCase
      */
     public function after()
     {
-        //Bitmap::connection(self::CONNECTION_NAME)->rollBack();
+        Bitmap::connection(self::CONNECTION_NAME)->rollBack();
     }
 
     public function getArtistById()
     {
-        $artists = Artist::select(sprintf('select * from `Artist` where id = %d', 94));
+        $artist = Artist::find(sprintf('select * from `Artist` where id = %d', 94));
 
-        $this->assertEquals(1, sizeof($artists));
-        $this->assertSame('Jimi Hendrix', $artists[0]->Name);
+        $this->assertNotNull($artist);
+        $this->assertSame('Jimi Hendrix', $artist->Name);
     }
 
     public function testGetArtists()
     {
-        /**
-         * Artist[]
-         */
-        $artists = Artist::select('select * from `Artist` where name like "The%"');
+        $artists = Artist::find('select * from `Artist` where name like "The%"');
 
         $expected = [
             137 => 'The Black Crowes',
@@ -65,6 +63,14 @@ class EntityTest extends TestCase
             $this->assertArrayHasKey($artist->getArtistId(), $expected);
             $this->assertEquals($expected[$artist->getArtistId()], $artist->Name);
         }
+    }
 
+    public function getAlbumById()
+    {
+        $album = Album::findOne(sprintf('select * from `Album` where AlbumId = %d', 275));
+
+        $this->assertNotNull($album);
+        $this->assertSame('Vivaldi: The Four Seasons', $album->getTitle());
+        $this->assertSame(209, $album->getArtistId());
     }
 }

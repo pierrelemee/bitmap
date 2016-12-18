@@ -11,8 +11,6 @@ use PDO;
  * @package PierreLemee\Bitmap
  *
  * TODO:
- *  - add unit tests
- *  - class annotations mapper
  *  - field alias
  *  - custom setter
  *  - add save method

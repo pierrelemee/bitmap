@@ -6,7 +6,7 @@ use PierreLemee\Bitmap\Field;
 use PierreLemee\Bitmap\Entity;
 use ReflectionProperty;
 
-class AttributeField extends Field
+class PropertyField extends Field
 {
     protected $attribute;
 
