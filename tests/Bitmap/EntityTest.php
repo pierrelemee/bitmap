@@ -27,6 +27,14 @@ class EntityTest extends TestCase
         //Bitmap::connection(self::CONNECTION_NAME)->rollBack();
     }
 
+    public function getArtistById()
+    {
+        $artists = Artist::select(sprintf('select * from `Artist` where id = %d', 94));
+
+        $this->assertEquals(1, sizeof($artists));
+        $this->assertSame('Jimi Hendrix', $artists[0]->Name);
+    }
+
     public function testGetArtists()
     {
         /**
