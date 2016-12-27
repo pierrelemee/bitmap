@@ -7,6 +7,7 @@ use PierreLemee\Bitmap\Entity;
 use PierreLemee\Bitmap\Fields\PropertyField;
 use PierreLemee\Bitmap\Fields\MethodField;
 use PierreLemee\Bitmap\Mapper;
+use ReflectionClass;
 
 class Artist extends Entity
 {
@@ -15,9 +16,16 @@ class Artist extends Entity
 
     protected function getMapper()
     {
+        $reflection = new ReflectionClass(__CLASS__);
         return Mapper::of(get_class($this))
-            ->addField(new MethodField('ArtistId', Bitmap::TYPE_INTEGER, __CLASS__))
-            ->addField(new PropertyField('Name', Bitmap::TYPE_STRING, __CLASS__));
+            ->addField(
+                MethodField::fromClass('ArtistId', $reflection)
+                ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
+            )
+            ->addField(
+                PropertyField::fromClass('Name', $reflection)
+                ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
+            );
     }
 
 

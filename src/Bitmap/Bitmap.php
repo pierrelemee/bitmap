@@ -13,6 +13,8 @@ use PDO;
  * TODO:
  *  - add save method
  *  - ono-to-one association
+ *  - many-to-one association
+ *  - many-to-many
  */
 class Bitmap
 {
@@ -67,15 +69,17 @@ class Bitmap
      * @param string $name
      * @param string $dsn
      * @param boolean $default
+     * @param string $user
+     * @param string $password
      *
      * @return void
      */
-    public static function addConnection($name, $dsn, $default = true)
+    public static function addConnection($name, $dsn, $default = true, $user = null, $password = null)
     {
         if (!isset(self::current()->connections[$name])) {
             $default = $default || sizeof(self::current()->connections) == 0;
 
-            self::current()->connections[$name] = new PDO($dsn);
+            self::current()->connections[$name] = new PDO($dsn, $user, $password);
 
             if ($default) {
                 self::current()->default = self::current()->connections[$name];

@@ -6,6 +6,7 @@ use Chinook\Album;
 use Chinook\Artist;
 use PHPUnit\Framework\TestCase;
 use PierreLemee\Bitmap\Bitmap;
+use PDO;
 
 class EntityTest extends TestCase
 {
@@ -72,5 +73,15 @@ class EntityTest extends TestCase
         $this->assertNotNull($album);
         $this->assertSame('Vivaldi: The Four Seasons', $album->getTitle());
         $this->assertSame(209, $album->getArtistId());
+    }
+
+    public function testAddNewArtist()
+    {
+        $artist = new Artist();
+        $artist->Name = 'Radiohead';
+
+        $this->assertTrue($artist->save());
+
+        $this->assertEquals(276, Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
 }

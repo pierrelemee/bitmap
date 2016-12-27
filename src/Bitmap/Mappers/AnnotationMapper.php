@@ -29,21 +29,17 @@ class AnnotationMapper extends Mapper
             if (isset($annotations['field'])) {
                 if ($property->isPublic()) {
                     $this->addField(
-                        new PropertyField(
-                            $property->getName(),
-                            isset($annotations['type']) ? $annotations['type'][0] : Bitmap::TYPE_STRING,
-                            $class
-                        )
+                        PropertyField::from($property)
+                            ->setTransformer(Bitmap::getTransformer(isset($annotations['type']) ? $annotations['type'][0] : null))
+                            ->setIncremented(in_array('incremented', array_map('strtolower', $annotations['field'])))
+                            ->setNullable(in_array('nullable', array_map('strtolower', $annotations['field'])))
                     );
                 } else {
                     $this->addField(
-                        new MethodField(
-                            $property->getName(),
-                            isset($annotations['type']) ? $annotations['type'][0] : Bitmap::TYPE_STRING,
-                            $class,
-                            isset($annotations['setter']) && sizeof($annotations['setter']) > 0 ? $annotations['setter'][0] : null,
-                            sizeof($annotations['field']) > 0 ? $annotations['field'][0] : null
-                        )
+                        MethodField::fromClass($property->getName(), $this->reflection, isset($annotations['setter'][0]) ? $annotations['setter'][0] : null)
+                            ->setTransformer(Bitmap::getTransformer(isset($annotations['type']) ? $annotations['type'][0] : null))
+                            ->setIncremented(in_array('incremented', array_map('strtolower', $annotations['field'])))
+                            ->setNullable(in_array('nullable', array_map('strtolower', $annotations['field'])))
                     );
                 }
             }
@@ -53,18 +49,30 @@ class AnnotationMapper extends Mapper
             $annotations = self::annotations($method->getDocComment());
 
             if (isset($annotations['field'])) {
-                $this->addField(
-                    new MethodField(
-                        $method->getName(),
-                        isset($annotations['type']) ? $annotations['type'][0] : Bitmap::TYPE_STRING,
-                        $class,
-                        isset($annotations['setter']) ? $annotations['setter'] : null
-                    )
-                );
+                if (isset($annotations['setter']) && sizeof($annotations['setter']) > 0) {
+                    $this->addField(
+                        MethodField::fromMethods(
+                            $method->getName(),
+                            $method,
+                            $this->reflection->getMethod($annotations['setter'][0])
+                        )
+                    );
+                } else {
+                    $this->addField(
+                        MethodField::fromMethod(
+                            $method->getName(),
+                            $method
+                        )
+                    );
+                }
             }
         }
     }
 
+    /**
+     * @param $doc
+     * @return array
+     */
     private static function annotations($doc)
     {
         $annotations = [];

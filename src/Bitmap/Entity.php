@@ -7,6 +7,13 @@ use PierreLemee\Bitmap\Mappers\AnnotationMapper;
 
 abstract class Entity
 {
+    protected $bitmapHash;
+
+    protected function getBitmapHash()
+    {
+        return $this->bitmapHash;
+    }
+
     protected function getMapper()
     {
         return AnnotationMapper::of($this);
@@ -30,13 +37,7 @@ abstract class Entity
 
         if (false !== $stmt) {
             while (false !== ($data = $stmt->fetch())) {
-                $entity = new $class();
-                foreach ($data as $key => $value) {
-                    if (Bitmap::getMapper(get_called_class())->hasField($key)) {
-                        Bitmap::getMapper(get_called_class())->getField($key)->set($entity, $value);
-                    }
-                }
-                $entities[] = $entity;
+                $entities[] = Bitmap::getMapper($class)->load($data);
             }
         }
         return $entities;
@@ -57,14 +58,25 @@ abstract class Entity
         $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
 
         if (false !== $stmt && false !== ($data = $stmt->fetch())) {
-            $entity = new $class();
-            foreach ($data as $key => $value) {
-                if (Bitmap::getMapper(get_called_class())->hasField($key)) {
-                    Bitmap::getMapper(get_called_class())->getField($key)->set($entity, $value);
-                }
-            }
-            return $entity;
+            return Bitmap::getMapper($class)->load($data);
         }
         return null;
+    }
+
+    /**
+     *
+     */
+    public function save($connection = null)
+    {
+        $status = false;
+        if ($this->bitmapHash === null) {
+            $status = $this->getMapper()->insert($this, $connection);
+        } else {
+            //$this->getMapper()->update($this, $connection);
+        }
+
+        $this->bitmapHash = $this->getMapper()->hash($this);
+
+        return $status;
     }
 }
