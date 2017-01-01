@@ -138,6 +138,25 @@ class Mapper
         throw new Exception("No primary declared for class {$this->class}");
     }
 
+    protected function deleteQuery(Entity $entity)
+    {
+        return sprintf(
+            "delete from `%s` where `%s` = %s",
+            $this->table,
+            $this->primary->getName(),
+            $this->primary->get($entity)
+        );
+    }
+
+    public function delete(Entity $entity, $connection = null)
+    {
+        if (null !== $this->primary) {
+            return Bitmap::connection($connection)->exec($this->deleteQuery($entity)) > 0;
+        }
+
+        throw new Exception("No primary declared for class {$this->class}");
+    }
+
     /**
      * @param array $data
      * @return Entity

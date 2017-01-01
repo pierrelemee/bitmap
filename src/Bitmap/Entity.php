@@ -91,4 +91,16 @@ abstract class Entity
 
         return $status;
     }
+
+    /**
+     * Deletes the entity in the database
+     *
+     * @param $connection string the name of the connection to use
+     *
+     * @return boolean whether the deletion was completed successfully
+     */
+    public function delete($connection = null)
+    {
+        return $this->getMapper()->delete($this, $connection);
+    }
 }

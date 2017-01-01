@@ -95,4 +95,13 @@ class EntityTest extends TestCase
         $this->assertEquals(15, Bitmap::connection('chinook')->query('select count(*) as `total` from `Artist` where name like "The%"')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
         $this->assertEquals(275, Bitmap::connection('chinook')->query('select count(*) as `total` from `Artist`')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
+
+    public function testDeleteArtist()
+    {
+        $artist = Artist::findOne(sprintf("select * from Artist where ArtistId = %d", 166));
+        // "Avril Lavigne" in database
+        $this->assertTrue($artist->delete());
+
+        $this->assertEquals(274, Bitmap::connection('chinook')->query('select count(*) as `total` from `Artist`')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+    }
 }
