@@ -11,7 +11,6 @@ use PDO;
  * @package PierreLemee\Bitmap
  *
  * TODO:
- *  - add save method
  *  - ono-to-one association
  *  - many-to-one association
  *  - many-to-many
