@@ -84,4 +84,15 @@ class EntityTest extends TestCase
 
         $this->assertEquals(276, Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
+
+    public function testUpdateArtist()
+    {
+        $artist = Artist::findOne(sprintf("select * from Artist where ArtistId = %d", 179));
+        // "Scorptions" in database
+        $artist->Name = "The Scorpions";
+        $this->assertTrue($artist->save());
+
+        $this->assertEquals(15, Bitmap::connection('chinook')->query('select count(*) as `total` from `Artist` where name like "The%"')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+        $this->assertEquals(275, Bitmap::connection('chinook')->query('select count(*) as `total` from `Artist`')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+    }
 }

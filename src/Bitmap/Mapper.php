@@ -2,10 +2,16 @@
 
 namespace PierreLemee\Bitmap;
 
+use Exception;
+
 class Mapper
 {
     protected $class;
     protected $table;
+    /**
+     * @var Field
+     */
+    protected $primary;
     /**
      * @var Field[]
      */
@@ -34,12 +40,19 @@ class Mapper
 
     /**
      * @param Field $field
+     * @param boolean $primary
+     *
      * @return Mapper
      */
-    public function addField(Field $field)
+    public function addField(Field $field, $primary = false)
     {
         // TODO: check for existence
         $this->fields[$field->getName()] = $field;
+
+        if ($primary) {
+            $this->primary = $this->fields[$field->getName()];
+        }
+
         return $this;
     }
 
@@ -74,6 +87,17 @@ class Mapper
         return $values;
     }
 
+    protected function sqlValues(array $values, $delimiter = ", ")
+    {
+        $sql = [];
+
+        foreach ($values as $name => $value) {
+            $sql[] = sprintf("`%s` = %s", $name, $value);
+        }
+
+        return implode($delimiter, $sql);
+    }
+
     public function hash(Entity $entity)
     {
         return sha1(implode(":", array_values($this->values($entity))));
@@ -81,7 +105,12 @@ class Mapper
 
     protected function insertQuery(Entity $entity)
     {
-        return sprintf("insert into `%s` (%s) values (%s)", $this->table, implode(", ", array_keys($this->fields)), implode(", ", $this->values($entity)));
+        return sprintf(
+            "insert into `%s` (%s) values (%s)",
+            $this->table,
+            implode(", ", array_keys($this->fields)),
+            implode(", ", $this->values($entity))
+        );
     }
 
     public function insert(Entity $entity, $connection = null)
@@ -89,9 +118,24 @@ class Mapper
         return Bitmap::connection($connection)->exec($this->insertQuery($entity)) > 0;
     }
 
+    protected function updateQuery(Entity $entity)
+    {
+        return sprintf(
+            "update `%s` set %s where `%s` = %s",
+            $this->table,
+            $this->sqlValues($this->values($entity)),
+            $this->primary->getName(),
+            $this->primary->get($entity)
+        );
+    }
+
     public function update(Entity $entity, $connection = null)
     {
-        return Bitmap::connection($connection)->exec(sprintf("update from `%s` set ?? where ??", $this->table));
+        if (null !== $this->primary) {
+            return Bitmap::connection($connection)->exec($this->updateQuery($entity)) > 0;
+        }
+
+        throw new Exception("No primary declared for class {$this->class}");
     }
 
     /**
@@ -106,6 +150,7 @@ class Mapper
                 $this->getField($key)->set($entity, $value);
             }
         }
+
         return $entity;
     }
 

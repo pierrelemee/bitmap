@@ -14,6 +14,18 @@ abstract class Entity
         return $this->bitmapHash;
     }
 
+    /**
+     * @return Entity
+     */
+    protected function computeHash()
+    {
+        $this->bitmapHash = $this->getMapper()->hash($this);
+        return $this;
+    }
+
+    /**
+     * @return Mapper
+     */
     protected function getMapper()
     {
         return AnnotationMapper::of($this);
@@ -37,7 +49,7 @@ abstract class Entity
 
         if (false !== $stmt) {
             while (false !== ($data = $stmt->fetch())) {
-                $entities[] = Bitmap::getMapper($class)->load($data);
+                $entities[] = Bitmap::getMapper($class)->load($data)->computeHash();
             }
         }
         return $entities;
@@ -58,24 +70,24 @@ abstract class Entity
         $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
 
         if (false !== $stmt && false !== ($data = $stmt->fetch())) {
-            return Bitmap::getMapper($class)->load($data);
+            return Bitmap::getMapper($class)->load($data)->computeHash();
         }
         return null;
     }
 
     /**
      *
+     * @param $connection string the name of the connection to use
+     *
+     * @return boolean whether the save operation completed successfully
      */
     public function save($connection = null)
     {
-        $status = false;
         if ($this->bitmapHash === null) {
             $status = $this->getMapper()->insert($this, $connection);
         } else {
-            //$this->getMapper()->update($this, $connection);
+            $status = $this->getMapper()->update($this, $connection);
         }
-
-        $this->bitmapHash = $this->getMapper()->hash($this);
 
         return $status;
     }
