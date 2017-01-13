@@ -2,6 +2,7 @@
 
 namespace PierreLemee\Bitmap;
 
+use PierreLemee\Bitmap\Transformers\FloatTransformer;
 use PierreLemee\Bitmap\Transformers\IntegerTransformer;
 use PierreLemee\Bitmap\Transformers\StringTransformer;
 use PDO;
@@ -43,7 +44,7 @@ class Bitmap
 
     public function __construct()
     {
-        foreach ([new IntegerTransformer(), new StringTransformer()] as $transformer) {
+        foreach ([new IntegerTransformer(), new StringTransformer(), new FloatTransformer()] as $transformer) {
             $this->transformers[$transformer->getName()] = $transformer;
         }
     }

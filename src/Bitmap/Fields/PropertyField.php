@@ -14,9 +14,9 @@ class PropertyField extends Field
      */
     protected $property;
 
-    public function __construct(ReflectionProperty $property)
+    public function __construct(ReflectionProperty $property, $name = null)
     {
-        parent::__construct($property->getName());
+        parent::__construct($name ? : $property->getName());
         $this->property = $property;
     }
 
@@ -34,9 +34,9 @@ class PropertyField extends Field
      * @param ReflectionProperty $property
      * @return PropertyField
      */
-    public static function from(ReflectionProperty $property)
+    public static function from(ReflectionProperty $property, $name = null)
     {
-        return new PropertyField($property);
+        return new PropertyField($property, $name);
     }
 
     public static function fromClass($name, ReflectionClass $class)
