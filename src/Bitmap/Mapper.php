@@ -15,13 +15,28 @@ class Mapper
     /**
      * @var Field[]
      */
-    protected $fields;
+    protected $fieldsByName;
+    /**
+     * @var Field[]
+     */
+    protected $fieldsByColumn;
+    /**
+     * @var Association[]
+     */
+    protected $associations;
 
     public function __construct($class, $table = null)
     {
         $this->class = $class;
         $this->table = $table ? : ($index = strrpos($class, '\\')) !== false ? substr($class, $index + 1) : $class;
-        $this->fields = [];
+        $this->fieldsByName = [];
+        $this->fieldsByColumn = [];
+        $this->associations = [];
+    }
+
+    public function getTable()
+    {
+        return $this->table;
     }
 
     public function setTable($table)
@@ -51,10 +66,11 @@ class Mapper
     public function addField(Field $field, $primary = false)
     {
         // TODO: check for existence
-        $this->fields[$field->getName()] = $field;
+        $this->fieldsByName[$field->getName()] = $field;
+        $this->fieldsByColumn[$field->getColumn()] = $field;
 
         if ($primary) {
-            $this->primary = $this->fields[$field->getName()];
+            $this->primary = $this->fieldsByName[$field->getName()];
         }
 
         return $this;
@@ -66,7 +82,16 @@ class Mapper
      */
     public function hasField($name)
     {
-        return isset($this->fields[$name]);
+        return isset($this->fieldsByName[$name]);
+    }
+
+    /**
+     * @param $column
+     * @return boolean
+     */
+    public function hasFieldByColumn($column)
+    {
+        return isset($this->fieldsByColumn[$column]);
     }
 
     /**
@@ -75,7 +100,16 @@ class Mapper
      */
     public function getField($name)
     {
-        return $this->fields[$name];
+        return $this->fieldsByName[$name];
+    }
+
+    /**
+     * @param $column
+     * @return Field
+     */
+    public function getFieldByColumn($column)
+    {
+        return $this->fieldsByColumn[$column];
     }
 
     /**
@@ -84,7 +118,7 @@ class Mapper
     protected function values(Entity $entity)
     {
         $values = [];
-        foreach ($this->fields as $field) {
+        foreach ($this->fieldsByName as $field) {
             $values[$field->getName()] = $field->get($entity);
         }
 
@@ -112,7 +146,7 @@ class Mapper
         return sprintf(
             "insert into `%s` (%s) values (%s)",
             $this->table,
-            implode(", ", array_keys($this->fields)),
+            implode(", ", array_keys($this->fieldsByColumn)),
             implode(", ", $this->values($entity))
         );
     }
@@ -167,12 +201,15 @@ class Mapper
      */
     public function load(array $data)
     {
+        /** @var $entity Entity */
         $entity = new $this->class();
         foreach ($data as $key => $value) {
-            if ($this->hasField($key)) {
-                $this->getField($key)->set($entity, $value);
+            if ($this->hasFieldByColumn($key)) {
+                $this->getFieldByColumn($key)->set($entity, $value);
             }
         }
+
+        $entity->setBitmapHash($this->hash($entity));
 
         return $entity;
     }

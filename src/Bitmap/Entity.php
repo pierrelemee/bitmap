@@ -2,6 +2,7 @@
 
 namespace Bitmap;
 
+use Bitmap\Query\Select;
 use PDO;
 use Bitmap\Mappers\AnnotationMapper;
 
@@ -17,10 +18,9 @@ abstract class Entity
     /**
      * @return Entity
      */
-    protected function computeHash()
+    public function setBitmapHash($hash)
     {
-        $this->bitmapHash = $this->getMapper()->hash($this);
-        return $this;
+        $this->bitmapHash = $hash;
     }
 
     /**
@@ -31,6 +31,20 @@ abstract class Entity
         return AnnotationMapper::of($this);
     }
 
+    private static function mapper($class)
+    {
+        if (!Bitmap::hasMapper($class)) {
+            Bitmap::addMapper((new $class())->getMapper());
+        }
+
+        return Bitmap::getMapper($class);
+    }
+
+    public static function select()
+    {
+        return new Select(self::mapper(get_called_class()));
+    }
+
     /**
      * @param string $sql
      * @param string $connection
@@ -39,17 +53,14 @@ abstract class Entity
      */
     public static function find($sql, $connection = null)
     {
-        $class = get_called_class();
-        if (!Bitmap::hasMapper(get_called_class())) {
-            Bitmap::addMapper((new $class())->getMapper());
-        }
+        $mapper = self::mapper(get_called_class());
         $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
 
         $entities = [];
 
         if (false !== $stmt) {
             while (false !== ($data = $stmt->fetch())) {
-                $entities[] = Bitmap::getMapper($class)->load($data)->computeHash();
+                $entities[] = $mapper->load($data);
             }
         }
         return $entities;
@@ -70,7 +81,7 @@ abstract class Entity
         $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
 
         if (false !== $stmt && false !== ($data = $stmt->fetch())) {
-            return Bitmap::getMapper($class)->load($data)->computeHash();
+            return Bitmap::getMapper($class)->load($data);
         }
         return null;
     }

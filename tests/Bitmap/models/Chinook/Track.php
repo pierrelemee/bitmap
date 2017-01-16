@@ -9,6 +9,7 @@ class Track extends Entity
     /**
      * @field TrackId incremented
      * @type integer
+     * @setter setId
      * @var int
      */
     protected $id;
@@ -19,7 +20,7 @@ class Track extends Entity
      */
     protected $name;
     /**
-     * @association Bitmap\models\Chinook\Genre id
+     * @association one Bitmap\models\Chinook\Genre id
      * @var Genre
      */
     protected $genre;

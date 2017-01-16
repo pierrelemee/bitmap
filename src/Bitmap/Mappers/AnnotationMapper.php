@@ -28,17 +28,17 @@ class AnnotationMapper extends Mapper
             $annotations = Annotations::fromProperty($property);
 
             if ($annotations->has('field')) {
-                $name = $annotations->get('field', 0, $property->getName());
+                $column = $annotations->get('field', 0, $property->getName());
                 if ($property->isPublic()) {
                     $this->addField(
-                        PropertyField::from($property, $name)
+                        PropertyField::from($property, $column)
                             ->setTransformer(Bitmap::getTransformer($annotations->get('type', 0, null)))
                             ->setIncremented(in_array('incremented', array_map('strtolower', $annotations->get('field'))))
                             ->setNullable(in_array('nullable', array_map('strtolower', $annotations->get('field'))))
                     );
                 } else {
                     $this->addField(
-                        MethodField::fromClass($name, $this->reflection, $annotations->get('setter', 0))
+                        MethodField::fromClass($property->getName(), $this->reflection, $annotations->get('setter', 0), $column)
                             ->setTransformer(Bitmap::getTransformer($annotations->get('type', 0, null)))
                             ->setIncremented(in_array('incremented', array_map('strtolower', $annotations->get('field'))))
                             ->setNullable(in_array('nullable', array_map('strtolower', $annotations->get('field'))))
@@ -51,20 +51,22 @@ class AnnotationMapper extends Mapper
             $annotations = Annotations::fromMethod($method);
 
             if ($annotations->has('field')) {
-                $name = $annotations->get('field', 0, null);
+                $column = $annotations->get('field', 0, null);
                 if ($annotations->has('setter') && sizeof($annotations->get('setter')) > 0) {
                     $this->addField(
                         MethodField::fromMethods(
-                            $name,
+                            $method->getName(),
                             $method,
-                            $this->reflection->getMethod($annotations->get('setter', 0))
+                            $this->reflection->getMethod($annotations->get('setter', 0)),
+                            $column
                         )
                     );
                 } else {
                     $this->addField(
                         MethodField::fromMethod(
-                            $name,
-                            $method
+                            $method->getName(),
+                            $method,
+                            $column
                         )
                     );
                 }

@@ -18,9 +18,9 @@ class MethodField extends Field
      */
     protected $setter;
 
-    public function __construct($name, ReflectionMethod $getter, ReflectionMethod $setter, $alias = null)
+    public function __construct($name, ReflectionMethod $getter, ReflectionMethod $setter, $column = null)
     {
-        parent::__construct($alias ? : (preg_match("/^get/", $name) ? lcfirst(substr($name, 3)) : $name));
+        parent::__construct(preg_match("/^get/", $name) ? lcfirst(substr($name, 3)) : $name, $column);
         $this->getter = $getter;
         $this->setter = $setter;
     }
@@ -35,20 +35,29 @@ class MethodField extends Field
         $this->setter->invoke($entity, $value);
     }
 
-    public static function fromClass($name, ReflectionClass $class, $setter = null)
+    public static function fromClass($name, ReflectionClass $class, $setter = null, $column = null)
     {
-        return new MethodField($name, $class->getMethod(self::getterForName($name)),
-            $class->getMethod($setter ? : self::setterForName($name)));
+        return self::fromMethods(
+            $name,
+            $class->getMethod(self::getterForName($name)),
+            $class->getMethod($setter ? : self::setterForName($name)),
+            $column
+        );
     }
 
-    public static function fromMethod($name, ReflectionMethod $getter)
+    public static function fromMethod($name, ReflectionMethod $getter, $column = null)
     {
-        return self::fromMethods($name, $getter, self::setterForGetter($getter));
+        return self::fromMethods(
+            $name,
+            $getter,
+            self::setterForGetter($getter),
+            $column
+        );
     }
 
-    public static function fromMethods($name, ReflectionMethod $getter, ReflectionMethod $setter)
+    public static function fromMethods($name, ReflectionMethod $getter, ReflectionMethod $setter, $column = null)
     {
-        return new MethodField($name, $getter, $setter);
+        return new MethodField($name, $getter, $setter, $column);
     }
 
     public static function getterForName($name)
