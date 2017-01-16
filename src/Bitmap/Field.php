@@ -1,6 +1,6 @@
 <?php
 
-namespace PierreLemee\Bitmap;
+namespace Bitmap;
 
 abstract class Field
 {

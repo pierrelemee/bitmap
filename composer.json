@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "PierreLemee\\": "src/",
+            "": "src/",
             "Chinook\\": "tests/Bitmap/models/Chinook/"
         }
     }

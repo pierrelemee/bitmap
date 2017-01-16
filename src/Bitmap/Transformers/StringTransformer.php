@@ -1,9 +1,9 @@
 <?php
 
-namespace PierreLemee\Bitmap\Transformers;
+namespace Bitmap\Transformers;
 
-use PierreLemee\Bitmap\Transformer;
-use PierreLemee\Bitmap\Bitmap;
+use Bitmap\Transformer;
+use Bitmap\Bitmap;
 
 class StringTransformer extends Transformer
 {

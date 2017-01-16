@@ -5,7 +5,7 @@ namespace Bitmap;
 use Chinook\Album;
 use Chinook\Artist;
 use PHPUnit\Framework\TestCase;
-use PierreLemee\Bitmap\Bitmap;
+use Bitmap\Bitmap;
 use PDO;
 
 class EntityTest extends TestCase

@@ -1,6 +1,6 @@
 <?php
 
-namespace PierreLemee\Bitmap;
+namespace Bitmap;
 
 use Exception;
 
@@ -26,6 +26,10 @@ class Mapper
 
     public function setTable($table)
     {
+        if (null === $table) {
+            throw new Exception(sprintf("No table name specified for %s' mapper", $this->class));
+        }
+
         $this->table = $table;
         return $this;
     }

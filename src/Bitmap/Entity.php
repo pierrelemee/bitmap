@@ -1,9 +1,9 @@
 <?php
 
-namespace PierreLemee\Bitmap;
+namespace Bitmap;
 
 use PDO;
-use PierreLemee\Bitmap\Mappers\AnnotationMapper;
+use Bitmap\Mappers\AnnotationMapper;
 
 abstract class Entity
 {

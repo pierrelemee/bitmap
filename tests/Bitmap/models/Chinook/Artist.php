@@ -2,11 +2,11 @@
 
 namespace Chinook;
 
-use PierreLemee\Bitmap\Bitmap;
-use PierreLemee\Bitmap\Entity;
-use PierreLemee\Bitmap\Fields\PropertyField;
-use PierreLemee\Bitmap\Fields\MethodField;
-use PierreLemee\Bitmap\Mapper;
+use Bitmap\Bitmap;
+use Bitmap\Entity;
+use Bitmap\Fields\PropertyField;
+use Bitmap\Fields\MethodField;
+use Bitmap\Mapper;
 use ReflectionClass;
 
 class Artist extends Entity

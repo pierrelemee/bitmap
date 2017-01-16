@@ -2,7 +2,7 @@
 
 namespace Chinook;
 
-use PierreLemee\Bitmap\Entity;
+use Bitmap\Entity;
 
 class Track extends Entity
 {

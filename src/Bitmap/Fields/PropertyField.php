@@ -1,9 +1,9 @@
 <?php
 
-namespace PierreLemee\Bitmap\Fields;
+namespace Bitmap\Fields;
 
-use PierreLemee\Bitmap\Field;
-use PierreLemee\Bitmap\Entity;
+use Bitmap\Field;
+use Bitmap\Entity;
 use ReflectionClass;
 use ReflectionProperty;
 

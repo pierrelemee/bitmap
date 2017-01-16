@@ -1,9 +1,9 @@
 <?php
 
-namespace PierreLemee\Bitmap\Fields;
+namespace Bitmap\Fields;
 
-use PierreLemee\Bitmap\Field;
-use PierreLemee\Bitmap\Entity;
+use Bitmap\Field;
+use Bitmap\Entity;
 use ReflectionMethod;
 use ReflectionClass;
 
@@ -35,14 +35,15 @@ class MethodField extends Field
         $this->setter->invoke($entity, $value);
     }
 
-    public static function fromClass($name, ReflectionClass $class, $setter = null, $alias = null)
+    public static function fromClass($name, ReflectionClass $class, $setter = null)
     {
-        return new MethodField($name, $class->getMethod(self::getterForName($name)), $class->getMethod($setter ? : self::setterForName($name)), $alias);
+        return new MethodField($name, $class->getMethod(self::getterForName($name)),
+            $class->getMethod($setter ? : self::setterForName($name)));
     }
 
-    public static function fromMethod($name, ReflectionMethod $getter, $alias = null)
+    public static function fromMethod($name, ReflectionMethod $getter)
     {
-        return new MethodField($name, $getter, $getter->getDeclaringClass()->getMethod(preg_replace("/^get/", "set", $name)));
+        return self::fromMethods($name, $getter, self::setterForGetter($getter));
     }
 
     public static function fromMethods($name, ReflectionMethod $getter, ReflectionMethod $setter)
@@ -58,5 +59,15 @@ class MethodField extends Field
     public static function setterForName($name)
     {
         return "set" . ucfirst($name);
+    }
+
+    /**
+     * @param ReflectionMethod $getter
+     *
+     * @return ReflectionMethod
+     */
+    public static function setterForGetter(ReflectionMethod $getter)
+    {
+        return $getter->getDeclaringClass()->getMethod(preg_replace("/^get/", "set", $getter));
     }
 }

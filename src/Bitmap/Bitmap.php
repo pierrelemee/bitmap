@@ -1,10 +1,10 @@
 <?php
 
-namespace PierreLemee\Bitmap;
+namespace Bitmap;
 
-use PierreLemee\Bitmap\Transformers\FloatTransformer;
-use PierreLemee\Bitmap\Transformers\IntegerTransformer;
-use PierreLemee\Bitmap\Transformers\StringTransformer;
+use Bitmap\Transformers\FloatTransformer;
+use Bitmap\Transformers\IntegerTransformer;
+use Bitmap\Transformers\StringTransformer;
 use PDO;
 
 /**
