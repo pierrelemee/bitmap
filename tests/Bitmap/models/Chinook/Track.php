@@ -20,7 +20,7 @@ class Track extends Entity
      */
     protected $name;
     /**
-     * @association one Bitmap\models\Chinook\Genre id
+     * @association one Chinook\Genre id
      * @var Genre
      */
     protected $genre;

@@ -112,6 +112,11 @@ class Mapper
         return $this->fieldsByColumn[$column];
     }
 
+    public function addAssociation(Association $association)
+    {
+        $this->associations[$association->getName()] = $association;
+    }
+
     /**
      *
      */
@@ -209,6 +214,24 @@ class Mapper
             }
         }
 
+        foreach ($this->associations as $association) {
+            // Find all fields prefixed (e.g. "<association>.*")
+            $prefix = $association->getName();
+            $association->set(
+                $entity,
+                array_map(
+                    function ($element) use ($prefix) {
+                        return substr($element, strlen($prefix) + 1);
+                    },
+                    array_filter($data,
+                        function($element) use ($prefix) {
+                            return strpos($element, $prefix . ".") === 0;
+                        }
+                    )
+                )
+            );
+        }
+
         $entity->setBitmapHash($this->hash($entity));
 
         return $entity;
@@ -217,9 +240,15 @@ class Mapper
     /**
      * @param $class
      * @return Mapper
+     *
+     * @throws Exception
      */
     public static function of($class)
     {
+        if (null === $class) {
+            throw new Exception("Can't find mapper of null class");
+        }
+
         return new Mapper(is_object($class) ? get_class($class) : $class);
     }
 }

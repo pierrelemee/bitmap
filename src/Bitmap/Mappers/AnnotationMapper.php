@@ -2,6 +2,8 @@
 
 namespace Bitmap\Mappers;
 
+use Bitmap\Associations\MethodAssociation;
+use Bitmap\Associations\PropertyAssociation;
 use Bitmap\Reflection\Annotations;
 use Bitmap\Bitmap;
 use Bitmap\Fields\MethodField;
@@ -44,6 +46,13 @@ class AnnotationMapper extends Mapper
                             ->setNullable(in_array('nullable', array_map('strtolower', $annotations->get('field'))))
                     );
                 }
+            } else if ($annotations->has("association")) {
+                if ($property->isPublic()) {
+                    $this->addAssociation(new PropertyAssociation($property->getName(), Mapper::of($annotations->get("association", 1, null)), $property));
+                } else {
+                    $method = $this->reflection->getMethod("set" . ucfirst($property->getName()));
+                    $this->addAssociation(new MethodAssociation($property->getName(), Mapper::of($annotations->get("association", 1, null)), $method));
+                }
             }
         }
 
@@ -70,6 +79,8 @@ class AnnotationMapper extends Mapper
                         )
                     );
                 }
+            } else if ($annotations->has("association")) {
+                $this->addAssociation(new MethodAssociation($method->getName(), Mapper::of($annotations->get("association", 1, null)), $method));
             }
         }
     }
