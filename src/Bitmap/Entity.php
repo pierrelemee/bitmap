@@ -31,7 +31,7 @@ abstract class Entity
         return AnnotationMapper::of($this);
     }
 
-    private static function mapper($class)
+    public static function mapper($class)
     {
         if (!Bitmap::hasMapper($class)) {
             Bitmap::addMapper((new $class())->getMapper());

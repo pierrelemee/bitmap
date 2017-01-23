@@ -3,6 +3,7 @@
 namespace Chinook;
 
 use Bitmap\Entity;
+use Chinook\Genre;
 
 class Track extends Entity
 {
@@ -20,7 +21,7 @@ class Track extends Entity
      */
     protected $name;
     /**
-     * @association one Chinook\Genre id
+     * @association GenreId one Chinook\Genre GenreId
      * @var Genre
      */
     protected $genre;

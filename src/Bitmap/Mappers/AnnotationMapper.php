@@ -4,6 +4,7 @@ namespace Bitmap\Mappers;
 
 use Bitmap\Associations\MethodAssociation;
 use Bitmap\Associations\PropertyAssociation;
+use Bitmap\Entity;
 use Bitmap\Reflection\Annotations;
 use Bitmap\Bitmap;
 use Bitmap\Fields\MethodField;
@@ -47,11 +48,12 @@ class AnnotationMapper extends Mapper
                     );
                 }
             } else if ($annotations->has("association")) {
+                $name = $annotations->get('association', 0, $property->getName());
                 if ($property->isPublic()) {
-                    $this->addAssociation(new PropertyAssociation($property->getName(), Mapper::of($annotations->get("association", 1, null)), $property));
+                    $this->addAssociation(new PropertyAssociation($name, Entity::mapper($annotations->get("association", 2, null)), $property, $annotations->get("association", 3, null)));
                 } else {
                     $method = $this->reflection->getMethod("set" . ucfirst($property->getName()));
-                    $this->addAssociation(new MethodAssociation($property->getName(), Mapper::of($annotations->get("association", 1, null)), $method));
+                    $this->addAssociation(new MethodAssociation($name, Entity::mapper($annotations->get("association", 2, null)), $method, $annotations->get("association", 3, null)));
                 }
             }
         }
@@ -80,7 +82,7 @@ class AnnotationMapper extends Mapper
                     );
                 }
             } else if ($annotations->has("association")) {
-                $this->addAssociation(new MethodAssociation($method->getName(), Mapper::of($annotations->get("association", 1, null)), $method));
+                $this->addAssociation(new MethodAssociation($annotations->get("association", 0, $method->getName()), Entity::mapper($annotations->get("association", 2, null)), $method, $annotations->get("association", 3, null)));
             }
         }
     }

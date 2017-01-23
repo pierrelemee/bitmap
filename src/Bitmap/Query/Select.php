@@ -26,7 +26,8 @@ class Select
     public function where($field, $operation, $value)
     {
         $this->where[] = sprintf(
-            "%s %s %s",
+            "`%s`.`%s` %s %s",
+            $this->mapper->getTable(),
             $this->mapper->getField($field)->getColumn(),
             $operation,
             $this->mapper->getField($field)->getTransformer()->fromObject($value)
@@ -41,7 +42,8 @@ class Select
      */
     public function one($connection = null)
     {
-        $stmt = Bitmap::connection($connection)->query($this->sql(), PDO::FETCH_ASSOC);
+        $sql = $this->sql();
+        $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
 
         if (false !== $stmt) {
             if (false !== ($data = $stmt->fetch())) {
@@ -53,8 +55,8 @@ class Select
 
     public function all($connection = null)
     {
-        $stmt = Bitmap::connection($connection)->query($this->sql(), PDO::FETCH_ASSOC);
-
+        $sql = $this->sql();
+        $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
         $entities = [];
 
         if (false !== $stmt) {
@@ -67,6 +69,10 @@ class Select
 
     protected function sql()
     {
-        return sprintf("select * from %s %s", $this->mapper->getTable(), sizeof($this->where) > 0 ? " where " . implode(" and ", $this->where) : "");
+        return sprintf("select %s from %s %s",
+            implode(", ", $this->mapper->fieldNames()),
+            $this->mapper->getTable() . (implode(" ", $this->mapper->associationNames())),
+            sizeof($this->where) > 0 ? " where " . implode(" and ", $this->where) : ""
+        );
     }
 }

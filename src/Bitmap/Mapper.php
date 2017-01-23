@@ -112,9 +112,52 @@ class Mapper
         return $this->fieldsByColumn[$column];
     }
 
+    public function fieldNames()
+    {
+        $fields = [];
+        foreach ($this->fieldsByName as $field) {
+            $fields[] = $this->fieldName($field);
+        }
+
+        foreach ($this->associations as $association) {
+            foreach ($association->getMapper()->fieldNames() as $name) {
+                $fields[] = $name;
+            }
+        }
+
+        return $fields;
+    }
+
+    public function fieldName(Field $field)
+    {
+        return sprintf("`%s`.`%s` as `%s.%s`", $this->table, $field->getColumn(), $this->table, $field->getColumn());
+    }
+
     public function addAssociation(Association $association)
     {
         $this->associations[$association->getName()] = $association;
+    }
+
+    public function associationNames()
+    {
+        $associations = [];
+        foreach ($this->associations as $association) {
+            $associations[] = $this->associationName($association);
+        }
+
+        return $associations;
+    }
+
+    public function associationName(Association $association)
+    {
+        return sprintf(
+            " inner join `%s` on `%s`.`%s` = `%s`.`%s`",
+            $association->getMapper()->getTable(),
+            $this->table,
+            $association->getName(),
+            $association->getMapper()->getTable(),
+            $association->getTarget()
+        );
     }
 
     /**

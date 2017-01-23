@@ -11,9 +11,9 @@ class MethodAssociation extends Association
 {
     protected $method;
 
-    public function __construct($name, Mapper $mapper, ReflectionMethod $method)
+    public function __construct($name, Mapper $mapper, ReflectionMethod $method, $target)
     {
-        parent::__construct($name, $mapper);
+        parent::__construct($name, $mapper, $target);
         $this->method = $method;
     }
 

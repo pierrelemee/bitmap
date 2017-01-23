@@ -11,9 +11,9 @@ class PropertyAssociation extends Association
 {
     protected $property;
 
-    public function __construct($name, Mapper $mapper, ReflectionProperty $property)
+    public function __construct($name, Mapper $mapper, ReflectionProperty $property, $target)
     {
-        parent::__construct($name, $mapper);
+        parent::__construct($name, $mapper, $target);
         $this->property = $property;
     }
 
