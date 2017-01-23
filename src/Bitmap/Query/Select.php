@@ -38,9 +38,11 @@ class Select
 
     /**
      * @param null $connection
+     * @with array
+     *
      * @return Entity|null
      */
-    public function one($connection = null)
+    public function one($connection = null, $with = null)
     {
         $sql = $this->sql();
         $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);

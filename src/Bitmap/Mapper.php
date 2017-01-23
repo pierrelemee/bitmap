@@ -249,9 +249,22 @@ class Mapper
      */
     public function load(array $data)
     {
+        // Split data
+        $values = [];
+
+        foreach ($data as $key => $value) {
+            if (false !== ($index = strpos($key, "."))) {
+                $table = substr($key, 0, $index);
+                if (!isset($values[$table])) {
+                    $values[$table] = [];
+                }
+                $values[$table][substr($key, $index + 1)] = $value;
+            }
+        }
+
         /** @var $entity Entity */
         $entity = new $this->class();
-        foreach ($data as $key => $value) {
+        foreach ($values[$this->table] as $key => $value) {
             if ($this->hasFieldByColumn($key)) {
                 $this->getFieldByColumn($key)->set($entity, $value);
             }
@@ -260,19 +273,7 @@ class Mapper
         foreach ($this->associations as $association) {
             // Find all fields prefixed (e.g. "<association>.*")
             $prefix = $association->getName();
-            $association->set(
-                $entity,
-                array_map(
-                    function ($element) use ($prefix) {
-                        return substr($element, strlen($prefix) + 1);
-                    },
-                    array_filter($data,
-                        function($element) use ($prefix) {
-                            return strpos($element, $prefix . ".") === 0;
-                        }
-                    )
-                )
-            );
+            $association->set($entity, $data);
         }
 
         $entity->setBitmapHash($this->hash($entity));
