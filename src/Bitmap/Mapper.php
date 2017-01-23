@@ -247,20 +247,25 @@ class Mapper
      * @param array $data
      * @return Entity
      */
-    public function load(array $data)
+    public function load(array $data, $with = null)
     {
-        // Split data
-        $values = [];
+        if (null !== $with) {
+            // Split data
+            $values = [];
 
-        foreach ($data as $key => $value) {
-            if (false !== ($index = strpos($key, "."))) {
-                $table = substr($key, 0, $index);
-                if (!isset($values[$table])) {
-                    $values[$table] = [];
+            foreach ($data as $key => $value) {
+                if (false !== ($index = strpos($key, "."))) {
+                    $table = substr($key, 0, $index);
+                    if (!isset($values[$table])) {
+                        $values[$table] = [];
+                    }
+                    $values[$table][substr($key, $index + 1)] = $value;
                 }
-                $values[$table][substr($key, $index + 1)] = $value;
             }
+        } else {
+            $values = [$this->table => $data];
         }
+
 
         /** @var $entity Entity */
         $entity = new $this->class();

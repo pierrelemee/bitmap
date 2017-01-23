@@ -42,20 +42,20 @@ class Select
      *
      * @return Entity|null
      */
-    public function one($connection = null, $with = null)
+    public function one($connection = null, $with = [])
     {
         $sql = $this->sql();
         $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
 
         if (false !== $stmt) {
             if (false !== ($data = $stmt->fetch())) {
-                return $this->mapper->load($data);
+                return $this->mapper->load($data, $with);
             }
         }
         return null;
     }
 
-    public function all($connection = null)
+    public function all($connection = null, $with = [])
     {
         $sql = $this->sql();
         $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
@@ -63,7 +63,7 @@ class Select
 
         if (false !== $stmt) {
             while (false !== ($data = $stmt->fetch())) {
-                $entities[] = $this->mapper->load($data);
+                $entities[] = $this->mapper->load($data, $with);
             }
         }
         return $entities;
