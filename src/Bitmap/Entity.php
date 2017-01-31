@@ -26,7 +26,7 @@ abstract class Entity
     /**
      * @return Mapper
      */
-    protected function getMapper()
+    public function getMapper()
     {
         return AnnotationMapper::of($this);
     }

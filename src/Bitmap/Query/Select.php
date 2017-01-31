@@ -7,14 +7,13 @@ use Bitmap\Mapper;
 use Bitmap\Entity;
 use PDO;
 
-class Select
+class Select extends Query
 {
-    protected $mapper;
     protected $where;
 
     public function __construct(Mapper $mapper)
     {
-        $this->mapper = $mapper;
+        parent::__construct($mapper);
         $this->where = [];
     }
 
@@ -44,8 +43,7 @@ class Select
      */
     public function one($connection = null, $with = [])
     {
-        $sql = $this->sql();
-        $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
+        $stmt = Bitmap::connection($connection)->query($this->sql(), PDO::FETCH_ASSOC);
 
         if (false !== $stmt) {
             if (false !== ($data = $stmt->fetch())) {
@@ -57,8 +55,7 @@ class Select
 
     public function all($connection = null, $with = [])
     {
-        $sql = $this->sql();
-        $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
+        $stmt = Bitmap::connection($connection)->query($this->sql(), PDO::FETCH_ASSOC);
         $entities = [];
 
         if (false !== $stmt) {
@@ -69,7 +66,7 @@ class Select
         return $entities;
     }
 
-    protected function sql()
+    public function sql()
     {
         return sprintf("select %s from %s %s",
             implode(", ", $this->mapper->fieldNames()),

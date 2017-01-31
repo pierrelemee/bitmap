@@ -2,6 +2,7 @@
 
 namespace Bitmap;
 
+use Bitmap\Query\Delete;
 use Exception;
 
 class Mapper
@@ -55,6 +56,22 @@ class Mapper
     public function getClass()
     {
         return $this->class;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasPrimary()
+    {
+        return null !== $this->primary;
+    }
+
+    /**
+     * @return Field
+     */
+    public function getPrimary()
+    {
+        return $this->primary;
     }
 
     /**
@@ -224,20 +241,10 @@ class Mapper
         throw new Exception("No primary declared for class {$this->class}");
     }
 
-    protected function deleteQuery(Entity $entity)
-    {
-        return sprintf(
-            "delete from `%s` where `%s` = %s",
-            $this->table,
-            $this->primary->getName(),
-            $this->primary->get($entity)
-        );
-    }
-
     public function delete(Entity $entity, $connection = null)
     {
-        if (null !== $this->primary) {
-            return Bitmap::connection($connection)->exec($this->deleteQuery($entity)) > 0;
+        if ($this->hasPrimary()) {
+            return Bitmap::connection($connection)->exec(Delete::fromEntity($entity)->sql()) > 0;
         }
 
         throw new Exception("No primary declared for class {$this->class}");

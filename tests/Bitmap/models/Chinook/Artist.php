@@ -14,7 +14,7 @@ class Artist extends Entity
     protected $ArtistId;
     public $Name;
 
-    protected function getMapper()
+    public function getMapper()
     {
         $reflection = new ReflectionClass(__CLASS__);
         return Mapper::of(get_class($this))
