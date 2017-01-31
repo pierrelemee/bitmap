@@ -3,6 +3,7 @@
 namespace Bitmap;
 
 use Bitmap\Query\Delete;
+use Bitmap\Query\Update;
 use Exception;
 
 class Mapper
@@ -179,8 +180,9 @@ class Mapper
 
     /**
      *
+     * @return array
      */
-    protected function values(Entity $entity)
+    public function values(Entity $entity)
     {
         $values = [];
         foreach ($this->fieldsByName as $field) {
@@ -188,17 +190,6 @@ class Mapper
         }
 
         return $values;
-    }
-
-    protected function sqlValues(array $values, $delimiter = ", ")
-    {
-        $sql = [];
-
-        foreach ($values as $name => $value) {
-            $sql[] = sprintf("`%s` = %s", $name, $value);
-        }
-
-        return implode($delimiter, $sql);
     }
 
     public function hash(Entity $entity)
@@ -221,21 +212,10 @@ class Mapper
         return Bitmap::connection($connection)->exec($this->insertQuery($entity)) > 0;
     }
 
-    protected function updateQuery(Entity $entity)
-    {
-        return sprintf(
-            "update `%s` set %s where `%s` = %s",
-            $this->table,
-            $this->sqlValues($this->values($entity)),
-            $this->primary->getName(),
-            $this->primary->get($entity)
-        );
-    }
-
     public function update(Entity $entity, $connection = null)
     {
         if (null !== $this->primary) {
-            return Bitmap::connection($connection)->exec($this->updateQuery($entity)) > 0;
+            return Bitmap::connection($connection)->exec(Update::fromEntity($entity)->sql()) > 0;
         }
 
         throw new Exception("No primary declared for class {$this->class}");
