@@ -3,6 +3,7 @@
 namespace Bitmap;
 
 use Bitmap\Query\Delete;
+use Bitmap\Query\Insert;
 use Bitmap\Query\Update;
 use Exception;
 
@@ -197,19 +198,9 @@ class Mapper
         return sha1(implode(":", array_values($this->values($entity))));
     }
 
-    protected function insertQuery(Entity $entity)
-    {
-        return sprintf(
-            "insert into `%s` (%s) values (%s)",
-            $this->table,
-            implode(", ", array_keys($this->fieldsByColumn)),
-            implode(", ", $this->values($entity))
-        );
-    }
-
     public function insert(Entity $entity, $connection = null)
     {
-        return Bitmap::connection($connection)->exec($this->insertQuery($entity)) > 0;
+        return Bitmap::connection($connection)->exec(Insert::fromEntity($entity)->sql()) > 0;
     }
 
     public function update(Entity $entity, $connection = null)
