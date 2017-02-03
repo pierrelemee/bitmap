@@ -3,6 +3,7 @@
 namespace Bitmap\Query;
 
 use Bitmap\Mapper;
+use PDO;
 
 abstract class Query
 {
@@ -14,6 +15,8 @@ abstract class Query
     {
         $this->mapper = $mapper;
     }
+
+    public abstract function execute(PDO $connection);
 
     public abstract function sql();
 

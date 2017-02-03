@@ -4,7 +4,7 @@ namespace Bitmap\Query;
 
 use Bitmap\Entity;
 
-class Update extends Query
+class Update extends ExecQuery
 {
     protected $entity;
 

@@ -37,25 +37,32 @@ class Select extends Query
 
     /**
      * @param null $connection
-     * @with array
+     * @param array $with
      *
      * @return Entity|null
      */
     public function one($connection = null, $with = [])
     {
-        $stmt = Bitmap::connection($connection)->query($this->sql(), PDO::FETCH_ASSOC);
+        $stmt = $this->execute(Bitmap::connection($connection));
 
         if (false !== $stmt) {
             if (false !== ($data = $stmt->fetch())) {
                 return $this->mapper->load($data, $with);
             }
         }
+
         return null;
     }
 
+    /**
+     * @param null $connection
+     * @param array $with
+     *
+     * @return Entity[]
+     */
     public function all($connection = null, $with = [])
     {
-        $stmt = Bitmap::connection($connection)->query($this->sql(), PDO::FETCH_ASSOC);
+        $stmt = $this->execute(Bitmap::connection($connection));
         $entities = [];
 
         if (false !== $stmt) {
@@ -63,8 +70,15 @@ class Select extends Query
                 $entities[] = $this->mapper->load($data, $with);
             }
         }
+
         return $entities;
     }
+
+    public function execute(PDO $connection)
+    {
+        return $connection->query($this->sql(), PDO::FETCH_ASSOC);
+    }
+
 
     public function sql()
     {
