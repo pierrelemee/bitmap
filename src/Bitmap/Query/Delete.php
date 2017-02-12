@@ -4,7 +4,7 @@ namespace Bitmap\Query;
 
 use Bitmap\Entity;
 
-class Delete extends ExecQuery
+class Delete extends ModifyQuery
 {
     protected $entity;
 

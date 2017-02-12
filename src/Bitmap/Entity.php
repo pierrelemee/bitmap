@@ -2,6 +2,7 @@
 
 namespace Bitmap;
 
+use Bitmap\Query\RawSelectQuery;
 use Bitmap\Query\Select;
 use PDO;
 use Bitmap\Mappers\AnnotationMapper;
@@ -43,6 +44,11 @@ abstract class Entity
     public static function select()
     {
         return new Select(self::mapper(get_called_class()));
+    }
+
+    public static function query($sql)
+    {
+        return new RawSelectQuery(self::mapper(get_called_class()), $sql);
     }
 
     /**

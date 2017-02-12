@@ -39,9 +39,9 @@ abstract class Association
         return $this->target;
     }
 
-    public function set(Entity $entity, array $values)
+    public function set(Entity $entity, array $values, FieldMappingStrategy $strategy)
     {
-        $this->setValue($entity, $this->mapper->load($values));
+        $this->setValue($entity, $this->mapper->load($values, $strategy));
     }
 
     protected abstract function setValue(Entity $entity, Entity $associated);

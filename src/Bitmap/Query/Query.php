@@ -18,6 +18,9 @@ abstract class Query
 
     public abstract function execute(PDO $connection);
 
+    /**
+     * @return string
+     */
     public abstract function sql();
 
     protected function sqlValues(array $values, $delimiter = self::VALUES_LIST_DELIMITER)

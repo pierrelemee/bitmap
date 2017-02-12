@@ -4,7 +4,7 @@ namespace Bitmap\Query;
 
 use PDO;
 
-abstract class ExecQuery extends Query
+abstract class ModifyQuery extends Query
 {
     public function execute(PDO $connection)
     {

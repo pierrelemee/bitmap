@@ -131,6 +131,11 @@ class Mapper
         return $this->fieldsByColumn[$column];
     }
 
+    public function getFields()
+    {
+        return $this->fieldsByName;
+    }
+
     public function fieldNames()
     {
         $fields = [];
@@ -150,6 +155,14 @@ class Mapper
     public function fieldName(Field $field)
     {
         return sprintf("`%s`.`%s` as `%s.%s`", $this->table, $field->getColumn(), $this->table, $field->getColumn());
+    }
+
+    /**
+     * @return Association[]
+     */
+    public function associations()
+    {
+        return $this->associations;
     }
 
     public function addAssociation(Association $association)
@@ -177,6 +190,11 @@ class Mapper
             $association->getMapper()->getTable(),
             $association->getTarget()
         );
+    }
+
+    public function createEntity()
+    {
+        return new $this->class();
     }
 
     /**
@@ -223,27 +241,13 @@ class Mapper
 
     /**
      * @param array $data
+     * @param FieldMappingStrategy $strategy
+     *
      * @return Entity
      */
-    public function load(array $data, $with = null)
+    public function load(array $data, FieldMappingStrategy $strategy)
     {
-        if (null !== $with) {
-            // Split data
-            $values = [];
-
-            foreach ($data as $key => $value) {
-                if (false !== ($index = strpos($key, "."))) {
-                    $table = substr($key, 0, $index);
-                    if (!isset($values[$table])) {
-                        $values[$table] = [];
-                    }
-                    $values[$table][substr($key, $index + 1)] = $value;
-                }
-            }
-        } else {
-            $values = [$this->table => $data];
-        }
-
+        $values = $strategy->map($data);
 
         /** @var $entity Entity */
         $entity = new $this->class();
@@ -254,9 +258,9 @@ class Mapper
         }
 
         foreach ($this->associations as $association) {
-            // Find all fields prefixed (e.g. "<association>.*")
-            $prefix = $association->getName();
-            $association->set($entity, $data);
+            if (isset($values[$association->getMapper()->getTable()])) {
+                $association->set($entity, $data, $strategy);
+            }
         }
 
         $entity->setBitmapHash($this->hash($entity));

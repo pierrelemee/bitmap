@@ -3,11 +3,10 @@
 namespace Bitmap\Query;
 
 use Bitmap\Bitmap;
+use Bitmap\Strategies\PrefixStrategy;
 use Bitmap\Mapper;
-use Bitmap\Entity;
-use PDO;
 
-class Select extends Query
+class Select extends RetrieveQuery
 {
     protected $where;
 
@@ -15,6 +14,11 @@ class Select extends Query
     {
         parent::__construct($mapper);
         $this->where = [];
+    }
+
+    protected function fieldMappingStrategy()
+    {
+        return PrefixStrategy::of($this->mapper);
     }
 
     public static function fromClass($class)
@@ -34,51 +38,6 @@ class Select extends Query
 
         return $this;
     }
-
-    /**
-     * @param null $connection
-     * @param array $with
-     *
-     * @return Entity|null
-     */
-    public function one($connection = null, $with = [])
-    {
-        $stmt = $this->execute(Bitmap::connection($connection));
-
-        if (false !== $stmt) {
-            if (false !== ($data = $stmt->fetch())) {
-                return $this->mapper->load($data, $with);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param null $connection
-     * @param array $with
-     *
-     * @return Entity[]
-     */
-    public function all($connection = null, $with = [])
-    {
-        $stmt = $this->execute(Bitmap::connection($connection));
-        $entities = [];
-
-        if (false !== $stmt) {
-            while (false !== ($data = $stmt->fetch())) {
-                $entities[] = $this->mapper->load($data, $with);
-            }
-        }
-
-        return $entities;
-    }
-
-    public function execute(PDO $connection)
-    {
-        return $connection->query($this->sql(), PDO::FETCH_ASSOC);
-    }
-
 
     public function sql()
     {
