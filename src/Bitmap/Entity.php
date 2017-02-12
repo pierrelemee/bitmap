@@ -52,47 +52,6 @@ abstract class Entity
     }
 
     /**
-     * @param string $sql
-     * @param string $connection
-     *
-     * @return Entity[]
-     */
-    public static function find($sql, $connection = null)
-    {
-        $mapper = self::mapper(get_called_class());
-        $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
-
-        $entities = [];
-
-        if (false !== $stmt) {
-            while (false !== ($data = $stmt->fetch())) {
-                $entities[] = $mapper->load($data);
-            }
-        }
-        return $entities;
-    }
-
-    /**
-     * @param string $sql
-     * @param string $connection
-     *
-     * @return Entity
-     */
-    public static function findOne($sql, $connection = null)
-    {
-        $class = get_called_class();
-        if (!Bitmap::hasMapper(get_called_class())) {
-            Bitmap::addMapper((new $class())->getMapper());
-        }
-        $stmt = Bitmap::connection($connection)->query($sql, PDO::FETCH_ASSOC);
-
-        if (false !== $stmt && false !== ($data = $stmt->fetch())) {
-            return Bitmap::getMapper($class)->load($data);
-        }
-        return null;
-    }
-
-    /**
      *
      * @param $connection string the name of the connection to use
      *

@@ -63,7 +63,7 @@ abstract class RetrieveQuery extends Query
 
         if (false !== $stmt) {
             while (false !== ($data = $stmt->fetch())) {
-                $entities[] = $this->mapper->load($data, $with);
+                $entities[] = $this->mapper->load($data, $this->strategy);
             }
         }
 

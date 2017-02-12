@@ -29,9 +29,9 @@ class EntityTest extends TestCase
         Bitmap::connection(self::CONNECTION_NAME)->rollBack();
     }
 
-    public function getArtistById()
+    public function testGetArtistById()
     {
-        $artist = Artist::find(sprintf('select * from `Artist` where id = %d', 94));
+        $artist = Artist::query(sprintf('select * from `Artist` where ArtistId = %d', 94))->one();
 
         $this->assertNotNull($artist);
         $this->assertSame('Jimi Hendrix', $artist->Name);
@@ -39,7 +39,7 @@ class EntityTest extends TestCase
 
     public function testGetArtists()
     {
-        $artists = Artist::find('select * from `Artist` where name like "The%"');
+        $artists = Artist::query('select * from `Artist` where `Name` like "The%"')->all();
 
         $expected = [
             137 => 'The Black Crowes',
@@ -68,7 +68,7 @@ class EntityTest extends TestCase
 
     public function testGetAlbumById()
     {
-        $album = Album::findOne(sprintf('select * from `Album` where AlbumId = %d', 275));
+        $album = Album::query(sprintf('select * from `Album` where AlbumId = %d', 275))->one();
 
         $this->assertNotNull($album);
         $this->assertSame('Vivaldi: The Four Seasons', $album->getTitle());
@@ -87,7 +87,7 @@ class EntityTest extends TestCase
 
     public function testUpdateArtist()
     {
-        $artist = Artist::findOne(sprintf("select * from Artist where ArtistId = %d", 179));
+        $artist = Artist::query(sprintf("select * from Artist where ArtistId = %d", 179))->one();
         // "Scorptions" in database
         $artist->Name = "The Scorpions";
         $this->assertTrue($artist->save());
@@ -98,7 +98,7 @@ class EntityTest extends TestCase
 
     public function testDeleteArtist()
     {
-        $artist = Artist::findOne(sprintf("select * from Artist where ArtistId = %d", 166));
+        $artist = Artist::query(sprintf("select * from Artist where ArtistId = %d", 166))->one();
         // "Avril Lavigne" in database
         $this->assertTrue($artist->delete());
 
