@@ -81,6 +81,7 @@ class EntityTest extends TestCase
         $artist->Name = 'Radiohead';
 
         $this->assertTrue($artist->save());
+        $this->assertNotNull($artist->getArtistId());
 
         $this->assertEquals(276, Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }

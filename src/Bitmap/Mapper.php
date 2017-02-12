@@ -218,7 +218,14 @@ class Mapper
 
     public function insert(Entity $entity, $connection = null)
     {
-        return Bitmap::connection($connection)->exec(Insert::fromEntity($entity)->sql()) > 0;
+        $count = Bitmap::connection($connection)->exec(Insert::fromEntity($entity)->sql());
+
+        if ($count  > 0) {
+            $this->primary->set($entity, Bitmap::connection($connection)->lastInsertId());
+            return true;
+        }
+
+        return false;
     }
 
     public function update(Entity $entity, $connection = null)
