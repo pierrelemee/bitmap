@@ -119,6 +119,19 @@ class EntityTest extends TestCase
         $this->assertEquals(275, Bitmap::connection('chinook')->query('select count(*) as `total` from `Artist`')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
 
+    public function testUpdateTrackWithNewGenre()
+    {
+        $genre = new Genre();
+        $genre->setName("Funk");
+        $track = Track::select()->where("id", "=", 2555)->one();
+        $track->setGenre($genre);
+
+        $this->assertTrue($track->save());
+        $this->assertNotNull($track->getGenre()->getId());
+
+        $this->assertEquals(26, Bitmap::connection('chinook')->query("select count(*) as `total` from `Genre`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+    }
+
     public function testDeleteArtist()
     {
         $artist = Artist::query(sprintf("select * from Artist where ArtistId = %d", 166))->one();
