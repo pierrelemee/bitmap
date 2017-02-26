@@ -113,7 +113,7 @@ class Track extends Entity
     }
 
     /**
-     * @param MediaType $media
+     * @param $media
      */
     public function setMedia($media)
     {

@@ -35,9 +35,7 @@ class Insert extends ModifyQuery
             if (null !== $value) {
                 $values[$field->getColumn()] = $value;
             } else {
-                if ($field->isIncremented() || $field->hasDefault()) {
-                    $values[$field->getColumn()] = "default";
-                } else {
+                if (!$field->isIncremented() || !$field->hasDefault()) {
                     $values[$field->getColumn()] = "null";
                 }
             }

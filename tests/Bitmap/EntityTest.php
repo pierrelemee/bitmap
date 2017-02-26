@@ -4,8 +4,10 @@ namespace Bitmap;
 
 use Chinook\Album;
 use Chinook\Artist;
+use Chinook\Track;
+use Chinook\Genre;
+use Chinook\MediaType;
 use PHPUnit\Framework\TestCase;
-use Bitmap\Bitmap;
 use PDO;
 
 class EntityTest extends TestCase
@@ -84,6 +86,26 @@ class EntityTest extends TestCase
         $this->assertNotNull($artist->getArtistId());
 
         $this->assertEquals(276, Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+    }
+
+    public function testAddNewTrackAndGenre()
+    {
+        $genre = new Genre();
+        $genre->setName("Funk");
+        $track = new Track();
+        $track->setName("B.Y.O.B. (funk version)");
+        $track->setUnitPrice(0.99);
+        $track->setBytes(4365405);
+        $track->setComposer("Tankian, Serj");
+        $track->setMilliseconds(217886);
+        $track->setGenre($genre);
+        $track->setMedia(MediaType::select()->where("id", "=", 1)->one());
+
+        $this->assertTrue($track->save());
+        $this->assertNotNull($track->getId());
+        $this->assertNotNull($track->getGenre()->getId());
+
+        $this->assertEquals(26, Bitmap::connection('chinook')->query("select count(*) as `total` from `Genre`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
 
     public function testUpdateArtist()
