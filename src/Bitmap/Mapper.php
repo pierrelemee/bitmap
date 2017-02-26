@@ -244,7 +244,15 @@ class Mapper
     public function update(Entity $entity, $connection = null)
     {
         if (null !== $this->primary) {
-            return Bitmap::connection($connection)->exec(Update::fromEntity($entity)->sql()) > 0;
+
+            // Save all associated entities first:
+            foreach ($this->associations as $association) {
+                $association->get($entity)->save();
+            }
+
+            $sql = Update::fromEntity($entity)->sql();
+            $count = Bitmap::connection($connection)->exec($sql);
+            return $count > 0;
         }
 
         throw new Exception("No primary declared for class {$this->class}");

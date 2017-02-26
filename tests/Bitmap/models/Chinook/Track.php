@@ -3,7 +3,7 @@
 namespace Chinook;
 
 use Bitmap\Entity;
-use Bitmap\Models\Chinook\MediaType;
+use Chinook\MediaType;
 use Chinook\Genre;
 
 class Track extends Entity

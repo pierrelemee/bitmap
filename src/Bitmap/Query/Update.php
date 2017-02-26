@@ -4,15 +4,9 @@ namespace Bitmap\Query;
 
 use Bitmap\Entity;
 
-class Update extends ModifyQuery
+class Update extends ModifyEntityQuery
 {
-    protected $entity;
-
-    public function __construct(Entity $entity)
-    {
-        parent::__construct($entity->getMapper());
-        $this->entity = $entity;
-    }
+    const VALUES_LIST_DELIMITER = ", ";
 
     /**
      * @{@inheritdoc}
@@ -25,14 +19,24 @@ class Update extends ModifyQuery
         return new Update($entity);
     }
 
+    protected function fieldValues()
+    {
+        $sql = [];
+
+        foreach (parent::fieldValues() as $name => $value) {
+            $sql[] = sprintf("`%s` = %s", $name, $value);
+        }
+
+        return implode(self::VALUES_LIST_DELIMITER, $sql);
+    }
 
     public function sql()
     {
         return sprintf(
             "update `%s` set %s where `%s` = %s",
             $this->mapper->getTable(),
-            $this->sqlValues($this->mapper->values($this->entity)),
-            $this->mapper->getPrimary()->getName(),
+            $this->fieldValues(),
+            $this->mapper->getPrimary()->getColumn(),
             $this->mapper->getPrimary()->get($this->entity)
         );
     }

@@ -2,6 +2,7 @@
 
 namespace Bitmap\Query;
 
+use Bitmap\Entity;
 use PDO;
 
 abstract class ModifyQuery extends Query
