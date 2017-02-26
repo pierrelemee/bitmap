@@ -216,12 +216,25 @@ class Mapper
         return sha1(implode(":", array_values($this->values($entity))));
     }
 
+    /**
+     * @param Entity $entity
+     * @param null $connection
+     * @return bool
+     */
     public function insert(Entity $entity, $connection = null)
     {
-        $count = Bitmap::connection($connection)->exec(Insert::fromEntity($entity)->sql());
+        // Save all associated entities first:
+        foreach ($this->associations as $association) {
+            $association->get($entity)->save();
+        }
+
+        $sql = Insert::fromEntity($entity)->sql();
+        $count = Bitmap::connection($connection)->exec($sql);
 
         if ($count  > 0) {
-            $this->primary->set($entity, Bitmap::connection($connection)->lastInsertId());
+            if ($this->hasPrimary()) {
+                $this->primary->set($entity, Bitmap::connection($connection)->lastInsertId());
+            }
             return true;
         }
 

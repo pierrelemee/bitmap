@@ -17,7 +17,12 @@ class PropertyAssociation extends Association
         $this->property = $property;
     }
 
-    protected function setValue(Entity $entity, Entity $associated)
+    protected function getEntity(Entity $entity)
+    {
+        return $this->property->getValue($entity);
+    }
+
+    protected function setEntity(Entity $entity, Entity $associated)
     {
         $this->property->setValue($associated);
     }

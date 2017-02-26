@@ -67,6 +67,14 @@ abstract class Field
     }
 
     /**
+     * @return boolean
+     */
+    public function isIncremented()
+    {
+        return $this->incremented;
+    }
+
+    /**
      * @param bool $incremented
      *
      * @return Field
@@ -78,6 +86,14 @@ abstract class Field
     }
 
     /**
+     * @return boolean
+     */
+    public function isNullable()
+    {
+        return $this->nullable;
+    }
+
+    /**
      * @param bool $nullable
      *
      * @return Field
@@ -86,6 +102,22 @@ abstract class Field
     {
         $this->nullable = $nullable;
         return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasDefault()
+    {
+        return null !== $this->default;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefault()
+    {
+        return $this->default;
     }
 
     /**
@@ -101,7 +133,7 @@ abstract class Field
 
     public function get(Entity $entity)
     {
-        return $this->transformer->fromObject($this->getValue($entity)) ? : ($this->nullable ? "null" : $this->default);
+        return $this->transformer->fromObject($this->getValue($entity));
     }
 
     public abstract function getValue(Entity $entity);

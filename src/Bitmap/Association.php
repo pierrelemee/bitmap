@@ -39,10 +39,25 @@ abstract class Association
         return $this->target;
     }
 
-    public function set(Entity $entity, array $values, FieldMappingStrategy $strategy)
+    /**
+     * @param Entity $entity
+     *
+     * @return Entity
+     */
+    public function get(Entity $entity)
     {
-        $this->setValue($entity, $this->mapper->load($values, $strategy));
+        return $this->getEntity($entity);
     }
 
-    protected abstract function setValue(Entity $entity, Entity $associated);
+    /**
+     * @param Entity $entity
+     */
+    protected abstract function getEntity(Entity $entity);
+
+    public function set(Entity $entity, array $values, FieldMappingStrategy $strategy)
+    {
+        $this->setEntity($entity, $this->mapper->load($values, $strategy));
+    }
+
+    protected abstract function setEntity(Entity $entity, Entity $associated);
 }

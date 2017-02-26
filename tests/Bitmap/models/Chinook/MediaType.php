@@ -4,10 +4,10 @@ namespace Chinook;
 
 use Bitmap\Entity;
 
-class Genre extends Entity
+class MediaType extends Entity
 {
     /**
-     * @field GenreId incremented primary
+     * @field MediaTypeId incremented primary
      * @type integer
      * @var int
      */

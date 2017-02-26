@@ -33,27 +33,33 @@ class AnnotationMapper extends Mapper
             if ($annotations->has('field')) {
                 $column = $annotations->get('field', 0, $property->getName());
                 if ($property->isPublic()) {
-                    $this->addField(
-                        PropertyField::from($property, $column)
-                            ->setTransformer(Bitmap::getTransformer($annotations->get('type', 0, null)))
-                            ->setIncremented(in_array('incremented', array_map('strtolower', $annotations->get('field'))))
-                            ->setNullable(in_array('nullable', array_map('strtolower', $annotations->get('field'))))
-                    );
+                    $field = PropertyField::from($property, $column)
+                        ->setTransformer(Bitmap::getTransformer($annotations->get('type', 0, null)))
+                        ->setIncremented(in_array('incremented', array_map('strtolower', $annotations->get('field'))))
+                        ->setNullable(in_array('nullable', array_map('strtolower', $annotations->get('field'))));
+                    if (in_array('primary', array_map('strtolower', $annotations->get('field')))) {
+                        $this->primary = $field;
+                    }
+                    $this->addField($field);
+
                 } else {
-                    $this->addField(
-                        MethodField::fromClass($property->getName(), $this->reflection, $annotations->get('setter', 0), $column)
-                            ->setTransformer(Bitmap::getTransformer($annotations->get('type', 0, null)))
-                            ->setIncremented(in_array('incremented', array_map('strtolower', $annotations->get('field'))))
-                            ->setNullable(in_array('nullable', array_map('strtolower', $annotations->get('field'))))
-                    );
+                    $field = MethodField::fromClass($property->getName(), $this->reflection, $annotations->get('setter', 0), $column)
+                        ->setTransformer(Bitmap::getTransformer($annotations->get('type', 0, null)))
+                        ->setIncremented(in_array('incremented', array_map('strtolower', $annotations->get('field'))))
+                        ->setNullable(in_array('nullable', array_map('strtolower', $annotations->get('field'))));
+                    if (in_array('primary', array_map('strtolower', $annotations->get('field')))) {
+                        $this->primary = $field;
+                    }
+                    $this->addField($field);
                 }
             } else if ($annotations->has("association")) {
                 $name = $annotations->get('association', 0, $property->getName());
                 if ($property->isPublic()) {
                     $this->addAssociation(new PropertyAssociation($name, Entity::mapper($annotations->get("association", 2, null)), $property, $annotations->get("association", 3, null)));
                 } else {
-                    $method = $this->reflection->getMethod("set" . ucfirst($property->getName()));
-                    $this->addAssociation(new MethodAssociation($name, Entity::mapper($annotations->get("association", 2, null)), $method, $annotations->get("association", 3, null)));
+                    $getter = $this->reflection->getMethod("get" . ucfirst($property->getName()));
+                    $setter = $this->reflection->getMethod("set" . ucfirst($property->getName()));
+                    $this->addAssociation(new MethodAssociation($name, Entity::mapper($annotations->get("association", 2, null)), $getter, $setter, $annotations->get("association", 3, null)));
                 }
             }
         }
@@ -64,25 +70,36 @@ class AnnotationMapper extends Mapper
             if ($annotations->has('field')) {
                 $column = $annotations->get('field', 0, null);
                 if ($annotations->has('setter') && sizeof($annotations->get('setter')) > 0) {
-                    $this->addField(
-                        MethodField::fromMethods(
+                    $field = MethodField::fromMethods(
                             $method->getName(),
                             $method,
                             $this->reflection->getMethod($annotations->get('setter', 0)),
                             $column
                         )
-                    );
+                        ->setTransformer(Bitmap::getTransformer($annotations->get('type', 0, null)))
+                        ->setIncremented(in_array('incremented', array_map('strtolower', $annotations->get('field'))))
+                        ->setNullable(in_array('nullable', array_map('strtolower', $annotations->get('field'))));
+                    if (in_array('primary', array_map('strtolower', $annotations->get('field')))) {
+                        $this->primary = $field;
+                    }
+                    $this->addField($field);
                 } else {
-                    $this->addField(
-                        MethodField::fromMethod(
+                    $field = MethodField::fromMethod(
                             $method->getName(),
                             $method,
                             $column
                         )
-                    );
+                        ->setTransformer(Bitmap::getTransformer($annotations->get('type', 0, null)))
+                        ->setIncremented(in_array('incremented', array_map('strtolower', $annotations->get('field'))))
+                        ->setNullable(in_array('nullable', array_map('strtolower', $annotations->get('field'))));
+                    if (in_array('primary', array_map('strtolower', $annotations->get('field')))) {
+                        $this->primary = $field;
+                    }
+
+                    $this->addField($field);
                 }
             } else if ($annotations->has("association")) {
-                $this->addAssociation(new MethodAssociation($annotations->get("association", 0, $method->getName()), Entity::mapper($annotations->get("association", 2, null)), $method, $annotations->get("association", 3, null)));
+                $this->addAssociation(new MethodAssociation($annotations->get("association", 0, $method->getName()), Entity::mapper($annotations->get("association", 2, null)), $method, MethodField::setterForGetter($method), $annotations->get("association", 3, null)));
             }
         }
     }

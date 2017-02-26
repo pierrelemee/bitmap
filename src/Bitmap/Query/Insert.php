@@ -28,7 +28,31 @@ class Insert extends ModifyQuery
 
     public function sql()
     {
-        $values = $this->mapper->values($this->entity);
+        $values = [];
+        foreach ($this->mapper->getFields() as $name => $field) {
+            $value = $field->get($this->entity);
+
+            if (null !== $value) {
+                $values[$field->getColumn()] = $value;
+            } else {
+                if ($field->isIncremented() || $field->hasDefault()) {
+                    $values[$field->getColumn()] = "default";
+                } else {
+                    $values[$field->getColumn()] = "null";
+                }
+            }
+        }
+
+        foreach ($this->mapper->associations() as $name => $association) {
+            if ($association->getMapper()->hasPrimary()) {
+                $entity = $association->get($this->entity);
+
+                if (null !== $entity) {
+                    $values[$association->getName()] = $association->getMapper()->getPrimary()->get($entity);
+                }
+            }
+        }
+
         return sprintf(
             "insert into `%s` (%s) values (%s)",
             $this->mapper->getTable(),

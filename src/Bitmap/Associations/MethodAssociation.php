@@ -9,17 +9,24 @@ use ReflectionMethod;
 
 class MethodAssociation extends Association
 {
-    protected $method;
+    protected $getter;
+    protected $setter;
 
-    public function __construct($name, Mapper $mapper, ReflectionMethod $method, $target)
+    public function __construct($name, Mapper $mapper, ReflectionMethod $getter, ReflectionMethod $setter, $target)
     {
         parent::__construct($name, $mapper, $target);
-        $this->method = $method;
+        $this->getter = $getter;
+        $this->setter = $setter;
     }
 
-    protected function setValue(Entity $entity, Entity $associated)
+    protected function getEntity(Entity $entity)
     {
-        $this->method->invoke($entity, $associated);
+        return $this->getter->invoke($entity);
+    }
+
+    protected function setEntity(Entity $entity, Entity $associated)
+    {
+        $this->setter->invoke($entity, $associated);
     }
 
 }

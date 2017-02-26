@@ -10,7 +10,7 @@ use Bitmap\Entity;
 class Album extends Entity
 {
     /**
-     * @field AlbumId
+     * @field AlbumId primary
      * @type integer
      * @var int
      */

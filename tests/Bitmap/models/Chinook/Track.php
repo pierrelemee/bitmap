@@ -3,12 +3,13 @@
 namespace Chinook;
 
 use Bitmap\Entity;
+use Bitmap\Models\Chinook\MediaType;
 use Chinook\Genre;
 
 class Track extends Entity
 {
     /**
-     * @field TrackId incremented
+     * @field TrackId incremented primary
      * @type integer
      * @setter setId
      * @var int
@@ -25,6 +26,11 @@ class Track extends Entity
      * @var Genre
      */
     protected $genre;
+    /**
+     * @association MediaTypeId one Chinook\MediaType MediaTypeId
+     * @var MediaType
+     */
+    protected $media;
     /**
      * @field Composer
      * @type string
@@ -96,6 +102,22 @@ class Track extends Entity
     public function setGenre($genre)
     {
         $this->genre = $genre;
+    }
+
+    /**
+     * @return MediaType
+     */
+    public function getMedia()
+    {
+        return $this->media;
+    }
+
+    /**
+     * @param MediaType $media
+     */
+    public function setMedia($media)
+    {
+        $this->media = $media;
     }
 
     /**

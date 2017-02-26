@@ -89,7 +89,7 @@ class EntityTest extends TestCase
     public function testUpdateArtist()
     {
         $artist = Artist::query(sprintf("select * from Artist where ArtistId = %d", 179))->one();
-        // "Scorptions" in database
+        // "Scorpions" in database
         $artist->Name = "The Scorpions";
         $this->assertTrue($artist->save());
 
