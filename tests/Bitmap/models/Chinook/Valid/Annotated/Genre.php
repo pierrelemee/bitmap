@@ -1,9 +1,13 @@
 <?php
 
-namespace Chinook;
+namespace Chinook\Valid\Annotated;
 
 use Bitmap\Entity;
 
+/**
+ * Class Genre
+ * @package Chinook\Valid\Annotated
+ */
 class Genre extends Entity
 {
     /**

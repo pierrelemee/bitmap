@@ -4,8 +4,8 @@ namespace Chinook\Valid\Inline;
 
 use Bitmap\Associations\MethodAssociationOne;
 use Bitmap\Entity;
-use Chinook\MediaType;
-use Chinook\Genre;
+use Chinook\Valid\Inline\MediaType;
+use Chinook\Valid\Inline\Genre;
 use ReflectionClass;
 use Bitmap\Mapper;
 use Bitmap\Bitmap;
@@ -101,7 +101,7 @@ class Track extends Entity
     }
 
     /**
-     * @param Genre $genre
+     * @param \Chinook\Valid\Inline\Genre $genre
      */
     public function setGenre($genre)
     {

@@ -2,11 +2,11 @@
 
 namespace Bitmap;
 
-use Chinook\Album;
-use Chinook\Artist;
-use Chinook\Track;
-use Chinook\Genre;
-use Chinook\MediaType;
+use Chinook\Valid\Inline\Album;
+use Chinook\Valid\Inline\Artist;
+use Chinook\Valid\Inline\Track;
+use Chinook\Valid\Inline\Genre;
+use Chinook\Valid\Inline\MediaType;
 use PHPUnit\Framework\TestCase;
 use PDO;
 
@@ -33,15 +33,16 @@ class EntityTest extends TestCase
 
     public function testGetArtistById()
     {
-        $artist = Artist::query(sprintf('select * from `Artist` where ArtistId = %d', 94))->one();
+        //$artist = Artist::query(sprintf('select * from `Artist` where ArtistId = %d', 94))->one();
+        $artist = Artist::select()->where('id', '=', 94)->one();
 
         $this->assertNotNull($artist);
-        $this->assertSame('Jimi Hendrix', $artist->Name);
+        $this->assertSame('Jimi Hendrix', $artist->name);
     }
 
     public function testGetArtists()
     {
-        $artists = Artist::query('select * from `Artist` where `Name` like "The%"')->all();
+        $artists = Artist::select()->where('name', 'like', 'The%')->all();
 
         $expected = [
             137 => 'The Black Crowes',
@@ -63,18 +64,18 @@ class EntityTest extends TestCase
         $this->assertSameSize($expected, $artists);
 
         foreach ($artists as $artist) {
-            $this->assertArrayHasKey($artist->getArtistId(), $expected);
-            $this->assertEquals($expected[$artist->getArtistId()], $artist->Name);
+            $this->assertArrayHasKey($artist->getId(), $expected);
+            $this->assertEquals($expected[$artist->getId()], $artist->name);
         }
     }
 
     public function testGetAlbumById()
     {
-        $album = Album::query(sprintf('select * from `Album` where AlbumId = %d', 275))->one();
+        $album = Album::select()->where('id', '=', 275)->one();
 
         $this->assertNotNull($album);
         $this->assertSame('Vivaldi: The Four Seasons', $album->getTitle());
-        $this->assertSame(209, $album->getArtistId());
+        $this->assertSame(209, $album->getArtist()->getId());
     }
 
     public function testAddNewArtist()
@@ -83,7 +84,7 @@ class EntityTest extends TestCase
         $artist->Name = 'Radiohead';
 
         $this->assertTrue($artist->save());
-        $this->assertNotNull($artist->getArtistId());
+        $this->assertNotNull($artist->getId());
 
         $this->assertEquals(276, Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
@@ -110,9 +111,9 @@ class EntityTest extends TestCase
 
     public function testUpdateArtist()
     {
-        $artist = Artist::query(sprintf("select * from Artist where ArtistId = %d", 179))->one();
+        $artist = Artist::select()->where('id', '=', 179)->one();
         // "Scorpions" in database
-        $artist->Name = "The Scorpions";
+        $artist->name = "The Scorpions";
         $this->assertTrue($artist->save());
 
         $this->assertEquals(15, Bitmap::connection('chinook')->query('select count(*) as `total` from `Artist` where name like "The%"')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
@@ -134,7 +135,7 @@ class EntityTest extends TestCase
 
     public function testDeleteArtist()
     {
-        $artist = Artist::query(sprintf("select * from Artist where ArtistId = %d", 166))->one();
+        $artist = Artist::select()->where('id', '=', 166)->one();
         // "Avril Lavigne" in database
         $this->assertTrue($artist->delete());
 

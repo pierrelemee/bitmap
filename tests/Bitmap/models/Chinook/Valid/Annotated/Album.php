@@ -1,11 +1,12 @@
 <?php
 
-namespace Chinook;
+namespace Chinook\Valid\Annotated;
 
 use Bitmap\Entity;
+
 /**
  * Class Album
- * @package Bitmap\models\Chinook
+ * @package Chinook\Valid\Annotated
  */
 class Album extends Entity
 {

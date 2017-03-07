@@ -1,48 +1,57 @@
 <?php
 
-namespace Chinook;
+namespace Chinook\Valid\Annotated;
 
-use Bitmap\Bitmap;
 use Bitmap\Entity;
-use Bitmap\Fields\PropertyField;
-use Bitmap\Fields\MethodField;
-use Bitmap\Mapper;
-use ReflectionClass;
 
+/**
+ * Class Artist
+ * @package Chinook\Valid\Annotated
+ */
 class Artist extends Entity
 {
-    protected $ArtistId;
-    public $Name;
-
-    public function getMapper()
-    {
-        $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::of(get_class($this))
-            ->addField(
-                MethodField::fromClass('ArtistId', $reflection)
-                ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER)),
-                true
-            )
-            ->addField(
-                PropertyField::fromClass('Name', $reflection)
-                ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
-            );
-    }
-
+    /**
+     * @field ArtistId primary
+     * @type integer
+     * @var int
+     */
+    protected $id;
+    /**
+     * @field Name
+     * @type string
+     * @var string
+     */
+    protected $name;
 
     /**
      * @return mixed
      */
-    public function getArtistId()
+    public function getId()
     {
-        return $this->ArtistId;
+        return $this->id;
     }
 
     /**
-     * @param mixed $ArtistId
+     * @param mixed $id
      */
-    public function setArtistId($ArtistId)
+    public function setId($id)
     {
-        $this->ArtistId = $ArtistId;
+        $this->id = $id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 }

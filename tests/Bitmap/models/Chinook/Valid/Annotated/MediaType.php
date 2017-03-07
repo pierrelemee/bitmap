@@ -1,9 +1,13 @@
 <?php
 
-namespace Chinook;
+namespace Chinook\Valid\Annotated;
 
 use Bitmap\Entity;
 
+/**
+ * Class MediaType
+ * @package Chinook\Valid\Annotated
+ */
 class MediaType extends Entity
 {
     /**

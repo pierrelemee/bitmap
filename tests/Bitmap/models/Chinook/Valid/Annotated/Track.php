@@ -1,11 +1,15 @@
 <?php
 
-namespace Chinook;
+namespace Chinook\Valid\Annotated;
 
 use Bitmap\Entity;
-use Chinook\MediaType;
-use Chinook\Genre;
+use Chinook\Valid\Annotated\MediaType;
+use Chinook\Valid\Annotated\Genre;
 
+/**
+ * Class Track
+ * @package Chinook\Valid\Annotated
+ */
 class Track extends Entity
 {
     /**
@@ -22,12 +26,12 @@ class Track extends Entity
      */
     protected $name;
     /**
-     * @association GenreId one Chinook\Genre GenreId
+     * @association GenreId one Chinook\Valid\Annotated\Genre GenreId
      * @var Genre
      */
     protected $genre;
     /**
-     * @association MediaTypeId one Chinook\MediaType MediaTypeId
+     * @association MediaTypeId one Chinook\Valid\Annotated\MediaType MediaTypeId
      * @var MediaType
      */
     protected $media;

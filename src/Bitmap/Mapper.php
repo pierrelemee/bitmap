@@ -244,7 +244,8 @@ class Mapper
     public function delete(Entity $entity, $connection = null)
     {
         if ($this->hasPrimary()) {
-            return Bitmap::connection($connection)->exec(Delete::fromEntity($entity)->sql()) > 0;
+            $sql = Delete::fromEntity($entity)->sql();
+            return Bitmap::connection($connection)->exec($sql) > 0;
         }
 
         throw new Exception("No primary declared for class {$this->class}");
@@ -265,6 +266,8 @@ class Mapper
         foreach ($this->associations as $association) {
             $association->set($result, $entity);
         }
+
+        $entity->setBitmapHash($this->hash($entity));
 
         return $entity;
     }
@@ -287,17 +290,12 @@ class Mapper
             foreach ($this->associations as $association) {
                 $association->set($result, $entity);
             }
+
+            $entity->setBitmapHash($this->hash($entity));
             $entities[] = $entity;
         }
 
         return $entities;
-    }
-
-    public function finalize(Entity $entity)
-    {
-        foreach ($this->associations as $association) {
-            $association->set($entity);
-        }
     }
 
     /**

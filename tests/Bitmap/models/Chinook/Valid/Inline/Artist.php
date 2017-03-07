@@ -11,20 +11,20 @@ use ReflectionClass;
 
 class Artist extends Entity
 {
-    protected $ArtistId;
-    public $Name;
+    protected $id;
+    public $name;
 
     public function getMapper()
     {
         $reflection = new ReflectionClass(__CLASS__);
         return Mapper::of(get_class($this))
             ->addField(
-                MethodField::fromClass('ArtistId', $reflection)
+                MethodField::fromMethods('id', $reflection->getMethod('getId'), $reflection->getMethod('setId'), 'ArtistId')
                 ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER)),
                 true
             )
             ->addField(
-                PropertyField::fromClass('Name', $reflection)
+                PropertyField::fromClass('name', $reflection, 'Name')
                 ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
             );
     }
@@ -33,16 +33,16 @@ class Artist extends Entity
     /**
      * @return mixed
      */
-    public function getArtistId()
+    public function getId()
     {
-        return $this->ArtistId;
+        return $this->id;
     }
 
     /**
-     * @param mixed $ArtistId
+     * @param mixed $id
      */
-    public function setArtistId($ArtistId)
+    public function setId($id)
     {
-        $this->ArtistId = $ArtistId;
+        $this->id = $id;
     }
 }
