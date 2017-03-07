@@ -6,6 +6,7 @@ use Bitmap\Query\Delete;
 use Bitmap\Query\Insert;
 use Bitmap\Query\Update;
 use Exception;
+use PDOStatement;
 
 class Mapper
 {
@@ -168,30 +169,12 @@ class Mapper
     public function addAssociation(Association $association)
     {
         $this->associations[$association->getName()] = $association;
+        return $this;
     }
 
-    public function associationNames()
-    {
-        $associations = [];
-        foreach ($this->associations as $association) {
-            $associations[] = $this->associationName($association);
-        }
-
-        return $associations;
-    }
-
-    public function associationName(Association $association)
-    {
-        return sprintf(
-            " inner join `%s` on `%s`.`%s` = `%s`.`%s`",
-            $association->getMapper()->getTable(),
-            $this->table,
-            $association->getName(),
-            $association->getMapper()->getTable(),
-            $association->getTarget()
-        );
-    }
-
+    /**
+     * @return Entity
+     */
     public function createEntity()
     {
         return new $this->class();
@@ -268,32 +251,53 @@ class Mapper
     }
 
     /**
-     * @param array $data
-     * @param FieldMappingStrategy $strategy
+     * @param ResultSet $result
      *
      * @return Entity
      */
-    public function load(array $data, FieldMappingStrategy $strategy)
+    public function loadOne(ResultSet $result)
     {
-        $values = $strategy->map($data);
-
-        /** @var $entity Entity */
-        $entity = new $this->class();
-        foreach ($values[$this->table] as $key => $value) {
-            if ($this->hasFieldByColumn($key)) {
-                $this->getFieldByColumn($key)->set($entity, $value);
-            }
+        $entity = $this->createEntity();
+        foreach ($result->getValuesOneEntity($this) as $name => $value) {
+            $this->fieldsByName[$name]->set($entity, $value);
         }
 
         foreach ($this->associations as $association) {
-            if (isset($values[$association->getMapper()->getTable()])) {
-                $association->set($entity, $data, $strategy);
-            }
+            $association->set($result, $entity);
         }
 
-        $entity->setBitmapHash($this->hash($entity));
-
         return $entity;
+    }
+
+    /**
+     * @param ResultSet $result
+     *
+     * @return Entity[]
+     */
+    public function loadAll(ResultSet $result)
+    {
+        $entities = [];
+
+        foreach ($result->getValuesAllEntity($this) as $data) {
+            $entity = $this->createEntity();
+            foreach ($data as $name => $value) {
+                $this->fieldsByName[$name]->set($entity, $value);
+            }
+
+            foreach ($this->associations as $association) {
+                $association->set($result, $entity);
+            }
+            $entities[] = $entity;
+        }
+
+        return $entities;
+    }
+
+    public function finalize(Entity $entity)
+    {
+        foreach ($this->associations as $association) {
+            $association->set($entity);
+        }
     }
 
     /**

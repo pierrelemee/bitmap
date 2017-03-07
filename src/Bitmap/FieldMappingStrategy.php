@@ -38,7 +38,7 @@ abstract class FieldMappingStrategy
      */
     protected abstract function mapValues(array $result, array $mapping);
 
-    protected abstract function mapping();
+    public abstract function mapping();
 
     public static function of(Mapper $mapper)
     {

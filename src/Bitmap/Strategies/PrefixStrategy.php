@@ -39,7 +39,7 @@ class PrefixStrategy extends FieldMappingStrategy
 
     public function mapping()
     {
-        $mapping = [$this->mapper->getTable() => $this->mapper->fieldNames()];
+        $mapping = [$this->mapper->getTable() => []];
 
         foreach ($this->mapper->associations() as $association) {
             $mapping[$association->getMapper()->getTable()] = $association->getMapper()->fieldNames();

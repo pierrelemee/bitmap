@@ -3,11 +3,13 @@
 namespace Bitmap\Associations;
 
 use Bitmap\Association;
+use Bitmap\AssociationOne;
 use Bitmap\Entity;
 use Bitmap\Mapper;
 use ReflectionMethod;
+use ReflectionClass;
 
-class MethodAssociation extends Association
+class MethodAssociationOne extends AssociationOne
 {
     protected $getter;
     protected $setter;
@@ -29,4 +31,8 @@ class MethodAssociation extends Association
         $this->setter->invoke($entity, $associated);
     }
 
+    public static function fromMethods($name, Mapper $mapper, ReflectionMethod $getter, ReflectionMethod $setter, $column = null)
+    {
+        return new MethodAssociationOne($name, $mapper, $getter, $setter, $column);
+    }
 }

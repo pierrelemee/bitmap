@@ -6,6 +6,7 @@ use Bitmap\Bitmap;
 use Bitmap\Entity;
 use Bitmap\FieldMappingStrategy;
 use Bitmap\Mapper;
+use Bitmap\ResultSet;
 use PDO;
 
 abstract class RetrieveQuery extends Query
@@ -33,40 +34,28 @@ abstract class RetrieveQuery extends Query
 
     /**
      * @param null $connection
-     * @param array $with
      *
      * @return Entity|null
      */
-    public function one($connection = null, $with = [])
+    public function one($connection = null)
     {
+        //$strategy = $strategy ? : $this->fieldMappingStrategy();
         $stmt = $this->execute(Bitmap::connection($connection));
+        $result = new ResultSet($stmt, $this->mapper);
 
-        if (false !== $stmt) {
-            if (false !== ($data = $stmt->fetch())) {
-                return $this->mapper->load($data, $this->strategy);
-            }
-        }
-
-        return null;
+        return $this->mapper->loadOne($result);
     }
 
     /**
      * @param null $connection
-     * @param array $with
      *
      * @return Entity[]
      */
-    public function all($connection = null, $with = [])
+    public function all($connection = null)
     {
         $stmt = $this->execute(Bitmap::connection($connection));
-        $entities = [];
+        $result = new ResultSet($stmt, $this->mapper);
 
-        if (false !== $stmt) {
-            while (false !== ($data = $stmt->fetch())) {
-                $entities[] = $this->mapper->load($data, $this->strategy);
-            }
-        }
-
-        return $entities;
+        return $this->mapper->loadAll($result);
     }
 }

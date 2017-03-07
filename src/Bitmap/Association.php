@@ -31,6 +31,8 @@ abstract class Association
         return $this->mapper;
     }
 
+    public abstract function joinClause(Mapper $left);
+
     /**
      * @return mixed
      */
@@ -42,22 +44,9 @@ abstract class Association
     /**
      * @param Entity $entity
      *
-     * @return Entity
+     * @return mixed
      */
-    public function get(Entity $entity)
-    {
-        return $this->getEntity($entity);
-    }
+    public abstract function get(Entity $entity);
 
-    /**
-     * @param Entity $entity
-     */
-    protected abstract function getEntity(Entity $entity);
-
-    public function set(Entity $entity, array $values, FieldMappingStrategy $strategy)
-    {
-        $this->setEntity($entity, $this->mapper->load($values, $strategy));
-    }
-
-    protected abstract function setEntity(Entity $entity, Entity $associated);
+    public abstract function set(ResultSet $result, Entity $entity);
 }
