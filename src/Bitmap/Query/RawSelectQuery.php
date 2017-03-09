@@ -21,13 +21,20 @@ class RawSelectQuery extends RetrieveQuery
     {
         parent::__construct($mapper);
         $this->sql = $sql;
+        $this->strategy = new GroupStrategy();
     }
 
-    protected function fieldMappingStrategy()
+    /**
+     * @param array $mapping
+     *
+     * @return RawSelectQuery
+     */
+    public function mapping(array $mapping)
     {
-        return GroupStrategy::of($this->mapper);
-    }
+        $this->strategy->setMapping($mapping);
 
+        return $this;
+    }
 
     public function sql()
     {

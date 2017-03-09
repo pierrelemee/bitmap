@@ -2,15 +2,18 @@
 
 namespace Bitmap\Strategies;
 
+use Bitmap\Field;
 use Bitmap\FieldMappingStrategy;
 use Bitmap\Mapper;
 use PDO;
 
 class GroupStrategy extends FieldMappingStrategy
 {
-    public function __construct(Mapper $mapper)
+    protected $mapping;
+
+    public function __construct()
     {
-        parent::__construct($mapper);
+        $this->mapping = [];
     }
 
     public function getPdoFetchingType()
@@ -18,58 +21,33 @@ class GroupStrategy extends FieldMappingStrategy
         return PDO::FETCH_NUM;
     }
 
-    public function mapValues(array $result, array $mapping)
+    public function setMapping(array $mapping)
     {
-        $values = [];
+        $this->mapping = [];
 
-        for ($i = 0; $i < sizeof($result); $i++) {
-            foreach ($mapping as $table => $columns) {
-                foreach ($columns as $name => $index) {
-                    if ($index === $i) {
-                        $values[$table][$name] = $result[$i];
-                        break;
+        foreach ($mapping as $name => $rank) {
+            $this->mapping[$name] = [];
+            if (is_array($rank)) {
+                foreach ($rank as $key => $value) {
+                    if(is_int($key)) {
+                        $this->mapping[$name][$value] = $key;
+                    } else {
+                        $this->mapping[$name][$key] = intval($value);
                     }
+                }
+
+            } else {
+                $index = strpos($name, '.');
+                if (false !== $index) {
+                    $this->mapping[$name][substr($name, 0, $index)] = [substr($name, $index + 1) => $rank];
                 }
             }
         }
-
-        return $values;
     }
 
-    /**
-     * Returns something like
-     * [
-     *      "Artist" =>
-     *          [
-     *              "ArtistId" => 0
-     *              "Name" => 1
-     *          ]
-     *      ,
-     *      "Album" =>
-     *          [
-     *              ...
-     *          ]
-     *      ...
-     * ]
-     *
-     * @return array
-     */
-    public function mapping()
+    public function getFieldLabel(Mapper $mapper, Field $field)
     {
-        $index = 0;
-        $mapping = [];
-
-        foreach ($this->mapper->getFields() as $field) {
-            $mapping[$this->mapper->getTable()][$field->getColumn()] = $index++;
-        }
-
-        foreach ($this->mapper->associations() as $association) {
-            $mapping[$association->getMapper()->getTable()] = [];
-            foreach ($association->getMapper()->getFields() as $field) {
-                $mapping[$association->getMapper()->getTable()][$field->getColumn()] = $index++;
-            }
-        }
-
-        return $mapping;
+        return isset($this->mapping[$mapper->getTable()][$field->getColumn()]) ? $this->mapping[$mapper->getTable()][$field->getColumn()] : null;
     }
+
 }

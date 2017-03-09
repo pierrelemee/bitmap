@@ -137,27 +137,6 @@ class Mapper
         return $this->fieldsByName;
     }
 
-    public function fieldNames()
-    {
-        $fields = [];
-        foreach ($this->fieldsByName as $field) {
-            $fields[] = $this->fieldName($field);
-        }
-
-        foreach ($this->associations as $association) {
-            foreach ($association->getMapper()->fieldNames() as $name) {
-                $fields[] = $name;
-            }
-        }
-
-        return $fields;
-    }
-
-    public function fieldName(Field $field)
-    {
-        return sprintf("`%s`.`%s` as `%s.%s`", $this->table, $field->getColumn(), $this->table, $field->getColumn());
-    }
-
     /**
      * @return Association[]
      */

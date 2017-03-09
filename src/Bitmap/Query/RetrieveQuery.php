@@ -12,14 +12,13 @@ use PDO;
 abstract class RetrieveQuery extends Query
 {
     /**
-     * @var
+     * @var FieldMappingStrategy
      */
     protected $strategy;
 
     public function __construct(Mapper $mapper)
     {
         parent::__construct($mapper);
-        $this->strategy = $this->fieldMappingStrategy();
     }
 
     public function execute(PDO $connection)
@@ -28,20 +27,14 @@ abstract class RetrieveQuery extends Query
     }
 
     /**
-     * @return FieldMappingStrategy
-     */
-    protected abstract function fieldMappingStrategy();
-
-    /**
      * @param null $connection
      *
      * @return Entity|null
      */
     public function one($connection = null)
     {
-        //$strategy = $strategy ? : $this->fieldMappingStrategy();
         $stmt = $this->execute(Bitmap::connection($connection));
-        $result = new ResultSet($stmt, $this->mapper);
+        $result = new ResultSet($stmt, $this->mapper, $this->strategy);
 
         return $this->mapper->loadOne($result);
     }
@@ -54,7 +47,7 @@ abstract class RetrieveQuery extends Query
     public function all($connection = null)
     {
         $stmt = $this->execute(Bitmap::connection($connection));
-        $result = new ResultSet($stmt, $this->mapper);
+        $result = new ResultSet($stmt, $this->mapper, $this->strategy);
 
         return $this->mapper->loadAll($result);
     }

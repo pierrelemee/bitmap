@@ -14,11 +14,7 @@ class Select extends RetrieveQuery
     {
         parent::__construct($mapper);
         $this->where = [];
-    }
-
-    protected function fieldMappingStrategy()
-    {
-        return PrefixStrategy::of($this->mapper);
+        $this->strategy = new PrefixStrategy();
     }
 
     public static function fromClass($class)
@@ -53,11 +49,31 @@ class Select extends RetrieveQuery
         return $joins;
     }
 
+    /**
+     * @param Mapper $mapper
+     *
+     * @return array
+     */
+    protected function fields($mapper = null)
+    {
+        $mapper = $mapper ? : $this->mapper;
+        $fields = [];
+        foreach ($mapper->getFields() as $field) {
+            $fields[] = "`{$mapper->getTable()}`.`{$field->getColumn()}` as `{$this->strategy->getFieldLabel($mapper, $field)}`";
+        }
+
+        foreach ($mapper->associations() as $association) {
+            $fields = array_merge($fields, $this->fields($association->getMapper()));
+        }
+
+        return $fields;
+    }
+
     public function sql()
     {
         return sprintf("select %s from %s %s",
-            implode(", ", $this->mapper->fieldNames()),
-            $this->mapper->getTable() . (implode(" ", $this->joinClauses())),
+            implode(", ", $this->fields()),
+            $this->mapper->getTable() . (implode("", $this->joinClauses())),
             sizeof($this->where) > 0 ? " where " . implode(" and ", $this->where) : ""
         );
     }
