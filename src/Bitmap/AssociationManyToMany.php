@@ -5,36 +5,24 @@ namespace Bitmap;
 abstract class AssociationManyToMany extends Association
 {
     protected $through;
-    protected $sourceReference;
-    protected $targetReference;
+    protected $leftReference;
+    protected $rightReference;
     
-    public function __construct($name, Mapper $mapper, $target, $through, $sourceReference, $targetReference)
+    public function __construct($name, Mapper $mapper, $right, $through, $leftReference, $rightReference)
     {
-        parent::__construct($name, $mapper, $target);
+        parent::__construct($name, $mapper, $right);
         $this->through = $through;
-        $this->sourceReference = $sourceReference;
-        $this->targetReference = $targetReference;
+        $this->leftReference = $leftReference;
+        $this->rightReference = $rightReference;
     }
 
-    public function joinClause(Mapper $left)
+    public function joinClauses(Mapper $left)
     {
-        echo __METHOD__;
-        return sprintf(
-            " inner join `%s` on `%s`.`%s` = `%s`.`%s` inner join `%s` on `%s`.`%s` = `%s`.`%s` ",
-            $this->through,
-            $left->getTable(),
-            $this->name,
-            $this->through,
-            $this->sourceReference,
-            // 2nd table
-            $this->mapper->getTable(),
-            $this->through,
-            $this->targetReference,
-            $this->mapper->getTable(),
-            $this->target
-        );
+        return [
+            $this->joinClause($left->getTable(), $this->name, $this->through, $this->leftReference),
+            $this->joinClause($this->through, $this->rightReference, $this->mapper->getTable(), $this->right)
+        ];
     }
-
 
     /**
      * @param Entity $entity

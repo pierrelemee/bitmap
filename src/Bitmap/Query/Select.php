@@ -40,7 +40,7 @@ class Select extends RetrieveQuery
         $joins = [];
         $mapper = $mapper ? : $this->mapper;
         foreach ($mapper->associations() as $association) {
-            $joins[] = $association->joinClause($mapper);
+            $joins = array_merge($joins, $association->joinClauses($mapper));
         }
         foreach ($mapper->associations() as $association) {
             $joins = array_merge($joins, $this->joinClauses($association->getMapper()));

@@ -24,7 +24,6 @@ abstract class RetrieveQuery extends Query
     public function execute(PDO $connection)
     {
         $sql = $this->sql();
-        echo "SQL: {$sql}\n";
         return $connection->query($sql, $this->strategy->getPdoFetchingType());
     }
 

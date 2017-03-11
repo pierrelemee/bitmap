@@ -6,13 +6,13 @@ abstract class Association
 {
     protected $name;
     protected $mapper;
-    protected $target;
+    protected $right;
 
-    public function __construct($name, Mapper $mapper, $target)
+    public function __construct($name, Mapper $mapper, $right)
     {
         $this->name = $name;
         $this->mapper = $mapper;
-        $this->target = $target;
+        $this->right = $right;
     }
 
     /**
@@ -31,14 +31,25 @@ abstract class Association
         return $this->mapper;
     }
 
-    public abstract function joinClause(Mapper $left);
+    /**
+     * Return the list of join clauses from the class managed by the mapper $left
+     *
+     * @param Mapper $left
+     * @return string[]
+     */
+    public abstract function joinClauses(Mapper $left);
+
+    protected function joinClause($tableFrom, $columnFrom, $tableTo, $columnTo)
+    {
+        return " inner join `{$tableTo}` on `{$tableFrom}`.`{$columnFrom}` = `{$tableTo}`.`{$columnTo}`";
+    }
 
     /**
      * @return mixed
      */
-    public function getTarget()
+    public function getRight()
     {
-        return $this->target;
+        return $this->right;
     }
 
     /**

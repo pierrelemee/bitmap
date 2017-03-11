@@ -4,16 +4,11 @@ namespace Bitmap;
 
 abstract class AssociationMultiple extends Association
 {
-    public function joinClause(Mapper $left)
+    public function joinClauses(Mapper $left)
     {
-        return sprintf(
-            " inner join `%s` on `%s`.`%s` = `%s`.`%s`",
-            $this->mapper->getTable(),
-            $left->getTable(),
-            $this->name,
-            $this->mapper->getTable(),
-            $this->target
-        );
+        return [
+            $this->joinClause($left->getTable(), $this->name, $this->mapper->getTable(), $this->right)
+        ];
     }
 
 
