@@ -32,6 +32,8 @@ class PropertyField extends Field
 
     /**
      * @param ReflectionProperty $property
+     *
+     *
      * @return PropertyField
      */
     public static function from(ReflectionProperty $property, $column = null)

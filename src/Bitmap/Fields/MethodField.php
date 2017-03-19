@@ -77,6 +77,6 @@ class MethodField extends Field
      */
     public static function setterForGetter(ReflectionMethod $getter)
     {
-        return $getter->getDeclaringClass()->getMethod(preg_replace("/^get/", "set", $getter));
+        return $getter->getDeclaringClass()->getMethod(preg_replace("/^get/", "set", $getter->name));
     }
 }

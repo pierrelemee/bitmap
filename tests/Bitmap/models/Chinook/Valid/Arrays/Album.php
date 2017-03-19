@@ -21,19 +21,37 @@ class Album extends ArrayMappedEntity
     {
         return [
             'primary' => [
-                'id' => [
-                    'column' => 'AlbumId',
-                    'type' => 'int',
-                    'incremented' => true,
-                    'nullable' => false,
-                    'getter' => 'getId'
+                'column' => 'AlbumId',
+                'type' => 'int',
+                'incremented' => true,
+                'nullable' => false,
+                'getter' => 'getId'
+
             ],
             'fields' => [
                 'title' => [
-                        'type' => 'string',
-                        // Method
-                        'getter' => 'getTitle'
-                    ]
+                    'column' => 'Title',
+                    'type' => 'string',
+                    // Method
+                    'getter' => 'getTitle'
+                ]
+            ],
+            'associations' => [
+                'ArtistId' => [
+                    'class' => 'Chinook\Valid\Arrays\Artist',
+                    'type' => 'one',
+                    'options' => [
+                        'target' => 'ArtistId',
+                    ],
+                    'getter' => 'getArtist',
+                ],
+                'AlbumId' => [
+                    'class' => 'Chinook\Valid\Arrays\Track',
+                    'type' => 'multiple',
+                    'options' => [
+                        'target' => 'AlbumId',
+                    ],
+                    'getter' => 'getTracks',
                 ]
             ]
         ];

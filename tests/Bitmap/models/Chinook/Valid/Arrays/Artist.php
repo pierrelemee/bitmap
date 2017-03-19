@@ -1,7 +1,8 @@
 <?php
 
-namespace Chinook\Valid\Inline;
+namespace Chinook\Valid\Arrays;
 
+use Bitmap\ArrayMappedEntity;
 use Bitmap\Bitmap;
 use Bitmap\Entity;
 use Bitmap\Fields\PropertyField;
@@ -9,26 +10,31 @@ use Bitmap\Fields\MethodField;
 use Bitmap\Mapper;
 use ReflectionClass;
 
-class Artist extends Entity
+class Artist extends ArrayMappedEntity
 {
     protected $id;
     public $name;
 
-    public function getMapper()
+    protected function getMapping()
     {
-        $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::of(get_class($this))
-            ->addField(
-                MethodField::fromMethods('id', $reflection->getMethod('getId'), $reflection->getMethod('setId'), 'ArtistId')
-                ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER)),
-                true
-            )
-            ->addField(
-                PropertyField::fromClass('name', $reflection, 'Name')
-                ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
-            );
-    }
+        return [
+            'primary' => [
+                'column' => 'ArtistId',
+                'type' => 'int',
+                'incremented' => true,
+                'nullable' => false,
+                'getter' => 'getId'
 
+            ],
+            'fields' => [
+                'name' => [
+                    'column' => 'Name',
+                    'type' => 'string',
+                    'property' => 'name'
+                ]
+            ]
+        ];
+    }
 
     /**
      * @return mixed

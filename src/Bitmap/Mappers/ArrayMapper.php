@@ -2,7 +2,15 @@
 
 namespace Bitmap\Mappers;
 
+use Bitmap\Association;
+use Bitmap\Associations\MethodAssociationMultiple;
+use Bitmap\Associations\MethodAssociationOne;
+use Bitmap\Associations\PropertyAssociationMultiple;
+use Bitmap\Associations\PropertyAssociationOne;
+use Bitmap\Bitmap;
+use Bitmap\Entity;
 use Bitmap\Exceptions\MapperException;
+use Bitmap\Field;
 use Bitmap\Fields\MethodField;
 use Bitmap\Fields\PropertyField;
 use Bitmap\Mapper;
@@ -45,49 +53,72 @@ class ArrayMapper extends Mapper
                 'type' => 'one',
                 'options' => [
                     'column' => 'ArtistId'
-                ]
+                ],
+                // Property
+                'property' => 'tracks',
+                // Method
+                'getter' => 'getTracks',
+                'setter' => 'setTracks'
             ]
         ]
     ];
 
     public function __construct(array $config)
     {
-        if (!isset($mapping['class'])) {
+        if (!isset($config['class'])) {
             throw new MapperException("Missing 'class' key in mapping array");
         }
-        parent::__construct($mapping['class'], self::value($config, 'table'));
+        parent::__construct($config['class'], self::value($config, 'table'));
         $this->reflection = new ReflectionClass($this->class);
         if(null === $primary = self::value($config, 'primary')) {
             throw new MapperException("No 'primary' defined", $this->class);
         }
-        if (is_array($primary)) {
+        $this->addField($this->field('primary', $primary), true);
 
+        foreach (self::value($config, 'fields', []) as $name => $field) {
+            $this->addField($this->field($name, $field));
+        }
+
+        foreach (self::value($config, 'associations', []) as $name => $association) {
+            $this->addAssociation($this->association($name, $association));
         }
 
     }
 
+    /**
+     * @param $name
+     * @param array $data
+     *
+     * @return Field
+     *
+     * @throws MapperException
+     */
     private function field($name, array $data)
     {
         if (isset($data['property'])) {
-            
+            $field = new PropertyField($this->getReflectionProperty($data['property']), self::value($data, 'column'));
         } else if (isset($data['getter'])) {
-            return isset($data['setter']) ?
-                MethodField::fromMethod($name, $this->getReflectionMethod($data['getter']), self::value($data, 'column'))
-                :
+            $field = isset($data['setter']) ?
                 MethodField::fromMethods($name, $this->getReflectionMethod($data['getter']), $this->getReflectionMethod($data['setter']), self::value($data, 'column'))
+                :
+                MethodField::fromMethod($name, $this->getReflectionMethod($data['getter']), self::value($data, 'column'))
             ;
         } else {
             throw new MapperException("Unable to create field '{$name}', one of these keys must be declared: ['property', 'getter']");
         }
+
+        return $field->setTransformer(Bitmap::getTransformer(self::value($data, 'transformer', Bitmap::TYPE_STRING)))
+            ->setNullable(self::value($data, 'nullable', true))
+            ->setIncremented(self::value($data, 'incremented', false));
     }
 
     private function getReflectionProperty($config)
     {
         if (is_object($config) && $config instanceof ReflectionProperty) {
-            $field = new PropertyField($config, self::value($data, 'column'));
+            return $config;
         } else if (is_string($config)) {
             if ($this->reflection->hasProperty($config)) {
-                $field = new PropertyField($this->reflection->getProperty($config), self::value($data, 'column'));
+                return $this->reflection->getProperty($config);
             } else {
                 throw new MapperException("");
             }
@@ -108,6 +139,54 @@ class ArrayMapper extends Mapper
             throw new MapperException("");
         }
         throw new MapperException("");
+    }
+
+    /**
+     * @param $name
+     * @param array $data
+     *
+     * @return Association
+     *
+     * @throws MapperException
+     */
+    private function association($name, array $data)
+    {
+        if (null === $class = self::value($data, 'class', null)) {
+            throw new MapperException("No class defined for association '{$name}'", $this->reflection->name);
+        }
+        $mapper = Entity::mapper($class);
+
+        if (null === $type = self::value($data, 'type', null)) {
+            throw new MapperException("No type defined for association '{$name}'", $this->reflection->name);
+        }
+
+
+        if (isset($data['property'])) {
+            $property = $this->getReflectionProperty($data['property']);
+
+            switch (strtolower($type)) {
+                case 'one':
+                    return new PropertyAssociationOne($name, $mapper, $property, isset($data['options']) ? self::value($data['options'], 'target', null) : null);
+                case 'multiple':
+                    return new PropertyAssociationMultiple($name, $mapper, $property, isset($data['options']) ? self::value($data['options'], 'target', null) : null);
+                default:
+                    throw new MapperException("Undefined type for association '{$name}'", $this->reflection->name);
+            }
+        } else if (isset($data['getter'])) {
+            $getter = $this->getReflectionMethod($data['getter']);
+            $setter = isset($data['setter']) ? $this->getReflectionMethod($data['setter']) : MethodField::setterForGetter($getter);
+
+            switch (strtolower($type)) {
+                case 'one':
+                    return new MethodAssociationOne($name, $mapper, $getter, $setter, isset($data['options']) ? self::value($data['options'], 'target', null)  : null);
+                case 'multiple':
+                    return new MethodAssociationMultiple($name, $mapper, $getter, $setter, isset($data['options']) ? self::value($data['options'], 'target', null)  : null);
+                default:
+                    throw new MapperException("Undefined type for association '{$name}'", $this->reflection->name);
+            }
+        } else {
+            throw new MapperException("Unable to create association '{$name}' with type '{$type}', one of these keys must be declared: ['property', 'getter']");
+        }
     }
 
     /**

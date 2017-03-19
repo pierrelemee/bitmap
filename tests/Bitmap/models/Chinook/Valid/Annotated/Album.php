@@ -2,13 +2,14 @@
 
 namespace Chinook\Valid\Annotated;
 
+use Bitmap\AnnotatedEntity;
 use Bitmap\Entity;
 
 /**
  * Class Album
  * @package Chinook\Valid\Annotated
  */
-class Album extends Entity
+class Album extends AnnotatedEntity
 {
     /**
      * @field AlbumId primary

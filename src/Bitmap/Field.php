@@ -48,6 +48,14 @@ abstract class Field
     }
 
     /**
+     * @param mixed $column
+     */
+    public function setColumn($column)
+    {
+        $this->column = $column;
+    }
+
+    /**
      * @return Transformer
      */
     public function getTransformer()

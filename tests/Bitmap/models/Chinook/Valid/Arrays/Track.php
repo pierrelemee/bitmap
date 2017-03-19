@@ -1,7 +1,8 @@
 <?php
 
-namespace Chinook\Valid\Inline;
+namespace Chinook\Valid\Arrays;
 
+use Bitmap\ArrayMappedEntity;
 use Bitmap\Associations\MethodAssociationOne;
 use Bitmap\Entity;
 use Chinook\Valid\Inline\MediaType;
@@ -11,7 +12,7 @@ use Bitmap\Mapper;
 use Bitmap\Bitmap;
 use Bitmap\Fields\MethodField;
 
-class Track extends Entity
+class Track extends ArrayMappedEntity
 {
     protected $id;
     protected $name;
@@ -22,43 +23,46 @@ class Track extends Entity
     protected $bytes;
     protected $unitPrice;
 
-    public function getMapper()
+    protected function getMapping()
     {
-        $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::of(get_class($this))
-            ->addField(
-                MethodField::fromClass('id', $reflection, null, 'TrackId')
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER)),
-                true
-            )
-            ->addField(
-                MethodField::fromClass('name', $reflection, null, 'Name')
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
-            )
-            ->addField(
-                MethodField::fromClass('composer', $reflection, null, 'Composer')
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
-            )
-            ->addField(
-                MethodField::fromClass('milliseconds', $reflection, null, 'Milliseconds')
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
-            )
-            ->addField(
-                MethodField::fromClass('bytes', $reflection, null, 'Bytes')
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
-            )
-            ->addField(
-                MethodField::fromClass('unitPrice', $reflection, null, 'UnitPrice')
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_FLOAT))
-            )
-            ->addAssociation(
-                MethodAssociationOne::fromMethods('GenreId', self::mapper('Chinook\Valid\Inline\Genre'), $reflection->getMethod('getGenre'), $reflection->getMethod('setGenre'), 'GenreId')
-            )
-            ->addAssociation(
-                MethodAssociationOne::fromMethods('MediaTypeId', self::mapper('Chinook\Valid\Inline\MediaType'), $reflection->getMethod('getMedia'), $reflection->getMethod('setMedia'), 'MediaTypeId')
-            );
-    }
+        return [
+            'primary' => [
+                'column' => 'TrackId',
+                'type' => 'int',
+                'incremented' => true,
+                'nullable' => false,
+                'getter' => 'getId'
 
+            ],
+            'fields' => [
+                'name' => [
+                    'column' => 'Name',
+                    'type' => 'string',
+                    'getter' => 'getName'
+                ],
+                'composer' => [
+                    'column' => 'Composer',
+                    'type' => 'string',
+                    'getter' => 'getComposer'
+                ],
+                'milliseconds' => [
+                    'column' => 'Milliseconds',
+                    'type' => 'string',
+                    'getter' => 'getMilliseconds'
+                ],
+                'bytes' => [
+                    'column' => 'Bytes',
+                    'type' => 'integer',
+                    'getter' => 'getBytes'
+                ],
+                'unitPrice' => [
+                    'column' => 'UnitPrice',
+                    'type' => 'float',
+                    'getter' => 'getUnitPrice'
+                ]
+            ]
+        ];
+    }
 
     /**
      * @return mixed
