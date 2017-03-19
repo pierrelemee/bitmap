@@ -26,9 +26,4 @@ class PropertyAssociationManyToMany extends AssociationManyToMany
     {
         $this->property->setValue($entity, $entities);
     }
-
-    public static function fromMethods($name, Mapper $mapper, ReflectionMethod $getter, ReflectionMethod $setter, $through, $sourceReference, $targetReference, $column = null)
-    {
-        return new MethodAssociationManyToMany($name, $mapper, $getter, $setter, $through, $sourceReference, $targetReference, $column);
-    }
 }

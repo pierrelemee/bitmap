@@ -2,7 +2,7 @@
 
 namespace Chinook\Valid\Inline;
 
-use Bitmap\Associations\MethodAssociationMultiple;
+use Bitmap\Associations\MethodAssociationOneToMany;
 use Bitmap\Associations\MethodAssociationOne;
 use Bitmap\Entity;
 use ReflectionClass;
@@ -40,7 +40,7 @@ class Album extends Entity
                 MethodAssociationOne::fromMethods('ArtistId', self::mapper('Chinook\Valid\Inline\Artist'), $reflection->getMethod('getArtist'), $reflection->getMethod('setArtist'), 'ArtistId')
             )
             ->addAssociation(
-                MethodAssociationMultiple::fromMethods('AlbumId', self::mapper('Chinook\Valid\Inline\Track'), $reflection->getMethod('getTracks'), $reflection->getMethod('setTracks'), 'AlbumId')
+                MethodAssociationOneToMany::fromMethods('AlbumId', self::mapper('Chinook\Valid\Inline\Track'), $reflection->getMethod('getTracks'), $reflection->getMethod('setTracks'), 'AlbumId')
             );
     }
 

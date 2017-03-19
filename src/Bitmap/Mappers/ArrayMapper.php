@@ -3,9 +3,11 @@
 namespace Bitmap\Mappers;
 
 use Bitmap\Association;
-use Bitmap\Associations\MethodAssociationMultiple;
+use Bitmap\Associations\MethodAssociationManyToMany;
+use Bitmap\Associations\MethodAssociationOneToMany;
 use Bitmap\Associations\MethodAssociationOne;
-use Bitmap\Associations\PropertyAssociationMultiple;
+use Bitmap\Associations\PropertyAssociationManyToMany;
+use Bitmap\Associations\PropertyAssociationOneToMany;
 use Bitmap\Associations\PropertyAssociationOne;
 use Bitmap\Bitmap;
 use Bitmap\Entity;
@@ -21,47 +23,6 @@ use ReflectionMethod;
 class ArrayMapper extends Mapper
 {
     protected $reflection;
-    protected $example = [
-        'class' => __CLASS__,
-        'table' => "Table",
-        'primary' => [
-
-        ],
-        'fields' => [
-            'id' => [
-                'type' => 'int',
-                'incremented' => true,
-                'nullable' => false,
-                'column' => 'AlbumId',
-                // Property
-                'property' => 'id',
-                // Method
-                'getter' => 'getId',
-                'setter' => 'setId'
-            ]
-        ],
-        'associations' => [
-            'artist' => [
-                'class' => 'Chinook\Artist',
-                'type' => 'one',
-                'options' => [
-                    'column' => 'ArtistId'
-                ]
-            ],
-            'tracks' => [
-                'class' => 'Chinook\Artist',
-                'type' => 'one',
-                'options' => [
-                    'column' => 'ArtistId'
-                ],
-                // Property
-                'property' => 'tracks',
-                // Method
-                'getter' => 'getTracks',
-                'setter' => 'setTracks'
-            ]
-        ]
-    ];
 
     public function __construct(array $config)
     {
@@ -167,8 +128,18 @@ class ArrayMapper extends Mapper
             switch (strtolower($type)) {
                 case 'one':
                     return new PropertyAssociationOne($name, $mapper, $property, isset($data['options']) ? self::value($data['options'], 'target', null) : null);
-                case 'multiple':
-                    return new PropertyAssociationMultiple($name, $mapper, $property, isset($data['options']) ? self::value($data['options'], 'target', null) : null);
+                case 'one-to-many':
+                    return new PropertyAssociationOneToMany($name, $mapper, $property, isset($data['options']) ? self::value($data['options'], 'target', null) : null);
+                case 'many-to-many':
+                    return new PropertyAssociationManyToMany(
+                        $name,
+                        $mapper,
+                        $property,
+                        isset($data['options']['through']) ? $data['options']['through'] : null,
+                        isset($data['options']['sourceReference']) ? $data['options']['sourceReference'] : null,
+                        isset($data['options']['targetReference']) ? $data['options']['targetReference'] : null,
+                        isset($data['options']['right']) ? $data['options']['right'] : null
+                    );
                 default:
                     throw new MapperException("Undefined type for association '{$name}'", $this->reflection->name);
             }
@@ -180,7 +151,18 @@ class ArrayMapper extends Mapper
                 case 'one':
                     return new MethodAssociationOne($name, $mapper, $getter, $setter, isset($data['options']) ? self::value($data['options'], 'target', null)  : null);
                 case 'multiple':
-                    return new MethodAssociationMultiple($name, $mapper, $getter, $setter, isset($data['options']) ? self::value($data['options'], 'target', null)  : null);
+                    return new MethodAssociationOneToMany($name, $mapper, $getter, $setter, isset($data['options']) ? self::value($data['options'], 'target', null)  : null);
+                case 'many-to-many':
+                    return new MethodAssociationManyToMany(
+                        $name,
+                        $mapper,
+                        $getter,
+                        $setter,
+                        isset($data['options']['through']) ? $data['options']['through'] : null,
+                        isset($data['options']['sourceReference']) ? $data['options']['sourceReference'] : null,
+                        isset($data['options']['targetReference']) ? $data['options']['targetReference'] : null,
+                        isset($data['options']['right']) ? $data['options']['right'] : null
+                    );
                 default:
                     throw new MapperException("Undefined type for association '{$name}'", $this->reflection->name);
             }

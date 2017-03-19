@@ -4,14 +4,11 @@ namespace Chinook\Valid\Arrays;
 
 use Bitmap\ArrayMappedEntity;
 
-class Album extends ArrayMappedEntity
+class Playlist extends ArrayMappedEntity
 {
+
     protected $id;
-    protected $title;
-    /**
-     * @var Artist
-     */
-    protected $artist;
+    protected $name;
     /**
      * @var Track[]
      */
@@ -21,42 +18,33 @@ class Album extends ArrayMappedEntity
     {
         return [
             'primary' => [
-                'column' => 'AlbumId',
+                'column' => 'PlaylistId',
                 'type' => 'int',
-                'incremented' => true,
-                'nullable' => false,
                 'getter' => 'getId'
 
             ],
             'fields' => [
-                'title' => [
-                    'column' => 'Title',
+                'name' => [
+                    'column' => 'Name',
                     'type' => 'string',
-                    // Method
-                    'getter' => 'getTitle'
+                    'getter' => 'getName'
                 ]
             ],
             'associations' => [
-                'ArtistId' => [
-                    'class' => 'Chinook\Valid\Arrays\Artist',
-                    'type' => 'one',
-                    'options' => [
-                        'target' => 'ArtistId',
-                    ],
-                    'getter' => 'getArtist',
-                ],
-                'AlbumId' => [
+                'PlaylistId' => [
                     'class' => 'Chinook\Valid\Arrays\Track',
-                    'type' => 'one-to-many',
+                    'type' => 'many-to-many',
                     'options' => [
-                        'target' => 'AlbumId',
+                        'through' => 'PlaylistTrack',
+                        'sourceReference' => 'PlaylistId',
+                        'targetReference' => 'trackId',
+                        'right' => 'TrackId'
                     ],
                     'getter' => 'getTracks',
                 ]
             ]
         ];
     }
-
 
     /**
      * @return mixed
@@ -77,33 +65,17 @@ class Album extends ArrayMappedEntity
     /**
      * @return mixed
      */
-    public function getTitle()
+    public function getName()
     {
-        return $this->title;
+        return $this->name;
     }
 
     /**
-     * @param mixed $title
+     * @param mixed $name
      */
-    public function setTitle($title)
+    public function setName($name)
     {
-        $this->title = $title;
-    }
-
-    /**
-     * @return Artist
-     */
-    public function getArtist()
-    {
-        return $this->artist;
-    }
-
-    /**
-     * @param mixed $artist
-     */
-    public function setArtist($artist)
-    {
-        $this->artist = $artist;
+        $this->name = $name;
     }
 
     /**

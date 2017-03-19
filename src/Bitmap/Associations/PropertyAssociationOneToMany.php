@@ -3,12 +3,12 @@
 namespace Bitmap\Associations;
 
 use Bitmap\Association;
-use Bitmap\AssociationMultiple;
+use Bitmap\AssociationOneToMany;
 use Bitmap\Entity;
 use Bitmap\Mapper;
 use ReflectionProperty;
 
-class PropertyAssociationMultiple extends AssociationMultiple
+class PropertyAssociationOneToMany extends AssociationOneToMany
 {
     protected $property;
 

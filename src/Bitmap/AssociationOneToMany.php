@@ -2,7 +2,7 @@
 
 namespace Bitmap;
 
-abstract class AssociationMultiple extends Association
+abstract class AssociationOneToMany extends Association
 {
     public function joinClauses(Mapper $left)
     {

@@ -4,7 +4,7 @@ namespace Bitmap\Associations;
 
 use Bitmap\Association;
 use Bitmap\AssociationManyToMany;
-use Bitmap\AssociationMultiple;
+use Bitmap\AssociationOneToMany;
 use Bitmap\AssociationOne;
 use Bitmap\Entity;
 use Bitmap\Mapper;
