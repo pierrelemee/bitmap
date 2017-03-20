@@ -61,6 +61,15 @@ class Mapper
         return $this->class;
     }
 
+    public function addPrimary(Field $field, $incremented = true, $nullable = false)
+    {
+        $field->setIncremented($incremented);
+        $field->setNullable($nullable);
+        $this->addField($field);
+        $this->primary = $this->fieldsByName[$field->getName()];
+        return $this;
+    }
+
     /**
      * @return boolean
      */
@@ -79,19 +88,14 @@ class Mapper
 
     /**
      * @param Field $field
-     * @param boolean $primary
      *
      * @return Mapper
      */
-    public function addField(Field $field, $primary = false)
+    public function addField(Field $field)
     {
         // TODO: check for existence
         $this->fieldsByName[$field->getName()] = $field;
         $this->fieldsByColumn[$field->getName()] = $field;
-
-        if ($primary) {
-            $this->primary = $this->fieldsByName[$field->getName()];
-        }
 
         return $this;
     }

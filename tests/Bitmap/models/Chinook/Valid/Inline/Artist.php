@@ -18,10 +18,9 @@ class Artist extends Entity
     {
         $reflection = new ReflectionClass(__CLASS__);
         return Mapper::of(get_class($this))
-            ->addField(
+            ->addPrimary(
                 MethodField::fromClass('ArtistId', $reflection, 'getId')
-                ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER)),
-                true
+                ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
             )
             ->addField(
                 PropertyField::fromClass('Name', $reflection, 'name')
