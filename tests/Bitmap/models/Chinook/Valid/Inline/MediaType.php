@@ -19,7 +19,7 @@ class MediaType extends Entity
         $reflection = new ReflectionClass(__CLASS__);
         return Mapper::of(get_class($this))
             ->addField(
-                MethodField::fromMethods('id', $reflection->getMethod('getId'), $reflection->getMethod('setId'), 'MediaTypeId')
+                MethodField::fromMethods($reflection->getMethod('getId'), $reflection->getMethod('setId'), 'MediaTypeId')
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER)),
                 true
             )

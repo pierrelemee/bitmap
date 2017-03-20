@@ -24,10 +24,10 @@ abstract class ModifyEntityQuery extends ModifyQuery
             $value = $field->get($this->entity);
 
             if (null !== $value) {
-                $values[$field->getColumn()] = $value;
+                $values[$field->getName()] = $value;
             } else {
                 if (!$field->isIncremented() || !$field->hasDefault()) {
-                    $values[$field->getColumn()] = "null";
+                    $values[$field->getName()] = "null";
                 }
             }
         }

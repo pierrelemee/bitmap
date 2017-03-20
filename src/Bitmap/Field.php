@@ -5,7 +5,6 @@ namespace Bitmap;
 abstract class Field
 {
     protected $name;
-    protected $column;
     /**
      * @var Transformer
      */
@@ -23,10 +22,9 @@ abstract class Field
      */
     protected $default;
 
-    public function __construct($name, $column = null)
+    public function __construct($name)
     {
         $this->name = $name;
-        $this->column = $column ? : $this->name;
         $this->incremented = false;
         $this->nullable = true;
     }
@@ -37,22 +35,6 @@ abstract class Field
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getColumn()
-    {
-        return $this->column;
-    }
-
-    /**
-     * @param mixed $column
-     */
-    public function setColumn($column)
-    {
-        $this->column = $column;
     }
 
     /**

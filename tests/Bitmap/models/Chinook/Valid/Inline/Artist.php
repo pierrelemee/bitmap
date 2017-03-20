@@ -19,16 +19,15 @@ class Artist extends Entity
         $reflection = new ReflectionClass(__CLASS__);
         return Mapper::of(get_class($this))
             ->addField(
-                MethodField::fromMethods('id', $reflection->getMethod('getId'), $reflection->getMethod('setId'), 'ArtistId')
+                MethodField::fromClass('ArtistId', $reflection, 'getId')
                 ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER)),
                 true
             )
             ->addField(
-                PropertyField::fromClass('name', $reflection, 'Name')
+                PropertyField::fromClass('Name', $reflection, 'name')
                 ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
             );
     }
-
 
     /**
      * @return mixed

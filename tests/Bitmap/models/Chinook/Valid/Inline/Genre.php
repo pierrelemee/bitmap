@@ -19,7 +19,7 @@ class Genre extends Entity
         $reflection = new ReflectionClass(__CLASS__);
         return Mapper::of(get_class($this))
             ->addField(
-                MethodField::fromMethods('GenreId', $reflection->getMethod('getId'), $reflection->getMethod('setId'), 'GenreId')
+                MethodField::fromMethods($reflection->getMethod('getId'), $reflection->getMethod('setId'), 'GenreId')
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER)),
                 true
             )

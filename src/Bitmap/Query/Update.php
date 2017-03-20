@@ -36,7 +36,7 @@ class Update extends ModifyEntityQuery
             "update `%s` set %s where `%s` = %s",
             $this->mapper->getTable(),
             $this->fieldValues(),
-            $this->mapper->getPrimary()->getColumn(),
+            $this->mapper->getPrimary()->getName(),
             $this->mapper->getPrimary()->get($this->entity)
         );
     }

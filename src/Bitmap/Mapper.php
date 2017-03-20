@@ -87,7 +87,7 @@ class Mapper
     {
         // TODO: check for existence
         $this->fieldsByName[$field->getName()] = $field;
-        $this->fieldsByColumn[$field->getColumn()] = $field;
+        $this->fieldsByColumn[$field->getName()] = $field;
 
         if ($primary) {
             $this->primary = $this->fieldsByName[$field->getName()];

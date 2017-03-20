@@ -47,7 +47,7 @@ class GroupStrategy extends FieldMappingStrategy
 
     public function getFieldLabel(Mapper $mapper, Field $field)
     {
-        return isset($this->mapping[$mapper->getTable()][$field->getColumn()]) ? $this->mapping[$mapper->getTable()][$field->getColumn()] : null;
+        return isset($this->mapping[$mapper->getTable()][$field->getName()]) ? $this->mapping[$mapper->getTable()][$field->getName()] : null;
     }
 
 }

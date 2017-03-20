@@ -27,28 +27,28 @@ class Track extends Entity
         $reflection = new ReflectionClass(__CLASS__);
         return Mapper::of(get_class($this))
             ->addField(
-                MethodField::fromClass('id', $reflection, null, 'TrackId')
+                MethodField::fromClass('TrackId', $reflection, 'id')
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER)),
                 true
             )
             ->addField(
-                MethodField::fromClass('name', $reflection, null, 'Name')
+                MethodField::fromClass('Name', $reflection)
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
             )
             ->addField(
-                MethodField::fromClass('composer', $reflection, null, 'Composer')
+                MethodField::fromClass('Composer', $reflection)
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
             )
             ->addField(
-                MethodField::fromClass('milliseconds', $reflection, null, 'Milliseconds')
+                MethodField::fromClass('Milliseconds', $reflection)
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
             )
             ->addField(
-                MethodField::fromClass('bytes', $reflection, null, 'Bytes')
+                MethodField::fromClass('Bytes', $reflection)
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
             )
             ->addField(
-                MethodField::fromClass('unitPrice', $reflection, null, 'UnitPrice')
+                MethodField::fromClass('UnitPrice', $reflection)
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_FLOAT))
             )
             ->addAssociation(

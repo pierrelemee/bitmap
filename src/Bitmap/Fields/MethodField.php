@@ -18,9 +18,9 @@ class MethodField extends Field
      */
     protected $setter;
 
-    public function __construct($name, ReflectionMethod $getter, ReflectionMethod $setter, $column = null)
+    public function __construct($name, ReflectionMethod $getter, ReflectionMethod $setter)
     {
-        parent::__construct(preg_match("/^get/", $name) ? lcfirst(substr($name, 3)) : $name, $column);
+        parent::__construct($name);
         $this->getter = $getter;
         $this->setter = $setter;
     }
@@ -35,29 +35,61 @@ class MethodField extends Field
         $this->setter->invoke($entity, $value);
     }
 
-    public static function fromClass($name, ReflectionClass $class, $setter = null, $column = null)
+    public static function fromClass($name, ReflectionClass $class, $getter = null, $setter = null)
     {
-        return self::fromMethods(
-            $name,
-            $class->getMethod(self::getterForName($name)),
-            $class->getMethod($setter ? : self::setterForName($name)),
-            $column
-        );
+        if (null === $getter) {
+            if ($class->hasMethod($name)) {
+                $getter = $class->getMethod($name);
+                $setter = self::setterForGetter($getter);
+            } else if ($class->hasMethod(self::getterForName($name))) {
+                $getter = $class->getMethod(self::getterForName($name));
+                $setter = self::setterForGetter($getter);
+            } else {
+                // TODO: throw a verbose exception
+            }
+        } else {
+            if ($class->hasMethod($getter)) {
+                $getter = $class->getMethod($getter);
+            } else if ($class->hasMethod(self::getterForName($getter))) {
+                $getter = $class->getMethod(self::getterForName($getter));
+            }
+        }
+
+        if (null === $setter) {
+            $setter = self::setterForGetter($getter);
+        }
+
+        return new MethodField($name, $getter, $setter);
     }
 
-    public static function fromMethod($name, ReflectionMethod $getter, $column = null)
+    /**
+     * @param ReflectionMethod $getter
+     * @param null $name
+     *
+     * @return MethodField
+     */
+    public static function fromMethod(ReflectionMethod $getter, $name = null)
     {
-        return self::fromMethods(
-            $name,
+        return new MethodField(
+            $name ? : $getter->getName(),
             $getter,
-            self::setterForGetter($getter),
-            $column
+            self::setterForGetter($getter)
         );
     }
 
-    public static function fromMethods($name, ReflectionMethod $getter, ReflectionMethod $setter, $column = null)
+    /**
+     * @param ReflectionMethod $getter
+     * @param ReflectionMethod $setter
+     * @param null $name
+     *
+     * @return MethodField
+     */
+    public static function fromMethods(ReflectionMethod $getter, ReflectionMethod $setter, $name = null)
     {
-        return new MethodField($name, $getter, $setter, $column);
+        if (null === $name) {
+            $name = preg_match("/^get/", $getter->getName()) ? lcfirst(substr($getter->getName(), 3)) : $getter->getName();
+        }
+        return new MethodField($name, $getter, $setter);
     }
 
     public static function getterForName($name)

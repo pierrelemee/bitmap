@@ -34,7 +34,7 @@ class EntityTest extends TestCase
     public function testGetArtistById()
     {
         //$artist = Artist::query(sprintf('select * from `Artist` where ArtistId = %d', 94))->one();
-        $artist = Artist::select()->where('id', '=', 94)->one();
+        $artist = Artist::select()->where('ArtistId', '=', 94)->one();
 
         $this->assertNotNull($artist);
         $this->assertSame('Jimi Hendrix', $artist->name);
@@ -42,7 +42,7 @@ class EntityTest extends TestCase
 
     public function testGetArtists()
     {
-        $artists = Artist::select()->where('name', 'like', 'The%')->all();
+        $artists = Artist::select()->where('Name', 'like', 'The%')->all();
 
         $expected = [
             137 => 'The Black Crowes',
@@ -71,7 +71,7 @@ class EntityTest extends TestCase
 
     public function testGetAlbumById()
     {
-        $album = Album::select()->where('id', '=', 275)->one();
+        $album = Album::select()->where('AlbumId', '=', 275)->one();
 
         $this->assertNotNull($album);
         $this->assertSame('Vivaldi: The Four Seasons', $album->getTitle());
@@ -81,7 +81,7 @@ class EntityTest extends TestCase
     public function testAddNewArtist()
     {
         $artist = new Artist();
-        $artist->Name = 'Radiohead';
+        $artist->name = 'Radiohead';
 
         $this->assertTrue($artist->save());
         $this->assertNotNull($artist->getId());
@@ -100,7 +100,7 @@ class EntityTest extends TestCase
         $track->setComposer("Tankian, Serj");
         $track->setMilliseconds(217886);
         $track->setGenre($genre);
-        $track->setMedia(MediaType::select()->where("id", "=", 1)->one());
+        $track->setMedia(MediaType::select()->where("MediaTypeId", "=", 1)->one());
 
         $this->assertTrue($track->save());
         $this->assertNotNull($track->getId());
@@ -111,7 +111,7 @@ class EntityTest extends TestCase
 
     public function testUpdateArtist()
     {
-        $artist = Artist::select()->where('id', '=', 179)->one();
+        $artist = Artist::select()->where('ArtistId', '=', 179)->one();
         // "Scorpions" in database
         $artist->name = "The Scorpions";
         $this->assertTrue($artist->save());
@@ -124,7 +124,7 @@ class EntityTest extends TestCase
     {
         $genre = new Genre();
         $genre->setName("Funk");
-        $track = Track::select()->where("id", "=", 2555)->one();
+        $track = Track::select()->where("TrackId", "=", 2555)->one();
         $track->setGenre($genre);
 
         $this->assertTrue($track->save());
@@ -135,7 +135,7 @@ class EntityTest extends TestCase
 
     public function testDeleteArtist()
     {
-        $artist = Artist::select()->where('id', '=', 166)->one();
+        $artist = Artist::select()->where('ArtistId', '=', 166)->one();
         // "Avril Lavigne" in database
         $this->assertTrue($artist->delete());
 

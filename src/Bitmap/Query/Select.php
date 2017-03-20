@@ -27,7 +27,7 @@ class Select extends RetrieveQuery
         $this->where[] = sprintf(
             "`%s`.`%s` %s %s",
             $this->mapper->getTable(),
-            $this->mapper->getField($field)->getColumn(),
+            $this->mapper->getField($field)->getName(),
             $operation,
             $this->mapper->getField($field)->getTransformer()->fromObject($value)
         );
@@ -59,7 +59,7 @@ class Select extends RetrieveQuery
         $mapper = $mapper ? : $this->mapper;
         $fields = [];
         foreach ($mapper->getFields() as $field) {
-            $fields[] = "`{$mapper->getTable()}`.`{$field->getColumn()}` as `{$this->strategy->getFieldLabel($mapper, $field)}`";
+            $fields[] = "`{$mapper->getTable()}`.`{$field->getName()}` as `{$this->strategy->getFieldLabel($mapper, $field)}`";
         }
 
         foreach ($mapper->associations() as $association) {
