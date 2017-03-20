@@ -57,6 +57,16 @@ abstract class Field
     }
 
     /**
+     * @param string $type
+     *
+     * @return Field
+     */
+    public function setType($type)
+    {
+        return $this->setTransformer(Bitmap::getTransformer($type));
+    }
+
+    /**
      * @return boolean
      */
     public function isIncremented()

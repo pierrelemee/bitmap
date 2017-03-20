@@ -29,11 +29,11 @@ class Album extends Entity
         return Mapper::of(get_class($this))
             ->addPrimary(
                 MethodField::fromClass('AlbumId', $reflection, 'getId')
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
+                    ->setType(Bitmap::TYPE_INTEGER)
             )
             ->addField(
                 MethodField::fromClass('Title', $reflection)
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
+                    ->setType(Bitmap::TYPE_STRING)
             )
             ->addAssociation(
                 MethodAssociationOne::fromMethods('ArtistId', self::mapper('Chinook\Valid\Inline\Artist'), $reflection->getMethod('getArtist'), $reflection->getMethod('setArtist'), 'ArtistId')

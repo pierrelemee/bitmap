@@ -135,13 +135,13 @@ class Bitmap
     }
 
     /**
-     * @param $name
+     * @param $type
      * @return Transformer
      */
-    public static function getTransformer($name)
+    public static function getTransformer($type)
     {
-        return self::hasTransformer($name) ?
-            self::current()->transformers[$name] :
+        return self::hasTransformer($type) ?
+            self::current()->transformers[$type] :
             self::current()->transformers[self::TYPE_STRING];
     }
 
