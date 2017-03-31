@@ -31,6 +31,13 @@ class EntityTest extends TestCase
         Bitmap::connection(self::CONNECTION_NAME)->rollBack();
     }
 
+	public function testGetNoArtist()
+	{
+		$artist = Artist::select()->where('Name', '=', "Justin Bieber")->one();
+
+		$this->assertNull($artist);
+	}
+
     public function testGetArtistById()
     {
         //$artist = Artist::query(sprintf('select * from `Artist` where ArtistId = %d', 94))->one();

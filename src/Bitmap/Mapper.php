@@ -241,18 +241,22 @@ class Mapper
      */
     public function loadOne(ResultSet $result)
     {
-        $entity = $this->createEntity();
-        foreach ($result->getValuesOneEntity($this) as $name => $value) {
-            $this->fieldsByName[$name]->set($entity, $value);
-        }
+    	if (sizeof($values = $result->getValuesOneEntity($this)) > 0) {
+		    $entity = $this->createEntity();
+		    foreach ($values as $name => $value) {
+			    $this->fieldsByName[$name]->set($entity, $value);
+		    }
 
-        foreach ($this->associations as $association) {
-            $association->set($result, $entity);
-        }
+		    foreach ($this->associations as $association) {
+			    $association->set($result, $entity);
+		    }
 
-        $entity->setBitmapHash($this->hash($entity));
+		    $entity->setBitmapHash($this->hash($entity));
 
-        return $entity;
+		    return $entity;
+	    }
+
+	    return null;
     }
 
     /**
