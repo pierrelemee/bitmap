@@ -17,7 +17,7 @@ abstract class ModifyEntityQuery extends ModifyQuery
         $this->entity = $entity;
     }
 
-    protected function fieldValues()
+    protected function fieldValues($associations = true)
     {
         $values = [];
         foreach ($this->mapper->getFields() as $name => $field) {
@@ -32,12 +32,14 @@ abstract class ModifyEntityQuery extends ModifyQuery
             }
         }
 
-        foreach ($this->mapper->associations() as $name => $association) {
-            if ($association->getMapper()->hasPrimary()) {
-                $entity = $association->get($this->entity);
+        if ($associations) {
+            foreach ($this->mapper->associations() as $name => $association) {
+                if ($association->getMapper()->hasPrimary()) {
+                    $entity = $association->get($this->entity);
 
-                if (null !== $entity) {
-                    $values[$association->getName()] = $association->getMapper()->getPrimary()->get($entity);
+                    if (null !== $entity) {
+                        $values[$association->getName()] = $association->getMapper()->getPrimary()->get($entity);
+                    }
                 }
             }
         }

@@ -6,6 +6,7 @@ use Bitmap\Transformers\FloatTransformer;
 use Bitmap\Transformers\IntegerTransformer;
 use Bitmap\Transformers\StringTransformer;
 use PDO;
+use ReflectionClass;
 
 /**
  * Class Bitmap
@@ -35,17 +36,27 @@ class Bitmap
      */
     private static $BITMAP;
 
-    const TYPE_INTEGER = "integer";
-    const TYPE_FLOAT = "float";
-    const TYPE_STRING = "string";
-    const TYPE_OBJECT = "object";
+    const TYPE_INTEGER  = "integer";
+    const TYPE_FLOAT    = "float";
+    const TYPE_STRING   = "string";
+    const TYPE_OBJECT   = "object";
+    const TYPE_DATE     = "date";
+    const TYPE_DATETIME = "datetime";
 
     protected $transformers = [];
 
     public function __construct()
     {
-        foreach ([new IntegerTransformer(), new StringTransformer(), new FloatTransformer()] as $transformer) {
-            $this->transformers[$transformer->getName()] = $transformer;
+        $dir = realpath(__DIR__ . '/Transformers');
+        foreach (scandir($dir) as $file) {
+            if (preg_match("/\\.php$/", $file)) {
+                $reflection = new ReflectionClass(__NAMESPACE__ . '\\Transformers\\' . preg_replace("/\\.php$/", "", $file));
+                
+                if ($reflection->isSubclassOf(Transformer::class)) {
+                    $transformer = $reflection->newInstance();
+                    $this->transformers[$transformer->getName()] = $transformer;
+                }
+            }
         }
     }
 
@@ -140,9 +151,11 @@ class Bitmap
      */
     public static function getTransformer($type)
     {
-        return self::hasTransformer($type) ?
-            self::current()->transformers[$type] :
-            self::current()->transformers[self::TYPE_STRING];
+        if (self::hasTransformer($type)) {
+            return self::current()->transformers[$type];
+        }
+
+        return self::current()->transformers[self::TYPE_STRING];
     }
 
     /**

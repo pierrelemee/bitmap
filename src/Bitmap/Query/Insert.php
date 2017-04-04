@@ -20,7 +20,7 @@ class Insert extends ModifyEntityQuery
 
     public function sql()
     {
-        $values = $this->fieldValues();
+        $values = $this->fieldValues(false);
 
         return sprintf(
             "insert into `%s` (%s) values (%s)",
