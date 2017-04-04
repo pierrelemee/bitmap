@@ -50,8 +50,10 @@ class MethodField extends Field
         } else {
             if ($class->hasMethod($getter)) {
                 $getter = $class->getMethod($getter);
+                $setter = self::setterForGetter($getter);
             } else if ($class->hasMethod(self::getterForName($getter))) {
                 $getter = $class->getMethod(self::getterForName($getter));
+                $setter = self::setterForGetter($getter);
             }
         }
 

@@ -191,7 +191,9 @@ class Mapper
     {
         // Save all associated entities first:
         foreach ($this->associations as $association) {
-            $association->get($entity)->save();
+            foreach ($association->getAll($entity) as $e) {
+                $e->save();
+            }
         }
 
         $sql = Insert::fromEntity($entity)->sql();

@@ -34,6 +34,11 @@ abstract class AssociationManyToMany extends Association
         return $this->getEntities($entity);
     }
 
+    public function getAll(Entity $entity)
+    {
+        return $this->get($entity);
+    }
+
     /**
      * @param Entity $entity
      *

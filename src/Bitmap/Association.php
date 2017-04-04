@@ -59,5 +59,12 @@ abstract class Association
      */
     public abstract function get(Entity $entity);
 
+    /**
+     * @param Entity $entity
+     *
+     * @return Entity[]
+     */
+    public abstract function getAll(Entity $entity);
+
     public abstract function set(ResultSet $result, Entity $entity);
 }

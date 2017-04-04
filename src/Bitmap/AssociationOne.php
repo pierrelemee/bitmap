@@ -21,6 +21,13 @@ abstract class AssociationOne extends Association
         return $this->getEntity($entity);
     }
 
+    public function getAll(Entity $entity)
+    {
+        return [
+            $this->get($entity)
+        ];
+    }
+
     /**
      * @param Entity $entity
      */
@@ -32,5 +39,4 @@ abstract class AssociationOne extends Association
     }
 
     protected abstract function setEntity(Entity $entity, Entity $associated);
-
 }

@@ -42,12 +42,13 @@ class PropertyField extends Field
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @param ReflectionClass $class
+     * @param string $property the name of the public property to use, if different from the column name
      *
      * @return PropertyField
      */
-    public static function fromClass($name, ReflectionClass $class, $property)
+    public static function fromClass($name, ReflectionClass $class, $property = null)
     {
         return new PropertyField($name, $class->getProperty($property ? : $name));
     }
