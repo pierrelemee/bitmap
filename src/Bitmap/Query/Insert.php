@@ -17,7 +17,6 @@ class Insert extends ModifyEntityQuery
         return new Insert($entity);
     }
 
-
     public function sql()
     {
         $values = $this->fieldValues(false);

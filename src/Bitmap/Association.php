@@ -32,6 +32,13 @@ abstract class Association
     }
 
     /**
+     * Indicates whether the association requires a value in a column of the source entity's table
+     *
+     * @return boolean
+     */
+    public abstract function hasLocalValue();
+
+    /**
      * Return the list of join clauses from the class managed by the mapper $left
      *
      * @param Mapper $left

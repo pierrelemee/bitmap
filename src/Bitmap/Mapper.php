@@ -212,10 +212,11 @@ class Mapper
     public function update(Entity $entity, $connection = null)
     {
         if (null !== $this->primary) {
-
             // Save all associated entities first:
             foreach ($this->associations as $association) {
-                $association->get($entity)->save();
+                foreach ($association->getAll($entity) as $e) {
+                    $e->save();
+                }
             }
 
             $sql = Update::fromEntity($entity)->sql();

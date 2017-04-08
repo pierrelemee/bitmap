@@ -19,11 +19,11 @@ class Update extends ModifyEntityQuery
         return new Update($entity);
     }
 
-    protected function fieldValues()
+    protected function fieldValueClause()
     {
         $sql = [];
 
-        foreach (parent::fieldValues() as $name => $value) {
+        foreach ($this->fieldValues() as $name => $value) {
             $sql[] = sprintf("`%s` = %s", $name, $value);
         }
 
@@ -35,7 +35,7 @@ class Update extends ModifyEntityQuery
         return sprintf(
             "update `%s` set %s where `%s` = %s",
             $this->mapper->getTable(),
-            $this->fieldValues(),
+            $this->fieldValueClause(),
             $this->mapper->getPrimary()->getName(),
             $this->mapper->getPrimary()->get($this->entity)
         );

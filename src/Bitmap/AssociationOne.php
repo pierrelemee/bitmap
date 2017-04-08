@@ -28,6 +28,11 @@ abstract class AssociationOne extends Association
         ];
     }
 
+    public function hasLocalValue()
+    {
+        return true;
+    }
+
     /**
      * @param Entity $entity
      */

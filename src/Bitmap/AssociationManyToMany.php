@@ -39,6 +39,11 @@ abstract class AssociationManyToMany extends Association
         return $this->get($entity);
     }
 
+    public function hasLocalValue()
+    {
+        return false;
+    }
+
     /**
      * @param Entity $entity
      *
