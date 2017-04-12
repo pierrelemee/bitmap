@@ -80,7 +80,7 @@ abstract class Field
      */
     public function setType($type)
     {
-        return $this->setTransformer(Bitmap::getTransformer($type));
+        return $this->setTransformer(Bitmap::current()->getTransformer($type));
     }
 
     /**

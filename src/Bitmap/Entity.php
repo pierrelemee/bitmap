@@ -14,6 +14,11 @@ abstract class Entity
 	 */
     protected $mapper;
 
+    private static function getBitmap()
+    {
+        return Bitmap::current();
+    }
+
     public function getBitmapHash()
     {
         return $this->bitmapHash;
@@ -53,7 +58,7 @@ abstract class Entity
 
     public static function getClassMapper($class)
     {
-        return Bitmap::getMapper($class);
+        return static::getBitmap()->getMapper($class);
     }
 
     /**
