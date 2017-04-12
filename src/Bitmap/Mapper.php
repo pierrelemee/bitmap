@@ -186,6 +186,8 @@ class Mapper
      * @param Entity $entity
      * @param null $connection
      * @return bool
+     *
+     * @throws Exception
      */
     public function insert(Entity $entity, $connection = null)
     {
@@ -199,14 +201,14 @@ class Mapper
         $sql = Insert::fromEntity($entity)->sql();
         $count = Bitmap::connection($connection)->exec($sql);
 
-        if ($count  > 0) {
+        if ($count !== false) {
             if ($this->hasPrimary()) {
                 $this->primary->set($entity, Bitmap::connection($connection)->lastInsertId());
             }
             return true;
         }
 
-        return false;
+        throw new Exception(Bitmap::connection($connection)->errorInfo(), Bitmap::connection($connection)->errorCode());
     }
 
     public function update(Entity $entity, $connection = null)
@@ -221,7 +223,12 @@ class Mapper
 
             $sql = Update::fromEntity($entity)->sql();
             $count = Bitmap::connection($connection)->exec($sql);
-            return $count > 0;
+
+	        if ($count !== false) {
+		        return true;
+	        }
+
+	        throw new Exception(Bitmap::connection($connection)->errorInfo(), Bitmap::connection($connection)->errorCode());
         }
 
         throw new Exception("No primary declared for class {$this->class}");

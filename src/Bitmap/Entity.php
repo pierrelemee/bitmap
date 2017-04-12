@@ -4,8 +4,7 @@ namespace Bitmap;
 
 use Bitmap\Query\RawSelectQuery;
 use Bitmap\Query\Select;
-use PDO;
-use Bitmap\Mappers\AnnotationMapper;
+use Exception;
 
 abstract class Entity
 {
@@ -70,6 +69,8 @@ abstract class Entity
      * @param $connection string the name of the connection to use
      *
      * @return boolean whether the save operation completed successfully
+     *
+     * @throws Exception
      */
     public function save($connection = null)
     {
