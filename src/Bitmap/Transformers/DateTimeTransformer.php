@@ -22,6 +22,6 @@ class DateTimeTransformer extends Transformer
 
     public function fromObject($value)
     {
-        return $value ? $value->format(self::DATE_FORMAT) : null;
+	    return sprintf('"%s"', $value->format(self::DATE_FORMAT));
     }
 }
