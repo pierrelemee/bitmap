@@ -75,9 +75,9 @@ abstract class Entity
     public function save($with = null, $connection = null)
     {
         if ($this->bitmapHash === null) {
-            $status = $this->mapper()->insert($this, $connection);
+            $status = $this->mapper()->insert($this, $with, $connection);
         } else {
-            $status = $this->mapper()->update($this, $connection);
+            $status = $this->mapper()->update($this, $with, $connection);
         }
 
         return $status;
