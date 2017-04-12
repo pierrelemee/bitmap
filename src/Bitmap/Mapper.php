@@ -208,7 +208,7 @@ class Mapper
             return true;
         }
 
-        throw new Exception(Bitmap::connection($connection)->errorInfo(), Bitmap::connection($connection)->errorCode());
+	    throw new Exception(Bitmap::connection($connection)->errorInfo()[2], Bitmap::connection($connection)->errorCode()[1]);
     }
 
     public function update(Entity $entity, $connection = null)
@@ -228,7 +228,7 @@ class Mapper
 		        return true;
 	        }
 
-	        throw new Exception(Bitmap::connection($connection)->errorInfo(), Bitmap::connection($connection)->errorCode());
+	        throw new Exception(Bitmap::connection($connection)->errorInfo()[2], Bitmap::connection($connection)->errorCode()[1]);
         }
 
         throw new Exception("No primary declared for class {$this->class}");
