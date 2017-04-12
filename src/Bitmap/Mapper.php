@@ -184,18 +184,22 @@ class Mapper
 
     /**
      * @param Entity $entity
+     * @param null|array $with the list of association (by their names) to recursively save
      * @param null $connection
+     *
      * @return bool
      *
      * @throws Exception
      */
-    public function insert(Entity $entity, $connection = null)
+    public function insert(Entity $entity, $with = null, $connection = null)
     {
         // Save all associated entities first:
         foreach ($this->associations as $association) {
-            foreach ($association->getAll($entity) as $e) {
-                $e->save();
-            }
+        	if (!is_array($with) || in_array($with, $association->getName())) {
+		        foreach ($association->getAll($entity) as $e) {
+			        $e->save((is_array($with) && isset($with[$association->getName()]) && is_array($with[$association->getName()])) ? $with[$association->getName()] : null, $connection);
+		        }
+	        }
         }
 
         $sql = Insert::fromEntity($entity)->sql();
@@ -211,14 +215,25 @@ class Mapper
 	    throw new Exception(Bitmap::connection($connection)->errorInfo()[2], Bitmap::connection($connection)->errorCode()[1]);
     }
 
-    public function update(Entity $entity, $connection = null)
+	/**
+	 * @param Entity $entity
+	 * @param null|array $with the list of association (by their names) to recursively save
+	 * @param null $connection
+	 *
+	 * @return bool
+	 *
+	 * @throws Exception
+	 */
+    public function update(Entity $entity, $with = null, $connection = null)
     {
         if (null !== $this->primary) {
             // Save all associated entities first:
             foreach ($this->associations as $association) {
-                foreach ($association->getAll($entity) as $e) {
-                    $e->save();
-                }
+	            if (!is_array($with) || in_array($with, $association->getName())) {
+		            foreach ($association->getAll($entity) as $e) {
+			            $e->save((is_array($with) && isset($with[$association->getName()]) && is_array($with[$association->getName()])) ? $with[$association->getName()] : null, $connection);
+		            }
+	            }
             }
 
             $sql = Update::fromEntity($entity)->sql();
