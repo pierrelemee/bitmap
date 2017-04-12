@@ -10,7 +10,7 @@ class Insert extends ModifyEntityQuery
      * @{@inheritdoc}
      * @param string $class
      *
-     * @return Delete
+     * @return self
      */
     public static function fromEntity(Entity $entity)
     {
@@ -24,7 +24,7 @@ class Insert extends ModifyEntityQuery
         return sprintf(
             "insert into `%s` (%s) values (%s)",
             $this->mapper->getTable(),
-            implode(", ", array_keys($values)),
+            implode(", ", array_map(function ($value) { return "`$value`"; }, array_keys($values))),
             implode(", ", array_values($values))
         );
     }

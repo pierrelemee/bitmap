@@ -18,7 +18,7 @@ class Delete extends ModifyQuery
      * @{@inheritdoc}
      * @param string $class
      *
-     * @return Delete
+     * @return self
      */
     public static function fromEntity(Entity $entity)
     {
