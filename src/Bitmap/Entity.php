@@ -65,8 +65,8 @@ abstract class Entity
     }
 
     /**
-     *
      * @param $connection string the name of the connection to use
+     * @param null|array $with the list of association (by their names) to recursively save
      *
      * @return boolean whether the save operation completed successfully
      *

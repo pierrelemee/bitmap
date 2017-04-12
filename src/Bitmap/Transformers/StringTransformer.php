@@ -18,6 +18,6 @@ class StringTransformer extends Transformer
 
     public function fromObject($value)
     {
-        return sprintf('"%s"', $value);
+        return sprintf('"%s"', addslashes($value));
     }
 }

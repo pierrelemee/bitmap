@@ -195,7 +195,7 @@ class Mapper
     {
         // Save all associated entities first:
         foreach ($this->associations as $association) {
-        	if (!is_array($with) || in_array($with, $association->getName())) {
+        	if (!is_array($with) || in_array($association->getName(), $with)) {
 		        foreach ($association->getAll($entity) as $e) {
 			        $e->save((is_array($with) && isset($with[$association->getName()]) && is_array($with[$association->getName()])) ? $with[$association->getName()] : null, $connection);
 		        }
@@ -212,7 +212,8 @@ class Mapper
             return true;
         }
 
-	    throw new Exception(Bitmap::connection($connection)->errorInfo()[2], Bitmap::connection($connection)->errorCode()[1]);
+        $error = Bitmap::connection($connection)->errorInfo();
+	    throw new Exception($error[2], $error[1]);
     }
 
 	/**
@@ -229,7 +230,7 @@ class Mapper
         if (null !== $this->primary) {
             // Save all associated entities first:
             foreach ($this->associations as $association) {
-	            if (!is_array($with) || in_array($with, $association->getName())) {
+	            if (!is_array($with) || in_array($association->getName(), $with)) {
 		            foreach ($association->getAll($entity) as $e) {
 			            $e->save((is_array($with) && isset($with[$association->getName()]) && is_array($with[$association->getName()])) ? $with[$association->getName()] : null, $connection);
 		            }
@@ -243,7 +244,8 @@ class Mapper
 		        return true;
 	        }
 
-	        throw new Exception(Bitmap::connection($connection)->errorInfo()[2], Bitmap::connection($connection)->errorCode()[1]);
+	        $error = Bitmap::connection($connection)->errorInfo();
+	        throw new Exception($error[2], $error[1]);
         }
 
         throw new Exception("No primary declared for class {$this->class}");
