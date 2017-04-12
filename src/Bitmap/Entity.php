@@ -10,6 +10,10 @@ use Bitmap\Mappers\AnnotationMapper;
 abstract class Entity
 {
     protected $bitmapHash;
+	/**
+	 * @var Mapper
+	 */
+    protected $mapper;
 
     protected function getBitmapHash()
     {
@@ -24,15 +28,28 @@ abstract class Entity
         $this->bitmapHash = $hash;
     }
 
+	/**
+	 * @return Mapper
+	 */
+    protected function mapper()
+    {
+    	if (null === $this->mapper) {
+    		$this->mapper = $this->getMapper();
+	    }
+
+    	return $this->mapper;
+    }
+
     /**
      * @return Mapper
      */
     public abstract function getMapper();
 
-    public static function mapper($class)
+    public static function getClassMapper($class)
     {
         if (!Bitmap::hasMapper($class)) {
-            Bitmap::addMapper((new $class())->getMapper());
+        	$entity = new $class();
+            Bitmap::addMapper($entity->mapper());
         }
 
         return Bitmap::getMapper($class);
@@ -40,12 +57,12 @@ abstract class Entity
 
     public static function select()
     {
-        return new Select(self::mapper(get_called_class()));
+        return new Select(self::getClassMapper(get_called_class()));
     }
 
     public static function query($sql)
     {
-        return new RawSelectQuery(self::mapper(get_called_class()), $sql);
+        return new RawSelectQuery(self::getClassMapper(get_called_class()), $sql);
     }
 
     /**
@@ -57,9 +74,9 @@ abstract class Entity
     public function save($connection = null)
     {
         if ($this->bitmapHash === null) {
-            $status = $this->getMapper()->insert($this, $connection);
+            $status = $this->mapper()->insert($this, $connection);
         } else {
-            $status = $this->getMapper()->update($this, $connection);
+            $status = $this->mapper()->update($this, $connection);
         }
 
         return $status;

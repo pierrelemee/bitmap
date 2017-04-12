@@ -51,10 +51,10 @@ class Track extends Entity
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_FLOAT))
             )
             ->addAssociation(
-                MethodAssociationOne::fromMethods('GenreId', self::mapper('Chinook\Valid\Inline\Genre'), $reflection->getMethod('getGenre'), $reflection->getMethod('setGenre'), 'GenreId')
+                MethodAssociationOne::fromMethods('GenreId', self::getClassMapper('Chinook\Valid\Inline\Genre'), $reflection->getMethod('getGenre'), $reflection->getMethod('setGenre'), 'GenreId')
             )
             ->addAssociation(
-                MethodAssociationOne::fromMethods('MediaTypeId', self::mapper('Chinook\Valid\Inline\MediaType'), $reflection->getMethod('getMedia'), $reflection->getMethod('setMedia'), 'MediaTypeId')
+                MethodAssociationOne::fromMethods('MediaTypeId', self::getClassMapper('Chinook\Valid\Inline\MediaType'), $reflection->getMethod('getMedia'), $reflection->getMethod('setMedia'), 'MediaTypeId')
             );
     }
 
