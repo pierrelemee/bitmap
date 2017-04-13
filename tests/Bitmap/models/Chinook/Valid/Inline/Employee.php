@@ -33,7 +33,7 @@ class Employee extends Entity
             ->addAssociation(
                 MethodAssociationOne::fromMethods(
                     'ReportsTo',
-                    self::mapper(),
+                    __CLASS__,
                     $reflection->getMethod('getSuperior'),
                     $reflection->getMethod('setSuperior'),
                     'EmployeeId'

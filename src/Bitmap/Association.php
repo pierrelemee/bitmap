@@ -5,13 +5,13 @@ namespace Bitmap;
 abstract class Association
 {
     protected $name;
-    protected $mapper;
+    protected $class;
     protected $right;
 
-    public function __construct($name, Mapper $mapper, $right)
+    public function __construct($name, $class, $right)
     {
         $this->name = $name;
-        $this->mapper = $mapper;
+        $this->class = $class;
         $this->right = $right;
     }
 
@@ -24,11 +24,19 @@ abstract class Association
     }
 
     /**
+     * @return mixed
+     */
+    public function getClass()
+    {
+        return $this->class;
+    }
+
+    /**
      * @return Mapper
      */
     public function getMapper()
     {
-        return $this->mapper;
+        return Bitmap::getMapper($this->class);
     }
 
     /**

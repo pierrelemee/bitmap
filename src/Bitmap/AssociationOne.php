@@ -7,7 +7,7 @@ abstract class AssociationOne extends Association
     public function joinClauses(Mapper $left)
     {
         return [
-            $this->joinClause($left->getTable(), $this->name, $this->mapper->getTable(), $this->right)
+            $this->joinClause($left->getTable(), $this->name, $this->getMapper()->getTable(), $this->right)
         ];
     }
 
@@ -38,7 +38,7 @@ abstract class AssociationOne extends Association
 
     public function set(ResultSet $result, Entity $entity)
     {
-        $this->setEntity($entity, $this->mapper->loadOne($result));
+        $this->setEntity($entity, $this->getMapper()->loadOne($result));
     }
 
     protected abstract function setEntity(Entity $entity, Entity $associated);

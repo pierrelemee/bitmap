@@ -280,7 +280,9 @@ class Mapper
 		    }
 
 		    foreach ($this->associations as $association) {
-			    $association->set($result, $entity);
+                if ($association->getClass() !== $this->class) {
+                    $association->set($result, $entity);
+                }
 		    }
 
 		    $entity->setBitmapHash($this->hash($entity));

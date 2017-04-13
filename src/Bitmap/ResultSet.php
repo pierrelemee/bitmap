@@ -42,7 +42,9 @@ class ResultSet
         }
 
         foreach ($mapper->associations() as $name => $association) {
-            $this->read($association->getMapper(), $data, $strategy);
+            if ($association->getClass() !== $mapper->getClass()) {
+                $this->read($association->getMapper(), $data, $strategy);
+            }
         }
     }
 

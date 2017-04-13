@@ -100,10 +100,15 @@ class Select extends Query
         $joins = [];
         $mapper = $mapper ? : $this->mapper;
         foreach ($mapper->associations() as $association) {
-            $joins = array_merge($joins, $association->joinClauses($mapper));
+            if ($association->getClass() !== $mapper->getClass()) {
+                $joins = array_merge($joins, $association->joinClauses($mapper));
+            }
         }
         foreach ($mapper->associations() as $association) {
-            $joins = array_merge($joins, $this->joinClauses($association->getMapper()));
+            if ($association->getClass() !== $mapper->getClass()) {
+                $joins = array_merge($joins, $this->joinClauses($association->getMapper()));
+            }
+
         }
 
         return $joins;
@@ -123,7 +128,9 @@ class Select extends Query
         }
 
         foreach ($mapper->associations() as $association) {
-            $fields = array_merge($fields, $this->fields($association->getMapper()));
+            if ($this->mapper->getClass() !== $mapper->getClass()) {
+                $fields = array_merge($fields, $this->fields($association->getMapper()));
+            }
         }
 
         return $fields;
