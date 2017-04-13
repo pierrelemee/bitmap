@@ -2,6 +2,7 @@
 
 namespace Bitmap;
 
+use Chinook\Valid\Inline\Employee;
 use Chinook\Valid\Inline\Album;
 use Chinook\Valid\Inline\Artist;
 use Chinook\Valid\Inline\Track;
@@ -29,6 +30,15 @@ class EntityTest extends TestCase
     public function after()
     {
         Bitmap::connection(self::CONNECTION_NAME)->rollBack();
+    }
+
+    public function testGetEmployeeAndSuperior()
+    {
+        $employee= Employee::select()->where('EmployeeId', '=', 8)->one();
+
+        $this->assertNotNull($employee);
+        $this->assertNotNull($employee->getSuperior());
+        $this->assertEquals(Employee::class, get_class($employee->getSuperior()));
     }
 
     public function testAddNewArtist()
