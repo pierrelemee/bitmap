@@ -5,9 +5,16 @@ namespace Bitmap\Query;
 use Bitmap\Bitmap;
 use Bitmap\Strategies\PrefixStrategy;
 use Bitmap\Mapper;
+use PDO;
+use Bitmap\FieldMappingStrategy;
+use Bitmap\ResultSet;
 
-class Select extends RetrieveQuery
+class Select extends Query
 {
+    /**
+     * @var FieldMappingStrategy
+     */
+    protected $strategy;
     protected $where;
 
     public function __construct(Mapper $mapper)
@@ -15,6 +22,38 @@ class Select extends RetrieveQuery
         parent::__construct($mapper);
         $this->where = [];
         $this->strategy = new PrefixStrategy();
+    }
+
+    public function execute(PDO $connection)
+    {
+        $sql = $this->sql();
+        return $connection->query($sql, $this->strategy->getPdoFetchingType());
+    }
+
+    /**
+     * @param null $connection
+     *
+     * @return Entity|null
+     */
+    public function one($connection = null)
+    {
+        $stmt = $this->execute(Bitmap::connection($connection));
+        $result = new ResultSet($stmt, $this->mapper, $this->strategy);
+
+        return $this->mapper->loadOne($result);
+    }
+
+    /**
+     * @param null $connection
+     *
+     * @return Entity[]
+     */
+    public function all($connection = null)
+    {
+        $stmt = $this->execute(Bitmap::connection($connection));
+        $result = new ResultSet($stmt, $this->mapper, $this->strategy);
+
+        return $this->mapper->loadAll($result);
     }
 
     public static function fromClass($class)
