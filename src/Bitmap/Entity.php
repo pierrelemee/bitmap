@@ -2,7 +2,6 @@
 
 namespace Bitmap;
 
-use Bitmap\Query\RawSelectQuery;
 use Bitmap\Query\Select;
 use Exception;
 
@@ -57,11 +56,6 @@ abstract class Entity
     public static function select()
     {
         return new Select(self::getClassMapper(get_called_class()));
-    }
-
-    public static function query($sql)
-    {
-        return new RawSelectQuery(self::getClassMapper(get_called_class()), $sql);
     }
 
     /**
