@@ -8,6 +8,7 @@ use Bitmap\Mapper;
 use PDO;
 use Bitmap\FieldMappingStrategy;
 use Bitmap\ResultSet;
+use Exception;
 
 class Select extends Query
 {
@@ -63,15 +64,35 @@ class Select extends Query
 
     public function where($field, $operation, $value)
     {
-        $this->where[] = sprintf(
-            "`%s`.`%s` %s %s",
-            $this->mapper->getTable(),
-            $this->mapper->getField($field)->getName(),
-            $operation,
-            $this->mapper->getField($field)->getTransformer()->fromObject($value)
-        );
+    	if ($this->mapper->hasField($field)) {
+		    $this->where[] = sprintf(
+			    "`%s`.`%s` %s %s",
+			    $this->mapper->getTable(),
+			    $this->mapper->getField($field)->getName(),
+			    $operation,
+			    $this->mapper->getField($field)->getTransformer()->fromObject($value)
+		    );
 
-        return $this;
+		    return $this;
+	    }
+
+	    if ($this->mapper->hasAssociation($field)) {
+    		$association = $this->mapper->getAssociation($field);
+
+    		if ($association->hasLocalValue()) {
+			    $this->where[] = sprintf(
+				    "`%s`.`%s` %s %s",
+				    $this->mapper->getTable(),
+				    $association->getName(),
+				    $operation,
+				    $value
+			    );
+		    }
+
+		    return $this;
+	    }
+
+	    throw new Exception("No field with name '{$field}'");
     }
 
     protected function joinClauses($mapper = null)

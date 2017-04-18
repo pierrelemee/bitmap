@@ -47,6 +47,13 @@ class EntityTest extends TestCase
         $this->assertSame('Jimi Hendrix', $artist->name);
     }
 
+	public function testGetAlbumsByArtist()
+	{
+		$albums = Album::select()->where('ArtistId', '=', 131)->all();
+
+		$this->assertEquals(2, sizeof($albums));
+	}
+
     public function testGetArtists()
     {
         $artists = Artist::select()->where('Name', 'like', 'The%')->all();

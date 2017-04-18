@@ -141,6 +141,16 @@ class Mapper
         return $this->fieldsByName;
     }
 
+	public function hasAssociation($name)
+	{
+		return isset($this->associations[$name]);
+	}
+
+	public function getAssociation($name)
+	{
+		return isset($this->associations[$name]) ? $this->associations[$name] : null;
+	}
+
     /**
      * @return Association[]
      */
