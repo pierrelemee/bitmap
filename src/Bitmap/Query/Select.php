@@ -37,7 +37,6 @@ class Select extends Query
     public function execute(PDO $connection)
     {
         $sql = $this->sql();
-        echo "$sql\n";
         return $connection->query($sql, $this->strategy->getPdoFetchingType());
     }
 
@@ -51,7 +50,7 @@ class Select extends Query
     {
         $this->with = $with;
         $stmt = $this->execute(Bitmap::connection($connection));
-        $result = new ResultSet($stmt, $this->mapper, $this->strategy);
+        $result = new ResultSet($stmt, $this->mapper, $this->strategy, $with);
 
         return $this->mapper->loadOne($result);
     }
