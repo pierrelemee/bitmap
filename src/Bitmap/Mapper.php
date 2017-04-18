@@ -271,7 +271,7 @@ class Mapper
      *
      * @return Entity
      */
-    public function loadOne(ResultSet $result)
+    public function loadOne(ResultSet $result, $with = null, $ranks = null)
     {
     	if (sizeof($values = $result->getValuesOneEntity($this)) > 0) {
 		    $entity = $this->createEntity();
@@ -280,8 +280,10 @@ class Mapper
 		    }
 
 		    foreach ($this->associations as $association) {
-                if ($association->getClass() !== $this->class) {
-                    $association->set($result, $entity);
+                if (null === $with || (is_array($with) && isset($with[$association->getName()]))) {
+                    if ($association->getClass() !== $this->class) {
+                        $association->set($result, $entity);
+                    }
                 }
 		    }
 

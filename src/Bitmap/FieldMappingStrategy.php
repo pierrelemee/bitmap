@@ -16,8 +16,9 @@ abstract class FieldMappingStrategy
     /**
      * @param Mapper $mapper
      * @param Field $field
+     * @param integer $index
      *
      * @return string
      */
-    public abstract function getFieldLabel(Mapper $mapper, Field $field);
+    public abstract function getFieldLabel(Mapper $mapper, Field $field, $index = 0);
 }

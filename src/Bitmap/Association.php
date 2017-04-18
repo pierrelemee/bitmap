@@ -49,14 +49,17 @@ abstract class Association
     /**
      * Return the list of join clauses from the class managed by the mapper $left
      *
-     * @param Mapper $left
+     * @param string $name
+     * @param integer $index
+     *
      * @return string[]
      */
-    public abstract function joinClauses(Mapper $left);
+    public abstract function joinClauses($name, $index);
 
-    protected function joinClause($tableFrom, $columnFrom, $tableTo, $columnTo)
+    protected function joinClause($tableFrom, $columnFrom, $tableTo, $columnTo, $aliasTo = null)
     {
-        return " inner join `{$tableTo}` on `{$tableFrom}`.`{$columnFrom}` = `{$tableTo}`.`{$columnTo}`";
+        $alias = $aliasTo ? "`{$aliasTo}`" : '';
+        return " inner join `{$tableTo}` {$alias} on `{$tableFrom}`.`{$columnFrom}` = `{$aliasTo}`.`{$columnTo}`";
     }
 
     /**

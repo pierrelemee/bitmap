@@ -4,10 +4,10 @@ namespace Bitmap;
 
 abstract class AssociationOne extends Association
 {
-    public function joinClauses(Mapper $left)
+    public function joinClauses($name, $index)
     {
         return [
-            $this->joinClause($left->getTable(), $this->name, $this->getMapper()->getTable(), $this->right)
+            $this->joinClause($name, $this->name, $this->getMapper()->getTable(), $this->right, $index > 0 ? $this->getMapper()->getTable() . $index : '')
         ];
     }
 

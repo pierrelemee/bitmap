@@ -14,8 +14,9 @@ class PrefixStrategy extends FieldMappingStrategy
         return PDO::FETCH_ASSOC;
     }
 
-    public function getFieldLabel(Mapper $mapper, Field $field)
+    public function getFieldLabel(Mapper $mapper, Field $field, $index = 0)
     {
-        return "{$mapper->getTable()}.{$field->getName()}";
+        $suffix = $index > 0 ? $index : '';
+        return "{$mapper->getTable()}{$suffix}.{$field->getName()}";
     }
 }
