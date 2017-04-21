@@ -103,6 +103,43 @@ class EntityTest extends TestCase
         $this->assertEquals(276, Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
 
+	/**
+	 * @param $with
+	 * @param $artistSaved
+	 *
+	 * @dataProvider addNewAlbumData
+	 */
+	public function testAddNewAlbum($with, $artistSaved)
+	{
+		$artist = new Artist();
+		$artist->name = 'Radiohead';
+
+		$album = new Album();
+		$album->setTitle("OK Computer");
+		$album->setArtist($artist);
+
+		$this->assertTrue($album->save($with));
+		$this->assertNotNull($album->getId());
+		$this->assertEquals(276, Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+
+		if ($artistSaved) {
+			$this->assertNotNull($artist->getId());
+			$this->assertEquals(348, Bitmap::connection('chinook')->query("select count(*) as `total` from `Album`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+		} else {
+			$this->assertEquals(347, Bitmap::connection('chinook')->query("select count(*) as `total` from `Album`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+		}
+	}
+
+	public function addNewAlbumData()
+	{
+		return [
+			[
+				['ArtistId'],
+				true
+			]
+		];
+	}
+
     public function testAddNewTrackAndGenre()
     {
         $genre = new Genre();
