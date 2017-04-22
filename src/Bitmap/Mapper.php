@@ -205,7 +205,7 @@ class Mapper
     {
         // Save all associated entities first:
         foreach ($this->associations as $association) {
-        	if (!is_array($with) || in_array($association->getName(), $with)) {
+        	if (null === $with || (is_array($with) && in_array($association->getName(), $with))) {
 		        foreach ($association->getAll($entity) as $e) {
 			        $e->save((is_array($with) && isset($with[$association->getName()]) && is_array($with[$association->getName()])) ? $with[$association->getName()] : null, $connection);
 		        }

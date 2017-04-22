@@ -23,9 +23,7 @@ abstract class AssociationOne extends Association
 
     public function getAll(Entity $entity)
     {
-        return [
-            $this->get($entity)
-        ];
+        return ($value = $this->get($entity)) !== null ? [$value] : [];
     }
 
     public function hasLocalValue()

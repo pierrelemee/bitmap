@@ -23,7 +23,7 @@ abstract class AssociationOneToMany extends Association
 
     public function getAll(Entity $entity)
     {
-        return $this->get($entity);
+        return $this->get($entity) ? : [];
     }
 
     public function hasLocalValue()

@@ -109,10 +109,17 @@ class EntityTest extends TestCase
 	 *
 	 * @dataProvider addNewAlbumData
 	 */
-	public function testAddNewAlbum($with, $artistSaved)
+	public function testAddNewAlbum($artist, $with, $isArtistSaved)
 	{
-		$artist = new Artist();
-		$artist->name = 'Radiohead';
+        $artistIsNew = false;
+        if (is_string($artist)) {
+            $name = $artist;
+            $artist = new Artist();
+            $artist->name = $name;
+            $artistIsNew = true;
+        } else if (is_int($artist)) {
+            $artist = Artist::select()->where('ArtistId', '=', $artist)->one();
+        }
 
 		$album = new Album();
 		$album->setTitle("OK Computer");
@@ -120,9 +127,10 @@ class EntityTest extends TestCase
 
 		$this->assertTrue($album->save($with));
 		$this->assertNotNull($album->getId());
-		$this->assertEquals(276, Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
 
-		if ($artistSaved) {
+		$this->assertEquals(275 + ($artistIsNew ? 1 : 0), Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+
+		if ($isArtistSaved) {
 			$this->assertNotNull($artist->getId());
 			$this->assertEquals(348, Bitmap::connection('chinook')->query("select count(*) as `total` from `Album`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
 		} else {
@@ -134,9 +142,35 @@ class EntityTest extends TestCase
 	{
 		return [
 			[
-				['ArtistId'],
+                'Radiohead',
+                ['ArtistId'],
 				true
-			]
+			],
+            [
+                'Radiohead',
+                [],
+                false
+            ],
+            [
+                'Radiohead',
+                null,
+                true
+            ],
+            [
+                193,
+                ['ArtistId'],
+                true
+            ],
+            [
+                193,
+                [],
+                false
+            ],
+            [
+                193,
+                null,
+                true
+            ],
 		];
 	}
 
