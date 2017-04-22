@@ -6,15 +6,23 @@ use Bitmap\Entity;
 
 class Insert extends ModifyEntityQuery
 {
+    protected $with;
+
+    public function __construct(Entity $entity, $with = [])
+    {
+        parent::__construct($entity);
+        $this->with = $with;
+    }
+
     /**
      * @{@inheritdoc}
      * @param string $class
      *
      * @return self
      */
-    public static function fromEntity(Entity $entity)
+    public static function fromEntity(Entity $entity, $with = [])
     {
-        return new Insert($entity);
+        return new Insert($entity, $with);
     }
 
     public function sql()

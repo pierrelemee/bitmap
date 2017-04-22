@@ -148,11 +148,6 @@ class EntityTest extends TestCase
 			],
             [
                 'Radiohead',
-                [],
-                false
-            ],
-            [
-                'Radiohead',
                 null,
                 true
             ],
@@ -160,11 +155,6 @@ class EntityTest extends TestCase
                 193,
                 ['ArtistId'],
                 true
-            ],
-            [
-                193,
-                [],
-                false
             ],
             [
                 193,

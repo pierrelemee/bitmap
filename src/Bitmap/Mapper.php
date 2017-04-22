@@ -212,18 +212,17 @@ class Mapper
 	        }
         }
 
-        $sql = Insert::fromEntity($entity)->sql();
-        $count = Bitmap::connection($connection)->exec($sql);
+        $query = new Insert($entity, $with);
+        $count = $query->execute(Bitmap::connection($connection));
 
-        if ($count !== false) {
+        if ($count > 0) {
             if ($this->hasPrimary()) {
                 $this->primary->set($entity, Bitmap::connection($connection)->lastInsertId());
             }
             return true;
         }
 
-        $error = Bitmap::connection($connection)->errorInfo();
-	    throw new Exception($error[2], $error[1]);
+        return false;
     }
 
 	/**
@@ -247,7 +246,8 @@ class Mapper
 	            }
             }
 
-            $sql = Update::fromEntity($entity)->sql();
+            $query = new Update($entity, $with);
+            $sql = $query->sql();
             $count = Bitmap::connection($connection)->exec($sql);
 
 	        if ($count !== false) {

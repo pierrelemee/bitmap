@@ -10,11 +10,13 @@ use Bitmap\Entity;
 abstract class ModifyEntityQuery extends ModifyQuery
 {
     protected $entity;
+    protected $with = [];
 
-    public function __construct(Entity $entity)
+    public function __construct(Entity $entity, $with = [])
     {
         parent::__construct($entity->getMapper());
         $this->entity = $entity;
+        $this->with = $with;
     }
 
     protected function fieldValues()
@@ -33,7 +35,7 @@ abstract class ModifyEntityQuery extends ModifyQuery
         }
 
         foreach ($this->mapper->associations() as $name => $association) {
-            if ($association->hasLocalValue() && $association->getMapper()->hasPrimary()) {
+            if ($association->hasLocalValue() && $association->getMapper()->hasPrimary() || null === $this->with || (is_array($this->with) && in_array($association->getName(), $this->with))) {
                 $entity = $association->get($this->entity);
 
                 if (null !== $entity) {
