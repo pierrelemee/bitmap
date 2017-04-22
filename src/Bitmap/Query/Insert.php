@@ -3,15 +3,18 @@
 namespace Bitmap\Query;
 
 use Bitmap\Entity;
+use Bitmap\Query\Context\Context;
 
 class Insert extends ModifyEntityQuery
 {
-    protected $with;
+    /**
+     * @var Context
+     */
+    protected $context;
 
-    public function __construct(Entity $entity, $with = [])
+    public function __construct(Entity $entity, $context)
     {
-        parent::__construct($entity);
-        $this->with = $with;
+        parent::__construct($entity, $context);
     }
 
     /**
@@ -27,7 +30,7 @@ class Insert extends ModifyEntityQuery
 
     public function sql()
     {
-        $values = $this->fieldValues(false);
+        $values = $this->fieldValues();
 
         return sprintf(
             "insert into `%s` (%s) values (%s)",

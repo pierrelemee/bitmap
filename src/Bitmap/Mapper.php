@@ -2,6 +2,7 @@
 
 namespace Bitmap;
 
+use Bitmap\Query\Context\Context;
 use Bitmap\Query\Delete;
 use Bitmap\Query\Insert;
 use Bitmap\Query\Update;
@@ -194,25 +195,25 @@ class Mapper
 
     /**
      * @param Entity $entity
-     * @param null|array $with the list of association (by their names) to recursively save
+     * @param Context $context the list of association (by their names) to recursively save
      * @param null $connection
      *
      * @return bool
      *
      * @throws Exception
      */
-    public function insert(Entity $entity, $with = null, $connection = null)
+    public function insert(Entity $entity, Context $context, $connection = null)
     {
         // Save all associated entities first:
         foreach ($this->associations as $association) {
-        	if (null === $with || (is_array($with) && in_array($association->getName(), $with))) {
+        	if ($context->hasDependency($association->getName())) {
 		        foreach ($association->getAll($entity) as $e) {
-			        $e->save((is_array($with) && isset($with[$association->getName()]) && is_array($with[$association->getName()])) ? $with[$association->getName()] : null, $connection);
+			        $e->save($context->getDependency($association->getName()), $connection);
 		        }
 	        }
         }
 
-        $query = new Insert($entity, $with);
+        $query = new Insert($entity, $context);
         $count = $query->execute(Bitmap::connection($connection));
 
         if ($count > 0) {
@@ -227,35 +228,29 @@ class Mapper
 
 	/**
 	 * @param Entity $entity
-	 * @param null|array $with the list of association (by their names) to recursively save
+	 * @param null|array|Context $context the list of association (by their names) to recursively save
 	 * @param null $connection
 	 *
 	 * @return bool
 	 *
 	 * @throws Exception
 	 */
-    public function update(Entity $entity, $with = null, $connection = null)
+    public function update(Entity $entity, Context $context, $connection = null)
     {
         if (null !== $this->primary) {
             // Save all associated entities first:
             foreach ($this->associations as $association) {
-	            if (!is_array($with) || in_array($association->getName(), $with)) {
+                if ($context->hasDependency($association->getName())) {
 		            foreach ($association->getAll($entity) as $e) {
-			            $e->save((is_array($with) && isset($with[$association->getName()]) && is_array($with[$association->getName()])) ? $with[$association->getName()] : null, $connection);
+			            $e->save($context->getDependency($association->getName()), $connection);
 		            }
 	            }
             }
 
-            $query = new Update($entity, $with);
-            $sql = $query->sql();
-            $count = Bitmap::connection($connection)->exec($sql);
+            $query = new Update($entity, $context);
+            $count = $query->execute(Bitmap::connection($connection));
 
-	        if ($count !== false) {
-		        return true;
-	        }
-
-	        $error = Bitmap::connection($connection)->errorInfo();
-	        throw new Exception($error[2], $error[1]);
+	        return $count > 0;
         }
 
         throw new Exception("No primary declared for class {$this->class}");

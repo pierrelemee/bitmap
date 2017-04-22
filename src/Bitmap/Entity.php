@@ -2,6 +2,7 @@
 
 namespace Bitmap;
 
+use Bitmap\Query\Context\Context;
 use Bitmap\Query\Select;
 use Exception;
 
@@ -60,18 +61,19 @@ abstract class Entity
 
     /**
      * @param $connection string the name of the connection to use
-     * @param null|array $with the list of association (by their names) to recursively save
+     * @param null|array|Context $context the list of association (by their names) to recursively save
      *
      * @return boolean whether the save operation completed successfully
      *
      * @throws Exception
      */
-    public function save($with = null, $connection = null)
+    public function save($context = null, $connection = null)
     {
+        $context = $context ? Context::fromContext($context) : Context::fromMapper($this->mapper());
         if ($this->bitmapHash === null) {
-            $status = $this->mapper()->insert($this, $with, $connection);
+            $status = $this->mapper()->insert($this, $context, $connection);
         } else {
-            $status = $this->mapper()->update($this, $with, $connection);
+            $status = $this->mapper()->update($this, $context, $connection);
         }
 
         return $status;

@@ -109,7 +109,7 @@ class EntityTest extends TestCase
 	 *
 	 * @dataProvider addNewAlbumData
 	 */
-	public function testAddNewAlbum($artist, $with, $isArtistSaved)
+	public function testAddNewAlbum($artist, $with)
 	{
         $artistIsNew = false;
         if (is_string($artist)) {
@@ -130,12 +130,8 @@ class EntityTest extends TestCase
 
 		$this->assertEquals(275 + ($artistIsNew ? 1 : 0), Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
 
-		if ($isArtistSaved) {
-			$this->assertNotNull($artist->getId());
-			$this->assertEquals(348, Bitmap::connection('chinook')->query("select count(*) as `total` from `Album`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
-		} else {
-			$this->assertEquals(347, Bitmap::connection('chinook')->query("select count(*) as `total` from `Album`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
-		}
+		$this->assertNotNull($artist->getId());
+        $this->assertEquals(348, Bitmap::connection('chinook')->query("select count(*) as `total` from `Album`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
 	}
 
 	public function addNewAlbumData()
@@ -148,6 +144,11 @@ class EntityTest extends TestCase
 			],
             [
                 'Radiohead',
+                ['ArtistId' => 1],
+                true
+            ],
+            [
+                'Radiohead',
                 null,
                 true
             ],
@@ -158,9 +159,14 @@ class EntityTest extends TestCase
             ],
             [
                 193,
-                null,
+                ['ArtistId' => 1],
                 true
             ],
+            [
+                193,
+                null,
+                true
+            ]
 		];
 	}
 
