@@ -31,51 +31,6 @@ class EntityTest extends TestCase
         Bitmap::connection(self::CONNECTION_NAME)->rollBack();
     }
 
-	public function testGetAlbumsByArtist()
-	{
-		$albums = Album::select()->where('ArtistId', '=', 131)->all();
-
-		$this->assertEquals(2, sizeof($albums));
-	}
-
-    public function testGetArtists()
-    {
-        $artists = Artist::select()->where('Name', 'like', 'The%')->all();
-
-        $expected = [
-            137 => 'The Black Crowes',
-            138 => 'The Clash',
-            139 => 'The Cult',
-            140 => 'The Doors',
-            141 => 'The Police',
-            142 => 'The Rolling Stones',
-            143 => 'The Tea Party',
-            144 => 'The Who',
-            156 => 'The Office',
-            174 => 'The Postal Service',
-            176 => 'The Flaming Lips',
-            200 => 'The Posies',
-            247 => 'The King\'s Singers',
-            259 => 'The 12 Cellists of The Berlin Philharmonic'
-        ];
-
-        $this->assertSameSize($expected, $artists);
-
-        foreach ($artists as $artist) {
-            $this->assertArrayHasKey($artist->getId(), $expected);
-            $this->assertEquals($expected[$artist->getId()], $artist->name);
-        }
-    }
-
-    public function testGetAlbumById()
-    {
-        $album = Album::select()->where('AlbumId', '=', 275)->one();
-
-        $this->assertNotNull($album);
-        $this->assertSame('Vivaldi: The Four Seasons', $album->getTitle());
-        $this->assertSame(209, $album->getArtist()->getId());
-    }
-
     public function testAddNewArtist()
     {
         $artist = new Artist();
