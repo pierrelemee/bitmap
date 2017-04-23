@@ -106,7 +106,6 @@ class Select extends Query
 	    throw new Exception("No field with name '{$field}'");
     }
 
-    protected function joinClauses($mapper = null)
     /**
      * @param $mapper Mapper
      * @param $with array
