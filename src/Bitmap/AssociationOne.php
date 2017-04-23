@@ -2,12 +2,14 @@
 
 namespace Bitmap;
 
+use Bitmap\Query\Context\Context;
+
 abstract class AssociationOne extends Association
 {
-    public function joinClauses(Mapper $left)
+    public function joinClauses($name, $depth)
     {
         return [
-            $this->joinClause($left->getTable(), $this->name, $this->mapper->getTable(), $this->right)
+            $this->joinClause($name, $this->name, $this->getMapper()->getTable(), $this->right, $this->getMapper()->getTable() . ($depth > 0 ?  $depth : ''))
         ];
     }
 
@@ -36,9 +38,9 @@ abstract class AssociationOne extends Association
      */
     protected abstract function getEntity(Entity $entity);
 
-    public function set(ResultSet $result, Entity $entity)
+    public function set(ResultSet $result, Entity $entity, Context $context, $depth = 0)
     {
-        $this->setEntity($entity, $this->mapper->loadOne($result));
+        $this->setEntity($entity, $this->getMapper()->loadOne($result, $context, $depth));
     }
 
     protected abstract function setEntity(Entity $entity, Entity $associated);

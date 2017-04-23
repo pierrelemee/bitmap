@@ -2,6 +2,7 @@
 
 namespace Bitmap;
 
+use Chinook\Valid\Inline\Employee;
 use Chinook\Valid\Inline\Album;
 use Chinook\Valid\Inline\Artist;
 use Chinook\Valid\Inline\Track;

@@ -35,7 +35,7 @@ class Playlist extends Entity
             ->addAssociation(
                 MethodAssociationManyToMany::fromMethods(
                     'PlaylistId',
-                    self::getClassMapper('Chinook\Valid\Inline\Track'),
+                    Track::class,
                     $reflection->getMethod('getTracks'),
                     $reflection->getMethod('setTracks'),
                     'PlaylistTrack',

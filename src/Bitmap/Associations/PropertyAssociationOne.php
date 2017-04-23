@@ -12,9 +12,9 @@ class PropertyAssociationOne extends AssociationOne
 {
     protected $property;
 
-    public function __construct($name, Mapper $mapper, ReflectionProperty $property, $target)
+    public function __construct($name, $class, ReflectionProperty $property, $target)
     {
-        parent::__construct($name, $mapper, $target);
+        parent::__construct($name, $class, $target);
         $this->property = $property;
     }
 
