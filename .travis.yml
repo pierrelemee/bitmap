@@ -2,5 +2,9 @@ language: php
 php:
   - '5.6'
   - '7.0'
+service:
+  - mysql
+before_install:
+  - mysql -u root --default-character-set=utf8 < tests/Bitmap/resources/Chinook_MySql_AutoIncrementPKs.sql
 install:
   - composer install

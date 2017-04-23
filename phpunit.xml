@@ -13,12 +13,7 @@
 
     <testsuites>
         <testsuite name="Bitmap Test Suite">
-            <directory>tests</directory>
+            <directory>tests/Bitmap</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist>
-            <directory>src</directory>
-        </whitelist>
-    </filter>
 </phpunit>
