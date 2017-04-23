@@ -2,6 +2,8 @@
 
 namespace Bitmap;
 
+use Bitmap\Query\Context\Context;
+
 abstract class AssociationManyToMany extends Association
 {
     protected $through;
@@ -16,7 +18,7 @@ abstract class AssociationManyToMany extends Association
         $this->rightReference = $rightReference;
     }
 
-    public function joinClauses($name)
+    public function joinClauses($name, $depth)
     {
         return [
             $this->joinClause($name, $this->name, $this->through, $this->leftReference),
@@ -51,7 +53,7 @@ abstract class AssociationManyToMany extends Association
      */
     protected abstract function getEntities(Entity $entity);
 
-    public function set(ResultSet $result, Entity $entity, $with = [], $depth = 0)
+    public function set(ResultSet $result, Entity $entity, Context $context, $depth = 0)
     {
         $this->setEntities($entity, $this->getMapper()->loadAll($result));
     }

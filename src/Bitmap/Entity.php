@@ -30,7 +30,7 @@ abstract class Entity
 	/**
 	 * @return Mapper
 	 */
-    protected function mapper()
+    public function mapper()
     {
     	if (null === $this->mapper) {
     		$this->mapper = $this->getMapper();
@@ -46,11 +46,6 @@ abstract class Entity
 
     public static function getClassMapper($class)
     {
-        if (!Bitmap::hasMapper($class)) {
-        	$entity = new $class();
-            Bitmap::addMapper($entity->mapper());
-        }
-
         return Bitmap::getMapper($class);
     }
 

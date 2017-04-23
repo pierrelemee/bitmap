@@ -3,6 +3,7 @@
 namespace Bitmap\Query;
 
 use Bitmap\Bitmap;
+use Bitmap\Query\Context\Context;
 use Bitmap\Strategies\PrefixStrategy;
 use Bitmap\Mapper;
 use PDO;
@@ -18,7 +19,10 @@ class Select extends Query
      */
     protected $strategy;
     protected $where;
-    protected $with;
+    /**
+     * @var Context
+     */
+    protected $context;
     protected $tables;
     protected $fields;
     protected $joins;
@@ -41,36 +45,33 @@ class Select extends Query
     }
 
     /**
+     * @param array|null|Context $with
      * @param null $connection
-     * @param array $with
      *
      * @return Entity|null
      */
-    public function one($with = [], $connection = null)
+    public function one($with = null, $connection = null)
     {
-        $this->with = $with;
+        $this->context = $with ? Context::fromContext($with) : Context::fromMapper($this->mapper);
         $stmt = $this->execute(Bitmap::connection($connection));
-        $result = new ResultSet($stmt, $this->mapper, $this->strategy, $with);
+        $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
 
-        return $this->mapper->loadOne($result);
+        return $this->mapper->loadOne($result, $this->context);
     }
 
     /**
+     * @param array|null|Context $with
      * @param null $connection
      *
      * @return Entity[]
      */
-    public function all($connection = null)
+    public function all($with = null, $connection = null)
     {
+        $this->context = $with ? Context::fromContext($with) : Context::fromMapper($this->mapper);
         $stmt = $this->execute(Bitmap::connection($connection));
-        $result = new ResultSet($stmt, $this->mapper, $this->strategy);
+        $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
 
-        return $this->mapper->loadAll($result);
-    }
-
-    public static function fromClass($class)
-    {
-        return new Select(Bitmap::getMapper(is_object($class) ? get_class($class) : $class));
+        return $this->mapper->loadAll($result, $this->context);
     }
 
     public function where($field, $operation, $value)
@@ -104,6 +105,26 @@ class Select extends Query
 	    }
 
 	    throw new Exception("No field with name '{$field}'");
+    }
+
+    protected function mapperDepth(Mapper $mapper)
+    {
+        if (!isset($this->tables[$mapper->getTable()])) {
+            $this->tables[$mapper->getTable()] = 0;
+        }
+
+        return $this->tables[$mapper->getTable()];
+    }
+
+    protected function incrementMapperDepth(Mapper $mapper)
+    {
+        if (!isset($this->tables[$mapper->getTable()])) {
+            $this->tables[$mapper->getTable()] = 0;
+        } else {
+            $this->tables[$mapper->getTable()]++;
+        }
+
+        return $this->tables[$mapper->getTable()];
     }
 
     /**
@@ -160,48 +181,40 @@ class Select extends Query
         return $fields;
     }
 
-    protected function tables(Mapper $mapper, $with = [])
+    protected function tables(Mapper $mapper, Context $context)
     {
-        if (!isset($this->tables[$mapper->getTable()])) {
-            $this->tables[$mapper->getTable()] = 0;
-        } else {
-            $this->tables[$mapper->getTable()]++;
-        }
-
-        $index = $this->tables[$mapper->getTable()];
+        $depth = $this->mapperDepth($mapper);
 
         foreach ($mapper->getFields() as $field) {
             $this->fields[] = sprintf(
                 "`%s`.`%s` as `%s`",
-                $mapper->getTable() . ($index > 0 ? $index : ''),
+                $mapper->getTable() . ($depth > 0 ? $depth : ''),
                 $field->getName(),
-                $this->strategy->getFieldLabel($mapper, $field, $index)
+                $this->strategy->getFieldLabel($mapper, $field, $depth)
             );
         }
 
         foreach ($mapper->associations() as $name => $association) {
-            if (isset($with[$association->getName()])) {
-                $this->joins = array_merge($this->joins, $association->joinClauses($mapper->getTable() . ($this->tables[$mapper->getTable()] > 0 ? $this->tables[$mapper->getTable()] : ''), $this->tables[$association->getMapper()->getTable()] + 1));
-                $this->tables($association->getMapper(), is_array($with[$association->getName()]) ? $with[$association->getName()] : []);
+            if ($context->hasDependency($association->getName())) {
+                if ($mapper->getClass() === $association->getMapper()->getClass()) {
+                    $this->incrementMapperDepth($mapper);
+                }
+
+                $this->joins = array_merge(
+                    $this->joins,
+                    $association->joinClauses(
+                        $mapper->getTable(),
+                        $this->mapperDepth($association->getMapper())
+                    )
+                );
+                $this->tables($association->getMapper(), $context->getDependency($association->getName()));
             }
         }
-
-        /*
-        foreach ($mapper->associations() as $name => $association) {
-            if (isset($with[$name])) {
-
-            }
-
-            if (!isset($tables[$association->getMapper()->getTable()])) {
-
-            }
-        }
-        */
     }
 
     public function sql()
     {
-        $this->tables($this->mapper, $this->with);
+        $this->tables($this->mapper, $this->context);
 
         return sprintf("select %s from %s %s",
             implode(", ", $this->fields),

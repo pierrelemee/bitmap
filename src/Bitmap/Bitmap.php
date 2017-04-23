@@ -2,20 +2,13 @@
 
 namespace Bitmap;
 
-use Bitmap\Transformers\FloatTransformer;
-use Bitmap\Transformers\IntegerTransformer;
-use Bitmap\Transformers\StringTransformer;
 use PDO;
 use ReflectionClass;
+use Exception;
 
 /**
  * Class Bitmap
  * @package PierreLemee\Bitmap
- *
- * TODO:
- *  - ono-to-one association
- *  - many-to-one association
- *  - many-to-many
  */
 class Bitmap
 {
@@ -124,9 +117,20 @@ class Bitmap
      * @param string $class
      *
      * @return Mapper
+     *
+     * @throws Exception
      */
     public static function getMapper($class)
     {
+        if (!self::current()->hasMapper($class)) {
+            $entity = new ReflectionClass($class);
+            if ($entity->isSubclassOf(Entity::class)) {
+                self::current()->addMapper($entity->newInstance()->mapper());
+            } else {
+                throw new Exception(sprintf("'%s' must be a sub class of '%s'", $class, Entity::class));
+            }
+        }
+
         return self::current()->mappers[$class];
     }
 

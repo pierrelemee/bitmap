@@ -36,10 +36,10 @@ class Album extends Entity
                     ->setType(Bitmap::TYPE_STRING)
             )
             ->addAssociation(
-                MethodAssociationOne::fromMethods('ArtistId', self::getClassMapper('Chinook\Valid\Inline\Artist'), $reflection->getMethod('getArtist'), $reflection->getMethod('setArtist'), 'ArtistId')
+                MethodAssociationOne::fromMethods('ArtistId', Artist::class, $reflection->getMethod('getArtist'), $reflection->getMethod('setArtist'), 'ArtistId')
             )
             ->addAssociation(
-                MethodAssociationOneToMany::fromMethods('AlbumId', self::getClassMapper('Chinook\Valid\Inline\Track'), $reflection->getMethod('getTracks'), $reflection->getMethod('setTracks'), 'AlbumId')
+                MethodAssociationOneToMany::fromMethods('AlbumId', Track::class, $reflection->getMethod('getTracks'), $reflection->getMethod('setTracks'), 'AlbumId')
             );
     }
 

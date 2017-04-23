@@ -2,6 +2,8 @@
 
 namespace Bitmap;
 
+use Bitmap\Query\Context\Context;
+
 abstract class Association
 {
     protected $name;
@@ -50,16 +52,16 @@ abstract class Association
      * Return the list of join clauses from the class managed by the mapper $left
      *
      * @param string $name
-     * @param integer $index
+     * @param integer $depth
      *
      * @return string[]
      */
-    public abstract function joinClauses($name, $index);
+    public abstract function joinClauses($name, $depth);
 
     protected function joinClause($tableFrom, $columnFrom, $tableTo, $columnTo, $aliasTo = null)
     {
-        $alias = $aliasTo ? "`{$aliasTo}`" : '';
-        return " inner join `{$tableTo}` {$alias} on `{$tableFrom}`.`{$columnFrom}` = `{$aliasTo}`.`{$columnTo}`";
+        $alias = $aliasTo ? : $tableTo;
+        return " inner join `{$tableTo}` {$alias} on `{$tableFrom}`.`{$columnFrom}` = `{$alias}`.`{$columnTo}`";
     }
 
     /**
@@ -84,5 +86,5 @@ abstract class Association
      */
     public abstract function getAll(Entity $entity);
 
-    public abstract function set(ResultSet $result, Entity $entity, $with = [], $depth = 0);
+    public abstract function set(ResultSet $result, Entity $entity, Context $context, $depth = 0);
 }

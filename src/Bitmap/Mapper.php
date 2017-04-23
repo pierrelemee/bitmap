@@ -268,10 +268,12 @@ class Mapper
 
     /**
      * @param ResultSet $result
+     * @param Context $context
+     * @param int $depth
      *
      * @return Entity
      */
-    public function loadOne(ResultSet $result, $with = null, $depth = 0)
+    public function loadOne(ResultSet $result, Context $context, $depth = 0)
     {
     	if (sizeof($values = $result->getValuesOneEntity($this, $depth)) > 0) {
 		    $entity = $this->createEntity();
@@ -280,8 +282,8 @@ class Mapper
 		    }
 
 		    foreach ($this->associations as $association) {
-                if (null === $with || (is_array($with) && isset($with[$association->getName()]))) {
-                    $association->set($result, $entity, is_array($with[$association->getName()]) ? $with[$association->getName()] : [], $depth + 1);
+                if ($context->hasDependency($association->getName())) {
+                    $association->set($result, $entity, $context->getDependency($association->getName()));
                 }
 		    }
 
@@ -295,21 +297,25 @@ class Mapper
 
     /**
      * @param ResultSet $result
+     * @param Context $context
+     * @param int $depth
      *
      * @return Entity[]
      */
-    public function loadAll(ResultSet $result)
+    public function loadAll(ResultSet $result, Context $context, $depth = 0)
     {
         $entities = [];
 
-        foreach ($result->getValuesAllEntity($this) as $data) {
+        foreach ($result->getValuesAllEntity($this, $depth) as $data) {
             $entity = $this->createEntity();
             foreach ($data as $name => $value) {
                 $this->fieldsByName[$name]->set($entity, $value);
             }
 
             foreach ($this->associations as $association) {
-                $association->set($result, $entity);
+                if ($context->hasDependency($association->getName())) {
+                    $association->set($result, $entity, $context->getDependency($association->getName()));
+                }
             }
 
             $entity->setBitmapHash($this->hash($entity));
