@@ -2,9 +2,9 @@
 
 namespace Bitmap;
 
-
 use Chinook\Valid\Inline\Album;
 use Chinook\Valid\Inline\Artist;
+use Chinook\Valid\Inline\Employee;
 use PHPUnit\Framework\TestCase;
 
 class SelectTest extends TestCase
@@ -112,6 +112,15 @@ class SelectTest extends TestCase
         $this->assertNotNull($album);
         $this->assertSame('Vivaldi: The Four Seasons', $album->getTitle());
         $this->assertSame(209, $album->getArtist()->getId());
+    }
+
+    public function testGetEmployeeAndSuperior()
+    {
+        $employee= Employee::select()->where('EmployeeId', '=', 8)->one();
+
+        $this->assertNotNull($employee);
+        $this->assertNotNull($employee->getSuperior());
+        $this->assertEquals(Employee::class, get_class($employee->getSuperior()));
     }
 
 }

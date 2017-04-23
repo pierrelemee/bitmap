@@ -32,15 +32,6 @@ class EntityTest extends TestCase
         Bitmap::connection(self::CONNECTION_NAME)->rollBack();
     }
 
-    public function testGetEmployeeAndSuperior()
-    {
-        $employee= Employee::select()->where('EmployeeId', '=', 8)->one();
-
-        $this->assertNotNull($employee);
-        $this->assertNotNull($employee->getSuperior());
-        $this->assertEquals(Employee::class, get_class($employee->getSuperior()));
-    }
-
     public function testAddNewArtist()
     {
         $artist = new Artist();
