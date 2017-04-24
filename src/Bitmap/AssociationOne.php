@@ -6,10 +6,18 @@ use Bitmap\Query\Context\Context;
 
 abstract class AssociationOne extends Association
 {
+    protected $column;
+
+    public function __construct($name, $class, $column)
+    {
+        parent::__construct($name, $class);
+        $this->column = $column;
+    }
+
     public function joinClauses($name, $depth)
     {
         return [
-            $this->joinClause($name, $this->name, $this->getMapper()->getTable(), $this->right, $this->getMapper()->getTable() . ($depth > 0 ?  $depth : ''))
+            $this->joinClause($name, $this->name, $this->getMapper()->getTable(), $this->column, $this->getMapper()->getTable() . ($depth > 0 ?  $depth : ''))
         ];
     }
 

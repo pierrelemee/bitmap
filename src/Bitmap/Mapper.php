@@ -2,12 +2,16 @@
 
 namespace Bitmap;
 
+use Bitmap\Associations\MethodAssociationOne;
+use Bitmap\Associations\PropertyAssociationOne;
+use Bitmap\Exceptions\MapperException;
+use Bitmap\Fields\MethodField;
 use Bitmap\Query\Context\Context;
 use Bitmap\Query\Delete;
 use Bitmap\Query\Insert;
 use Bitmap\Query\Update;
 use Exception;
-use PDOStatement;
+use ReflectionClass;
 
 class Mapper
 {
@@ -164,6 +168,29 @@ class Mapper
     {
         $this->associations[$association->getName()] = $association;
         return $this;
+    }
+
+    public function addAssociationOne($name, $class, $column = null, $getter = null, $setter = null)
+    {
+        $column = $column ? : $name;
+        $reflection = new ReflectionClass($this->class);
+
+        if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
+            $this->addAssociation(new PropertyAssociationOne($name, $class, $reflection->getProperty($name), $column));
+        } else {
+            if (null === $getter) {
+                $getter = MethodField::getterForName($name);
+                $setter = MethodField::setterForName($name);
+            } else {
+                $setter = $setter ? : preg_replace("/^get/", "set", $getter);
+            }
+
+            if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
+                $this->addAssociation(new MethodAssociationOne($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column));
+            } else {
+                throw new MapperException("Unable to find association one for '{$reflection->getName()}' with name {$name}' to '{$class}'");
+            }
+        }
     }
 
     /**

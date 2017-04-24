@@ -14,9 +14,9 @@ class MethodAssociationOne extends AssociationOne
     protected $getter;
     protected $setter;
 
-    public function __construct($name, $class, ReflectionMethod $getter, ReflectionMethod $setter, $target)
+    public function __construct($name, $class, ReflectionMethod $getter, ReflectionMethod $setter, $column)
     {
-        parent::__construct($name, $class, $target);
+        parent::__construct($name, $class, $column);
         $this->getter = $getter;
         $this->setter = $setter;
     }

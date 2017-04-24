@@ -7,14 +7,15 @@ use Bitmap\AssociationOne;
 use Bitmap\Entity;
 use Bitmap\Mapper;
 use ReflectionProperty;
+use ReflectionClass;
 
 class PropertyAssociationOne extends AssociationOne
 {
     protected $property;
 
-    public function __construct($name, $class, ReflectionProperty $property, $target)
+    public function __construct($name, $class, ReflectionProperty $property, $column)
     {
-        parent::__construct($name, $class, $target);
+        parent::__construct($name, $class, $column);
         $this->property = $property;
     }
 
@@ -27,7 +28,4 @@ class PropertyAssociationOne extends AssociationOne
     {
         $this->property->setValue($associated);
     }
-
-
-
 }
