@@ -2,12 +2,12 @@
 
 namespace Bitmap\Associations;
 
-use Bitmap\Association;
+
 use Bitmap\AssociationOne;
 use Bitmap\Entity;
-use Bitmap\Mapper;
+
 use ReflectionMethod;
-use ReflectionClass;
+
 
 class MethodAssociationOne extends AssociationOne
 {

@@ -2,8 +2,12 @@
 
 namespace Bitmap;
 
+use Bitmap\Associations\MethodAssociationManyToMany;
 use Bitmap\Associations\MethodAssociationOne;
+use Bitmap\Associations\MethodAssociationOneToMany;
+use Bitmap\Associations\PropertyAssociationManyToMany;
 use Bitmap\Associations\PropertyAssociationOne;
+use Bitmap\Associations\PropertyAssociationOneToMany;
 use Bitmap\Exceptions\MapperException;
 use Bitmap\Fields\MethodField;
 use Bitmap\Query\Context\Context;
@@ -189,6 +193,54 @@ class Mapper
                 $this->addAssociation(new MethodAssociationOne($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column));
             } else {
                 throw new MapperException("Unable to find association one for '{$reflection->getName()}' with name {$name}' to '{$class}'");
+            }
+        }
+    }
+
+    public function addAssociationOneToMany($name, $class, $column = null, $getter = null, $setter = null)
+    {
+        $column = $column ? : $name;
+        $reflection = new ReflectionClass($this->class);
+
+        if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
+            $this->addAssociation(new PropertyAssociationOneToMany($name, $class, $reflection->getProperty($name), $column));
+        } else {
+            if (null === $getter) {
+                $getter = MethodField::getterForName($name);
+                $setter = MethodField::setterForName($name);
+            } else {
+                $setter = $setter ? : preg_replace("/^get/", "set", $getter);
+            }
+
+            if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
+                $this->addAssociation(new MethodAssociationOneToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column));
+            } else {
+                throw new MapperException("Unable to find association one to many for '{$reflection->getName()}' with name {$name}' to '{$class}'");
+            }
+        }
+    }
+
+    public function addAssociationManyToMany($name, $class, $via, $column = null, $viaSourceColumn = null, $viaTargetColumn = null, $getter = null, $setter = null)
+    {
+        $column = $column ? : $name;
+        $viaSourceColumn = $viaSourceColumn ? : $this->primary->getName();
+        $viaTargetColumn = $viaTargetColumn ? : Bitmap::getMapper($class)->getPrimary()->getName();
+        $reflection = new ReflectionClass($this->class);
+
+        if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
+            $this->addAssociation(new PropertyAssociationManyToMany($name, $class, $reflection->getProperty($name), $column, $via, $viaSourceColumn, $viaTargetColumn));
+        } else {
+            if (null === $getter) {
+                $getter = MethodField::getterForName($name);
+                $setter = MethodField::setterForName($name);
+            } else {
+                $setter = $setter ? : preg_replace("/^get/", "set", $getter);
+            }
+
+            if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
+                $this->addAssociation(new MethodAssociationManyToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column, $via, $viaSourceColumn, $viaTargetColumn));
+            } else {
+                throw new MapperException("Unable to find association many to many for '{$reflection->getName()}' with name {$name}' to '{$class}'");
             }
         }
     }

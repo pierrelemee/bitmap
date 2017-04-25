@@ -2,7 +2,7 @@
 
 namespace Misc;
 
-class Car
+class Transport
 {
 
 }

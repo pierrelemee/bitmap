@@ -8,11 +8,13 @@ abstract class Association
 {
     protected $name;
     protected $class;
+    protected $column;
 
-    public function __construct($name, $class)
+    public function __construct($name, $class, $column)
     {
         $this->name = $name;
         $this->class = $class;
+        $this->column = $column;
     }
 
     /**

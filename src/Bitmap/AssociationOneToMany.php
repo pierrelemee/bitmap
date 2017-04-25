@@ -6,17 +6,6 @@ use Bitmap\Query\Context\Context;
 
 abstract class AssociationOneToMany extends Association
 {
-    /**
-     * @var string destination table column
-     */
-    protected $target;
-
-    public function __construct($name, $class, $target)
-    {
-        parent::__construct($name, $class);
-        $this->target = $target;
-    }
-
     public function joinClauses($name, $depth)
     {
         return [

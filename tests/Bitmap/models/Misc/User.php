@@ -8,6 +8,10 @@ class User
     protected $brother;
     protected $sister;
     protected $nephew;
+    public $uncles;
+    protected $aunts;
+    protected $cousins;
+    protected $children;
     protected $car;
 
     /**
@@ -50,5 +54,43 @@ class User
         $this->nephew = $nephew;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getAunts()
+    {
+        return $this->aunts;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getCousins()
+    {
+        return $this->cousins;
+    }
+
+    /**
+     * @param mixed $cousins
+     */
+    public function setCousins($cousins)
+    {
+        $this->cousins = $cousins;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getChildren()
+    {
+        return $this->children;
+    }
+
+    /**
+     * @param mixed $children
+     */
+    public function addChildren($children)
+    {
+        $this->children = $children;
+    }
 }
