@@ -65,7 +65,7 @@ abstract class Entity
      */
     public function save($context = null, $connection = null)
     {
-        $context = $context ? Context::fromContext($context) : Context::fromMapper($this->mapper());
+        $context = $context !== null ? Context::fromContext($context) : Context::fromMapper($this->mapper());
         if ($this->bitmapHash === null) {
             $status = $this->mapper()->insert($this, $context, $connection);
         } else {
