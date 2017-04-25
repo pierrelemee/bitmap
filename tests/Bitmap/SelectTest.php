@@ -107,11 +107,13 @@ class SelectTest extends TestCase
 
     public function testGetAlbumById()
     {
-        $album = Album::select()->where('AlbumId', '=', 275)->one();
+        /** @var Album $album */
+        $album = Album::select()->where('AlbumId', '=', 148)->one();
 
         $this->assertNotNull($album);
-        $this->assertSame('Vivaldi: The Four Seasons', $album->getTitle());
-        $this->assertSame(209, $album->getArtist()->getId());
+        $this->assertSame('Black Album', $album->getTitle());
+        $this->assertSame('Metallica', $album->getArtist()->name);
+        $this->assertEquals(12, sizeof($album->getTracks()));
     }
 
     public function testGetEmployeeAndSuperior()
