@@ -49,6 +49,7 @@ abstract class Entity
         return Bitmap::getMapper($class);
     }
 
+
     public static function select()
     {
         return new Select(self::getClassMapper(get_called_class()));

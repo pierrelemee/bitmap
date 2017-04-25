@@ -217,7 +217,7 @@ class Mapper
         $count = $query->execute(Bitmap::connection($connection));
 
         if ($count > 0) {
-            if ($this->hasPrimary()) {
+	        if ($this->hasPrimary() && $this->getPrimary()->isIncremented()) {
                 $this->primary->set($entity, Bitmap::connection($connection)->lastInsertId());
             }
             return true;
