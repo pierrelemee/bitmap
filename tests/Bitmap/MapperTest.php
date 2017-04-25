@@ -2,14 +2,18 @@
 
 namespace Bitmap;
 
+use Bitmap\Associations\MethodAssociationManyToMany;
 use Bitmap\Associations\MethodAssociationOne;
 use Bitmap\Associations\MethodAssociationOneToMany;
+use Bitmap\Associations\PropertyAssociationManyToMany;
 use Bitmap\Associations\PropertyAssociationOne;
 use Bitmap\Associations\PropertyAssociationOneToMany;
 use Misc\Transport;
 use Misc\User;
 use PHPUnit\Framework\TestCase;
 use Exception;
+use ReflectionClass;
+use Bitmap\Fields\PropertyField;
 
 class MapperTest extends TestCase
 {
@@ -27,6 +31,8 @@ class MapperTest extends TestCase
     {
         try {
             $mapper = new Mapper(User::class);
+            $reflection = new ReflectionClass(User::class);
+            $mapper->addPrimary(new PropertyField('id', $reflection->getProperty('id')));
             $mapper->addAssociationOne($name, $class, $name, $getter, $setter);
 
             $this->assertEquals(true, $success);
@@ -68,6 +74,8 @@ class MapperTest extends TestCase
     {
         try {
             $mapper = new Mapper(User::class);
+            $reflection = new ReflectionClass(User::class);
+            $mapper->addPrimary(new PropertyField('id', $reflection->getProperty('id')));
             $mapper->addAssociationOneToMany($name, $class, $name, $getter, $setter);
 
             $this->assertEquals(true, $success);
@@ -91,6 +99,49 @@ class MapperTest extends TestCase
             [MethodAssociationOneToMany::class, 'cousins', Transport::class],
             [MethodAssociationOneToMany::class, 'children', Transport::class, false],
             [MethodAssociationOneToMany::class, 'children', Transport::class, true, 'getChildren', 'addChildren']
+        ];
+    }
+
+    /**
+     * @param $associationClass
+     * @param $name
+     * @param $class
+     * @param $via
+     * @param bool $success
+     * @param null $viaSourceColumn
+     * @param null $viaTargetColumn
+     * @param null $getter
+     * @param null $setter
+     *
+     * @dataProvider dataPropertyAssociationManyToMany
+     */
+    public function testAssociationManyToMany($associationClass, $name, $class, $via, $success = true, $viaSourceColumn = null, $viaTargetColumn = null, $getter = null, $setter = null)
+    {
+        try {
+            $mapper = new Mapper(User::class);
+            $reflection = new ReflectionClass(User::class);
+            $mapper->addPrimary(new PropertyField('id', $reflection->getProperty('id')));
+            $mapper->addAssociationManyToMany($name, $class, $via, $viaSourceColumn, $viaTargetColumn, $getter, $setter);
+
+            $this->assertEquals(true, $success);
+
+            if ($success) {
+                $this->assertEquals(1, sizeof($mapper->associations()));
+                $this->assertInstanceOf($associationClass, $mapper->getAssociation($name));
+            }
+        } catch (Exception $e) {
+            if ($success) {
+                $this->fail("Unexpected exception ('{$e->getMessage()}')");
+            }
+        }
+    }
+
+    public function dataPropertyAssociationManyToMany()
+    {
+        return [
+            [PropertyAssociationManyToMany::class, 'bikes', Transport::class, 'Bike'],
+            [MethodAssociationManyToMany::class, 'skateboards', Transport::class, 'Skateboard', false],
+            [MethodAssociationManyToMany::class, 'skateboards', Transport::class, 'Skateboard', true, null, null, 'getSkateboards', 'addSkateboards']
         ];
     }
 }

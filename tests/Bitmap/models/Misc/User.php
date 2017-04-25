@@ -4,6 +4,7 @@ namespace Misc;
 
 class User
 {
+    public $id;
     public $parent;
     protected $brother;
     protected $sister;
@@ -13,6 +14,8 @@ class User
     protected $cousins;
     protected $children;
     protected $car;
+    public $bikes;
+    protected $skateboards;
 
     /**
      * @return mixed
@@ -92,5 +95,21 @@ class User
     public function addChildren($children)
     {
         $this->children = $children;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSkateboards()
+    {
+        return $this->skateboards;
+    }
+
+    /**
+     * @param mixed $skateboards
+     */
+    public function addSkateboards($skateboards)
+    {
+        $this->skateboards = $skateboards;
     }
 }
