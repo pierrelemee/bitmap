@@ -30,15 +30,7 @@ class Employee extends Entity
                 MethodField::fromClass('EmployeeId', $reflection, 'id')
                 ->setType(Bitmap::TYPE_INTEGER)
             )
-            ->addAssociation(
-                MethodAssociationOne::fromMethods(
-                    'ReportsTo',
-                    Employee::class,
-                    $reflection->getMethod('getSuperior'),
-                    $reflection->getMethod('setSuperior'),
-                    'EmployeeId'
-                )
-            )
+            ->addAssociationOne('superior', Employee::class, 'ReportsTo')
             ->addField(
                 MethodField::fromClass('LastName', $reflection, 'lastname')
                     ->setType(Bitmap::TYPE_STRING)

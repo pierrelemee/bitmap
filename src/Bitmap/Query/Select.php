@@ -88,21 +88,24 @@ class Select extends Query
 		    return $this;
 	    }
 
-	    if ($this->mapper->hasAssociation($field)) {
-    		$association = $this->mapper->getAssociation($field);
+	    foreach ($this->mapper->associations() as $association) {
+            if ($association->getName() === $field || $association->getColumn() === $field) {
+                if ($association->hasLocalValue()) {
+                    $this->where[] = sprintf(
+                        "`%s`.`%s` %s %s",
+                        $this->mapper->getTable(),
+                        $association->getColumn(),
+                        $operation,
+                        $value
+                    );
 
-    		if ($association->hasLocalValue()) {
-			    $this->where[] = sprintf(
-				    "`%s`.`%s` %s %s",
-				    $this->mapper->getTable(),
-				    $association->getName(),
-				    $operation,
-				    $value
-			    );
-		    }
+                    return $this;
+                }
 
-		    return $this;
-	    }
+                break;
+            }
+
+        }
 
 	    throw new Exception("No field with name '{$field}'");
     }

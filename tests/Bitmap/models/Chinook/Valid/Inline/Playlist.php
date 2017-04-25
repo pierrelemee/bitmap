@@ -25,25 +25,14 @@ class Playlist extends Entity
         $reflection = new ReflectionClass(__CLASS__);
         return Mapper::of(get_class($this))
             ->addPrimary(
-                MethodField::fromMethods('id', $reflection->getMethod('getId'), $reflection->getMethod('setId'), 'PlaylistId')
+                MethodField::fromMethods($reflection->getMethod('getId'), $reflection->getMethod('setId'), 'PlaylistId')
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
             )
             ->addField(
                 MethodField::fromClass('name', $reflection, null, 'Name')
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
             )
-            ->addAssociation(
-                MethodAssociationManyToMany::fromMethods(
-                    'PlaylistId',
-                    Track::class,
-                    $reflection->getMethod('getTracks'),
-                    $reflection->getMethod('setTracks'),
-                    'PlaylistTrack',
-                    'PlaylistId',
-                    'TrackId',
-                    'TrackId'
-                )
-            );
+            ->addAssociationManyToMany('tracks', Track::class, 'PlaylistTrack', 'PlaylistId', 'TrackId');
     }
 
     /**

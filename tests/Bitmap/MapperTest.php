@@ -39,7 +39,7 @@ class MapperTest extends TestCase
             $this->assertEquals(true, $success);
 
             if ($success) {
-                $this->assertEquals(1, sizeof($mapper->associations()));
+                $this->assertTrue($mapper->hasAssociation($name));
                 $this->assertInstanceOf($associationClass, $mapper->getAssociation($name));
             }
         } catch (Exception $e) {
@@ -83,7 +83,7 @@ class MapperTest extends TestCase
             $this->assertEquals(true, $success);
 
             if ($success) {
-                $this->assertEquals(1, sizeof($mapper->associations()));
+                $this->assertTrue($mapper->hasAssociation($name));
                 $this->assertInstanceOf($associationClass, $mapper->getAssociation($name));
             }
         } catch (Exception $e) {
@@ -129,7 +129,7 @@ class MapperTest extends TestCase
             $this->assertEquals(true, $success);
 
             if ($success) {
-                $this->assertEquals(1, sizeof($mapper->associations()));
+                $this->assertTrue($mapper->hasAssociation($name));
                 $this->assertInstanceOf($associationClass, $mapper->getAssociation($name));
             }
         } catch (Exception $e) {

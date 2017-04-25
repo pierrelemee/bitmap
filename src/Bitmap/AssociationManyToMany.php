@@ -24,7 +24,7 @@ abstract class AssociationManyToMany extends Association
     public function joinClauses($name, $depth)
     {
         return [
-            $this->joinClause($name, $this->name, $this->via, $this->viaSourceColumn),
+            $this->joinClause($name, $this->column, $this->via, $this->viaSourceColumn),
             $this->joinClause($this->via, $this->viaTargetColumn, $this->getMapper()->getTable(), $this->column)
         ];
     }

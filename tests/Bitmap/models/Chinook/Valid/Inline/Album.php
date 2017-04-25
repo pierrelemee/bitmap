@@ -36,9 +36,7 @@ class Album extends Entity
                     ->setType(Bitmap::TYPE_STRING)
             )
             ->addAssociationOne('artist', Artist::class, 'ArtistId')
-            ->addAssociation(
-                MethodAssociationOneToMany::fromMethods('AlbumId', Track::class, $reflection->getMethod('getTracks'), $reflection->getMethod('setTracks'), 'AlbumId')
-            );
+            ->addAssociationOneToMany('tracks', Track::class, 'AlbumId');
     }
 
     /**

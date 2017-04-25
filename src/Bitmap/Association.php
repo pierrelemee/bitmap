@@ -28,6 +28,14 @@ abstract class Association
     /**
      * @return mixed
      */
+    public function getColumn()
+    {
+        return $this->column;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getClass()
     {
         return $this->class;
