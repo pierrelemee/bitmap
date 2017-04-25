@@ -180,7 +180,7 @@ class Mapper
         $reflection = new ReflectionClass($this->class);
 
         if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
-            $this->addAssociation(new PropertyAssociationOne($name, $class, $reflection->getProperty($name), $column));
+            return $this->addAssociation(new PropertyAssociationOne($name, $class, $reflection->getProperty($name), $column));
         } else {
             if (null === $getter) {
                 $getter = MethodField::getterForName($name);
@@ -190,7 +190,7 @@ class Mapper
             }
 
             if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
-                $this->addAssociation(new MethodAssociationOne($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column));
+                return $this->addAssociation(new MethodAssociationOne($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column));
             } else {
                 throw new MapperException("Unable to find association one for '{$reflection->getName()}' with name {$name}' to '{$class}'");
             }
@@ -203,7 +203,7 @@ class Mapper
         $reflection = new ReflectionClass($this->class);
 
         if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
-            $this->addAssociation(new PropertyAssociationOneToMany($name, $class, $reflection->getProperty($name), $column));
+            return $this->addAssociation(new PropertyAssociationOneToMany($name, $class, $reflection->getProperty($name), $column));
         } else {
             if (null === $getter) {
                 $getter = MethodField::getterForName($name);
@@ -213,7 +213,7 @@ class Mapper
             }
 
             if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
-                $this->addAssociation(new MethodAssociationOneToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column));
+                return $this->addAssociation(new MethodAssociationOneToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column));
             } else {
                 throw new MapperException("Unable to find association one to many for '{$reflection->getName()}' with name {$name}' to '{$class}'");
             }
@@ -234,7 +234,7 @@ class Mapper
         $reflection = new ReflectionClass($this->class);
 
         if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
-            $this->addAssociation(new PropertyAssociationManyToMany($name, $class, $reflection->getProperty($name), $column, $via, $viaSourceColumn, $viaTargetColumn));
+            return $this->addAssociation(new PropertyAssociationManyToMany($name, $class, $reflection->getProperty($name), $column, $via, $viaSourceColumn, $viaTargetColumn));
         } else {
             if (null === $getter) {
                 $getter = MethodField::getterForName($name);
@@ -244,7 +244,7 @@ class Mapper
             }
 
             if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
-                $this->addAssociation(new MethodAssociationManyToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column, $via, $viaSourceColumn, $viaTargetColumn));
+                return $this->addAssociation(new MethodAssociationManyToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column, $via, $viaSourceColumn, $viaTargetColumn));
             } else {
                 throw new MapperException("Unable to find association many to many for '{$reflection->getName()}' with name {$name}' to '{$class}'");
             }

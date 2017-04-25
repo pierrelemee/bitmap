@@ -33,8 +33,9 @@ class MapperTest extends TestCase
             $mapper = new Mapper(User::class);
             $reflection = new ReflectionClass(User::class);
             $mapper->addPrimary(new PropertyField('id', $reflection->getProperty('id')));
-            $mapper->addAssociationOne($name, $class, $name, $getter, $setter);
+            $result = $mapper->addAssociationOne($name, $class, $name, $getter, $setter);
 
+            $this->assertInstanceOf(Mapper::class, $result);
             $this->assertEquals(true, $success);
 
             if ($success) {
@@ -76,8 +77,9 @@ class MapperTest extends TestCase
             $mapper = new Mapper(User::class);
             $reflection = new ReflectionClass(User::class);
             $mapper->addPrimary(new PropertyField('id', $reflection->getProperty('id')));
-            $mapper->addAssociationOneToMany($name, $class, $name, $getter, $setter);
+            $result = $mapper->addAssociationOneToMany($name, $class, $name, $getter, $setter);
 
+            $this->assertInstanceOf(Mapper::class, $result);
             $this->assertEquals(true, $success);
 
             if ($success) {
@@ -121,8 +123,9 @@ class MapperTest extends TestCase
             $mapper = new Mapper(User::class);
             $reflection = new ReflectionClass(User::class);
             $mapper->addPrimary(new PropertyField('id', $reflection->getProperty('id')));
-            $mapper->addAssociationManyToMany($name, $class, $via, $viaSourceColumn, $viaTargetColumn, $getter, $setter);
+            $result = $mapper->addAssociationManyToMany($name, $class, $via, $viaSourceColumn, $viaTargetColumn, $getter, $setter);
 
+            $this->assertInstanceOf(Mapper::class, $result);
             $this->assertEquals(true, $success);
 
             if ($success) {
