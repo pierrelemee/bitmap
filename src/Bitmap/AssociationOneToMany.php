@@ -9,7 +9,7 @@ abstract class AssociationOneToMany extends Association
     public function joinClauses($name, $depth)
     {
         return [
-            $this->joinClause($name, $this->name, $this->getMapper()->getTable(), $this->right)
+            $this->joinClause($name, $this->column, $this->getMapper()->getTable(), $this->column)
         ];
     }
 
@@ -47,6 +47,7 @@ abstract class AssociationOneToMany extends Association
 
     /**
      * @param Entity $entity
+     * @param array $entities
      */
     protected abstract function setEntities(Entity $entity, array $entities);
 }

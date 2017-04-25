@@ -4,16 +4,16 @@ namespace Bitmap\Associations;
 
 use Bitmap\AssociationManyToMany;
 use Bitmap\Entity;
-use Bitmap\Mapper;
+
 use ReflectionProperty;
 
 class PropertyAssociationManyToMany extends AssociationManyToMany
 {
     protected $property;
 
-    public function __construct($name, Mapper $mapper, ReflectionProperty $property, $through, $sourceReference, $targetReference, $right)
+    public function __construct($name, $class, ReflectionProperty $property, $column, $via, $viaSourceColumn, $viaTargetColumn)
     {
-        parent::__construct($name, $mapper, $right, $through, $sourceReference, $targetReference);
+        parent::__construct($name, $class, $column, $via, $viaSourceColumn, $viaTargetColumn);
         $this->property = $property;
     }
 

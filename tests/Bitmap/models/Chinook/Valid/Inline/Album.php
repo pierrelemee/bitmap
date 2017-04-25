@@ -35,12 +35,8 @@ class Album extends Entity
                 MethodField::fromClass('Title', $reflection)
                     ->setType(Bitmap::TYPE_STRING)
             )
-            ->addAssociation(
-                MethodAssociationOne::fromMethods('ArtistId', Artist::class, $reflection->getMethod('getArtist'), $reflection->getMethod('setArtist'), 'ArtistId')
-            )
-            ->addAssociation(
-                MethodAssociationOneToMany::fromMethods('AlbumId', Track::class, $reflection->getMethod('getTracks'), $reflection->getMethod('setTracks'), 'AlbumId')
-            );
+            ->addAssociationOne('artist', Artist::class, 'ArtistId')
+            ->addAssociationOneToMany('tracks', Track::class, 'AlbumId');
     }
 
     /**

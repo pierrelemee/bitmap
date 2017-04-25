@@ -2,7 +2,7 @@
 
 namespace Bitmap\Query;
 
-use Bitmap\Entity;
+
 use Bitmap\Exceptions\QueryException;
 use PDO;
 

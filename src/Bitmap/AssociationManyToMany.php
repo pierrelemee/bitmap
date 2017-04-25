@@ -6,23 +6,26 @@ use Bitmap\Query\Context\Context;
 
 abstract class AssociationManyToMany extends Association
 {
-    protected $through;
-    protected $leftReference;
-    protected $rightReference;
+    /**
+     * @var $via
+     */
+    protected $via;
+    protected $viaSourceColumn;
+    protected $viaTargetColumn;
     
-    public function __construct($name, $class, $right, $through, $leftReference, $rightReference)
+    public function __construct($name, $class, $column, $via, $viaSourceColumn, $viaTargetColumn)
     {
-        parent::__construct($name, $class, $right);
-        $this->through = $through;
-        $this->leftReference = $leftReference;
-        $this->rightReference = $rightReference;
+        parent::__construct($name, $class, $column);
+        $this->via = $via;
+        $this->viaSourceColumn = $viaSourceColumn;
+        $this->viaTargetColumn = $viaTargetColumn;
     }
 
     public function joinClauses($name, $depth)
     {
         return [
-            $this->joinClause($name, $this->name, $this->through, $this->leftReference),
-            $this->joinClause($this->through, $this->rightReference, $this->getMapper()->getTable(), $this->right)
+            $this->joinClause($name, $this->column, $this->via, $this->viaSourceColumn),
+            $this->joinClause($this->via, $this->viaTargetColumn, $this->getMapper()->getTable(), $this->column)
         ];
     }
 
@@ -55,7 +58,7 @@ abstract class AssociationManyToMany extends Association
 
     public function set(ResultSet $result, Entity $entity, Context $context, $depth = 0)
     {
-        $this->setEntities($entity, $this->getMapper()->loadAll($result));
+        $this->setEntities($entity, $this->getMapper()->loadAll($result, $context, $depth));
     }
 
     /**

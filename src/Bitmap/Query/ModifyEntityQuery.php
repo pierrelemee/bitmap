@@ -41,7 +41,7 @@ abstract class ModifyEntityQuery extends ModifyQuery
         foreach ($this->mapper->associations() as $name => $association) {
             if ($association->hasLocalValue() && $association->getMapper()->hasPrimary() || $this->context->hasDependency($association->getName())) {
                 if (null !== $entity = $association->get($this->entity)) {
-                    $values[$association->getName()] = $association->getMapper()->getPrimary()->get($entity);
+                    $values[$association->getColumn()] = $association->getMapper()->getPrimary()->get($entity);
                 }
             }
         }

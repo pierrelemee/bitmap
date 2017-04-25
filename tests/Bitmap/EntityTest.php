@@ -44,12 +44,12 @@ class EntityTest extends TestCase
     }
 
 	/**
-	 * @param $with
-	 * @param $artistSaved
+	 * @param string|int $artist
+	 * @param array|null $context
 	 *
 	 * @dataProvider addNewAlbumData
 	 */
-	public function testAddNewAlbum($artist, $with)
+	public function testAddNewAlbum($artist, $context = null)
 	{
         $artistIsNew = false;
         if (is_string($artist)) {
@@ -65,7 +65,7 @@ class EntityTest extends TestCase
 		$album->setTitle("OK Computer");
 		$album->setArtist($artist);
 
-		$this->assertTrue($album->save($with));
+		$this->assertTrue($album->save($context));
 		$this->assertNotNull($album->getId());
 
 		$this->assertEquals(275 + ($artistIsNew ? 1 : 0), Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
@@ -77,36 +77,12 @@ class EntityTest extends TestCase
 	public function addNewAlbumData()
 	{
 		return [
-			[
-                'Radiohead',
-                ['ArtistId'],
-				true
-			],
-            [
-                'Radiohead',
-                ['ArtistId' => 1],
-                true
-            ],
-            [
-                'Radiohead',
-                null,
-                true
-            ],
-            [
-                193,
-                ['ArtistId'],
-                true
-            ],
-            [
-                193,
-                ['ArtistId' => 1],
-                true
-            ],
-            [
-                193,
-                null,
-                true
-            ]
+			[ 'Radiohead', ['artist']],
+            [ 'Radiohead', ['artist' => 1]],
+            [ 'Radiohead'],
+            [ 193, ['artist']],
+            [ 193, ['artist' => 1]],
+            [ 193 ]
 		];
 	}
 
@@ -143,8 +119,10 @@ class EntityTest extends TestCase
 
     public function testUpdateTrackWithNewGenre()
     {
+        /** @var Genre $genre */
         $genre = new Genre();
         $genre->setName("Funk");
+        /** @var Track $track */
         $track = Track::select()->where("TrackId", "=", 2555)->one();
         $track->setGenre($genre);
 

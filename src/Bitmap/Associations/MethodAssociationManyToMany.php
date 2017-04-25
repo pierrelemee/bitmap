@@ -2,12 +2,12 @@
 
 namespace Bitmap\Associations;
 
-use Bitmap\Association;
+
 use Bitmap\AssociationManyToMany;
-use Bitmap\AssociationOneToMany;
-use Bitmap\AssociationOne;
+
+
 use Bitmap\Entity;
-use Bitmap\Mapper;
+
 use ReflectionMethod;
 
 class MethodAssociationManyToMany extends AssociationManyToMany
@@ -15,9 +15,9 @@ class MethodAssociationManyToMany extends AssociationManyToMany
     protected $getter;
     protected $setter;
 
-    public function __construct($name, $class, ReflectionMethod $getter, ReflectionMethod $setter, $through, $sourceReference, $targetReference, $target)
+    public function __construct($name, $class, ReflectionMethod $getter, ReflectionMethod $setter, $column, $via, $viaSourceColumn, $viaTargetColumn)
     {
-        parent::__construct($name, $class, $target, $through, $sourceReference, $targetReference);
+        parent::__construct($name, $class, $column, $via, $viaSourceColumn, $viaTargetColumn);
         $this->getter = $getter;
         $this->setter = $setter;
     }

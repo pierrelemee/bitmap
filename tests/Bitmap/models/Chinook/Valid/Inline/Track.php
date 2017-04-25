@@ -50,12 +50,8 @@ class Track extends Entity
                 MethodField::fromClass('UnitPrice', $reflection)
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_FLOAT))
             )
-            ->addAssociation(
-                MethodAssociationOne::fromMethods('GenreId', Genre::class, $reflection->getMethod('getGenre'), $reflection->getMethod('setGenre'), 'GenreId')
-            )
-            ->addAssociation(
-                MethodAssociationOne::fromMethods('MediaTypeId', MediaType::class, $reflection->getMethod('getMedia'), $reflection->getMethod('setMedia'), 'MediaTypeId')
-            );
+            ->addAssociationOne('genre', Genre::class, 'GenreId')
+            ->addAssociationOne('media', MediaType::class, 'MediaTypeId');
     }
 
 

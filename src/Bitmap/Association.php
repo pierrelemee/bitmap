@@ -8,13 +8,13 @@ abstract class Association
 {
     protected $name;
     protected $class;
-    protected $right;
+    protected $column;
 
-    public function __construct($name, $class, $right)
+    public function __construct($name, $class, $column)
     {
         $this->name = $name;
         $this->class = $class;
-        $this->right = $right;
+        $this->column = $column;
     }
 
     /**
@@ -23,6 +23,14 @@ abstract class Association
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getColumn()
+    {
+        return $this->column;
     }
 
     /**
@@ -62,14 +70,6 @@ abstract class Association
     {
         $alias = $aliasTo ? : $tableTo;
         return " inner join `{$tableTo}` {$alias} on `{$tableFrom}`.`{$columnFrom}` = `{$alias}`.`{$columnTo}`";
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRight()
-    {
-        return $this->right;
     }
 
     /**
