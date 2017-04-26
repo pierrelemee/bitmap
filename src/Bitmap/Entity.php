@@ -55,6 +55,11 @@ abstract class Entity
         return new Select(self::getClassMapper(get_called_class()));
     }
 
+    public function onPostLoad()
+    {
+        // To be implemented if needed
+    }
+
     /**
      * @param $connection string the name of the connection to use
      * @param null|array|Context $context the list of association (by their names) to recursively save

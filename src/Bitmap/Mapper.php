@@ -373,6 +373,7 @@ class Mapper
 		    }
 
 		    $entity->setBitmapHash($this->hash($entity));
+            $entity->onPostLoad();
 
 		    return $entity;
 	    }
@@ -404,6 +405,8 @@ class Mapper
             }
 
             $entity->setBitmapHash($this->hash($entity));
+            $entity->onPostLoad();
+
             $entities[] = $entity;
         }
 
