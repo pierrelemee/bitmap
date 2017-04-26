@@ -41,6 +41,12 @@ class Select extends Query
     public function execute(PDO $connection)
     {
         $sql = $this->sql();
+        Bitmap::current()->getLogger()->info("Running select query",
+            [
+                'mapper' => $this->mapper->getClass(),
+                'sql'    => $sql
+            ]
+        );
         return $connection->query($sql, $this->strategy->getPdoFetchingType());
     }
 

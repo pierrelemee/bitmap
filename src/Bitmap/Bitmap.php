@@ -2,6 +2,8 @@
 
 namespace Bitmap;
 
+use Monolog\Handler\NullHandler;
+use Monolog\Logger;
 use PDO;
 use ReflectionClass;
 use Exception;
@@ -25,6 +27,10 @@ class Bitmap
      */
     protected $mappers = [];
     /**
+     * @var Logger
+     */
+    protected $logger;
+    /**
      * @var Bitmap
      */
     private static $BITMAP;
@@ -38,8 +44,9 @@ class Bitmap
 
     protected $transformers = [];
 
-    public function __construct()
+    public function __construct($logger = null)
     {
+        $this->logger = $logger ? : new Logger('bitmap', [new NullHandler(Logger::CRITICAL)]);
         $dir = realpath(__DIR__ . '/Transformers');
         foreach (scandir($dir) as $file) {
             if (preg_match("/\\.php$/", $file)) {
@@ -51,6 +58,16 @@ class Bitmap
                 }
             }
         }
+    }
+
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    public function setLogger(Logger $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
