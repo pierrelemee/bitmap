@@ -20,6 +20,7 @@ class Select extends Query
     protected $strategy;
     protected $where;
 	protected $order;
+	protected $limit;
     /**
      * @var Context
      */
@@ -121,6 +122,12 @@ class Select extends Query
     public function order($field, $asc = true)
     {
     	$this->order[] = sprintf("`%s` %s", $field, $asc ? 'asc' : 'desc');
+
+    	return $this;
+    }
+
+    public function limit($count, $offset = null) {
+    	$this->limit = null !== $offset ? [$count, $offset] : [$offset];
 
     	return $this;
     }
@@ -234,11 +241,12 @@ class Select extends Query
     {
         $this->tables($this->mapper, $this->context);
 
-        return sprintf("select %s from %s %s%s",
+        return sprintf("select %s from %s %s%s%s",
             implode(", ", $this->fields),
             $this->mapper->getTable() . (implode("", $this->joins)),
             sizeof($this->where) > 0 ? " where " . implode(" and ", $this->where) : "",
-            $this->orders()
+            $this->orders(),
+            null !== $this->limit ? " limit {$this->limit[0]}" . (sizeof($this->limit) === 2 ? ", {$this->limit[1]}" : '') : ''
         );
     }
 }

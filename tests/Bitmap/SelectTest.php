@@ -123,11 +123,13 @@ class SelectTest extends TestCase
 	    $tracks = Track::select()
 		    ->where('album', '=', 164)
 		    ->order('Milliseconds')
+		    ->limit(1, 3)
 		    ->all();
 
-	    $this->assertEquals(12, sizeof($tracks));
-	    $this->assertEquals(2009, $tracks[0]->getId());
-	    $this->assertEquals(2011, $tracks[1]->getId());
+	    $this->assertEquals(3, sizeof($tracks));
+	    $this->assertEquals(2011, $tracks[0]->getId());
+	    $this->assertEquals(2008, $tracks[1]->getId());
+	    $this->assertEquals(2006, $tracks[2]->getId());
     }
 
     public function testGetEmployeeAndSuperior()
