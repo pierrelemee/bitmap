@@ -5,6 +5,7 @@ namespace Bitmap;
 use Chinook\Valid\Inline\Album;
 use Chinook\Valid\Inline\Artist;
 use Chinook\Valid\Inline\Employee;
+use Chinook\Valid\Inline\Track;
 use PHPUnit\Framework\TestCase;
 
 class SelectTest extends TestCase
@@ -114,6 +115,19 @@ class SelectTest extends TestCase
         $this->assertSame('Black Album', $album->getTitle());
         $this->assertSame('Metallica', $album->getArtist()->name);
         $this->assertEquals(12, sizeof($album->getTracks()));
+    }
+
+    public function testGetAlbumTracksOrderedByDuration()
+    {
+    	/** @var Track[] $tracks */
+	    $tracks = Track::select()
+		    ->where('album', '=', 164)
+		    ->order('Milliseconds')
+		    ->all();
+
+	    $this->assertEquals(12, sizeof($tracks));
+	    $this->assertEquals(2009, $tracks[0]->getId());
+	    $this->assertEquals(2011, $tracks[1]->getId());
     }
 
     public function testGetEmployeeAndSuperior()

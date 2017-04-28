@@ -15,6 +15,7 @@ class Track extends Entity
 {
     protected $id;
     protected $name;
+    protected $album;
     protected $genre;
     protected $media;
     protected $composer;
@@ -50,6 +51,7 @@ class Track extends Entity
                 MethodField::fromClass('UnitPrice', $reflection)
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_FLOAT))
             )
+	        ->addAssociationOne('album', Album::class, 'AlbumId')
             ->addAssociationOne('genre', Genre::class, 'GenreId')
             ->addAssociationOne('media', MediaType::class, 'MediaTypeId');
     }
@@ -86,6 +88,22 @@ class Track extends Entity
     {
         $this->name = $name;
     }
+
+	/**
+	 * @return mixed
+	 */
+	public function getAlbum()
+	{
+		return $this->album;
+	}
+
+	/**
+	 * @param mixed $album
+	 */
+	public function setAlbum($album)
+	{
+		$this->album = $album;
+	}
 
     /**
      * @return Genre
