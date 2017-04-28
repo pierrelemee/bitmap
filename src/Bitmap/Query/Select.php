@@ -19,6 +19,8 @@ class Select extends Query
      */
     protected $strategy;
     protected $where;
+	protected $order;
+	protected $limit;
     /**
      * @var Context
      */
@@ -31,6 +33,7 @@ class Select extends Query
     {
         parent::__construct($mapper);
         $this->where = [];
+        $this->order = [];
         $this->with = [];
         $this->tables = [];
         $this->fields = [];
@@ -116,6 +119,19 @@ class Select extends Query
 	    throw new Exception("No field with name '{$field}'");
     }
 
+    public function order($field, $asc = true)
+    {
+    	$this->order[] = sprintf("`%s` %s", $field, $asc ? 'asc' : 'desc');
+
+    	return $this;
+    }
+
+    public function limit($count, $offset = null) {
+    	$this->limit = null !== $offset ? [$count, $offset] : [$offset];
+
+    	return $this;
+    }
+
     protected function mapperDepth(Mapper $mapper)
     {
         if (!isset($this->tables[$mapper->getTable()])) {
@@ -179,16 +195,16 @@ class Select extends Query
             $fields[] = "`{$mapper->getTable()}`.`{$field->getName()}` as `{$this->strategy->getFieldLabel($mapper, $field)}`";
         }
 
-        /*
-        foreach ($mapper->associations() as $association) {
-            if ($this->mapper->getClass() !== $mapper->getClass()) {
-                $fields = array_merge($fields, $this->fields($association->getMapper()));
-            }
-        }
-        */
-
         return $fields;
     }
+
+	/**
+	 * @return string
+	 */
+	protected function orders()
+	{
+		return sizeof($this->order) > 0 ? ' order by ' . implode(', ', $this->order) : '';
+	}
 
     protected function tables(Mapper $mapper, Context $context)
     {
@@ -225,10 +241,12 @@ class Select extends Query
     {
         $this->tables($this->mapper, $this->context);
 
-        return sprintf("select %s from %s %s",
+        return sprintf("select %s from %s %s%s%s",
             implode(", ", $this->fields),
             $this->mapper->getTable() . (implode("", $this->joins)),
-            sizeof($this->where) > 0 ? " where " . implode(" and ", $this->where) : ""
+            sizeof($this->where) > 0 ? " where " . implode(" and ", $this->where) : "",
+            $this->orders(),
+            null !== $this->limit ? " limit {$this->limit[0]}" . (sizeof($this->limit) === 2 ? ", {$this->limit[1]}" : '') : ''
         );
     }
 }
