@@ -117,19 +117,38 @@ class SelectTest extends TestCase
         $this->assertEquals(12, sizeof($album->getTracks()));
     }
 
-    public function testGetAlbumTracksOrderedByDuration()
+	/**
+	 * @param $asc
+	 * @param $limit
+	 * @param $expected
+	 * @param null $offset
+	 *
+	 * @dataProvider getAlbumTracksOrderedByDurationData
+	 */
+    public function testGetAlbumTracksOrderedByDuration($asc, $limit, $expected, $offset = null)
     {
     	/** @var Track[] $tracks */
 	    $tracks = Track::select()
 		    ->where('album', '=', 164)
-		    ->order('Milliseconds')
-		    ->limit(1, 3)
+		    ->order('Milliseconds', $asc)
+		    ->limit($limit, $offset)
 		    ->all();
 
-	    $this->assertEquals(3, sizeof($tracks));
-	    $this->assertEquals(2011, $tracks[0]->getId());
-	    $this->assertEquals(2008, $tracks[1]->getId());
-	    $this->assertEquals(2006, $tracks[2]->getId());
+	    $this->assertSameSize($expected, $tracks);
+
+	    for ($i = 0.; $i < sizeof($tracks); $i++) {
+		    $this->assertEquals($expected[$i], $tracks[$i]->getId());
+	    }
+    }
+
+    public function getAlbumTracksOrderedByDurationData()
+    {
+    	return [
+    		[true, 3, [2009, 2011, 2008]],
+		    [true, 3, [2011, 2008, 2006], 1],
+		    [false, 3, [2003, 2007, 2004]],
+		    [false, 3, [2007, 2004, 2014], 1]
+	    ];
     }
 
     public function testGetEmployeeAndSuperior()

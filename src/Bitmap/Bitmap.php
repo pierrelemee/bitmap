@@ -3,6 +3,7 @@
 namespace Bitmap;
 
 use Monolog\Handler\NullHandler;
+use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use PDO;
 use ReflectionClass;

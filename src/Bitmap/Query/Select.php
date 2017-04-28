@@ -127,7 +127,7 @@ class Select extends Query
     }
 
     public function limit($count, $offset = null) {
-    	$this->limit = null !== $offset ? [$count, $offset] : [$offset];
+    	$this->limit = null !== $offset ? [$count, $offset] : [$count];
 
     	return $this;
     }
@@ -246,7 +246,7 @@ class Select extends Query
             $this->mapper->getTable() . (implode("", $this->joins)),
             sizeof($this->where) > 0 ? " where " . implode(" and ", $this->where) : "",
             $this->orders(),
-            null !== $this->limit ? " limit {$this->limit[0]}" . (sizeof($this->limit) === 2 ? ", {$this->limit[1]}" : '') : ''
+            null !== $this->limit ? " limit " .(sizeof($this->limit) === 2 ? "{$this->limit[1]}, " : ''). "{$this->limit[0]}"  : ''
         );
     }
 }
