@@ -70,6 +70,17 @@ class SelectTest extends TestCase
         }
     }
 
+    public function testGetArtistAndItsArtWork()
+    {
+        /** @var Artist $artist */
+        $artist = Artist::select()->where('ArtistId', '=', 22)->one(['albums' => ['tracks', 'artist']]);
+
+        $this->assertNotNull($artist);
+        $this->assertEquals(14, sizeof($artist->getAlbums()));
+
+        $this->assertSame($artist, $artist->getAlbums()[0]->getArtist());
+    }
+
     public function testGetAlbumsByArtist()
     {
         $albums = Album::select()->where('ArtistId', '=', 131)->all();

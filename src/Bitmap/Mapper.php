@@ -361,19 +361,26 @@ class Mapper
     public function loadOne(ResultSet $result, Context $context, $depth = 0)
     {
     	if (sizeof($values = $result->getValuesOneEntity($this, $depth)) > 0) {
-		    $entity = $this->createEntity();
-		    foreach ($values as $name => $value) {
-			    $this->fieldsByName[$name]->set($entity, $value);
-		    }
+            if (null === $entity = $result->getEntity($this, $values[$this->primary->getName()])) {
+                $entity = $this->createEntity();
 
-		    foreach ($this->associations as $association) {
-                if ($context->hasDependency($association->getName())) {
-                    $association->set($result, $entity, $context->getDependency($association->getName()));
+                foreach ($values as $name => $value) {
+                    $this->fieldsByName[$name]->set($entity, $value);
                 }
-		    }
 
-		    $entity->setBitmapHash($this->hash($entity));
-            $entity->onPostLoad();
+                $result->addEntity($this, $values[$this->primary->getName()], $entity);
+
+                foreach ($this->associations as $association) {
+                    if ($context->hasDependency($association->getName())) {
+                        $association->set($result, $entity, $context->getDependency($association->getName()));
+                    }
+                }
+
+                $entity->setBitmapHash($this->hash($entity));
+                $entity->onPostLoad();
+
+
+            }
 
 		    return $entity;
 	    }

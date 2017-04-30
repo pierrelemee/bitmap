@@ -11,6 +11,7 @@ class ResultSet
      * @var array
      */
     protected $values;
+    protected $entities;
 
     public function __construct(PDOStatement $statement, Mapper $mapper, FieldMappingStrategy $strategy, Context $context)
     {
@@ -55,6 +56,20 @@ class ResultSet
         }
 
         return [];
+    }
+
+    public function addEntity(Mapper $mapper, $primary, Entity $entity)
+    {
+        $this->entities[$mapper->getClass()][$primary] = $entity;
+    }
+
+    public function addEntities(Mapper $mapper, array $entities)
+    {
+    }
+
+    public function getEntity(Mapper $mapper, $primary)
+    {
+        return isset($this->entities[$mapper->getClass()][$primary]) ? $this->entities[$mapper->getClass()][$primary] : null;
     }
 
     public function getValuesAllEntity(Mapper $mapper, $depth = 0)
