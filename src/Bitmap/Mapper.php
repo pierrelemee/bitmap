@@ -354,13 +354,12 @@ class Mapper
     /**
      * @param ResultSet $result
      * @param Context $context
-     * @param int $depth
      *
      * @return Entity
      */
-    public function loadOne(ResultSet $result, Context $context, $depth = 0)
+    public function loadOne(ResultSet $result, Context $context)
     {
-    	if (sizeof($values = $result->getValuesOneEntity($this, $depth)) > 0) {
+        if (sizeof($values = $result->getValuesOneEntity($this, $context->getDepth())) > 0) {
             if (null === $entity = $result->getEntity($this, $values[$this->primary->getName()])) {
                 $entity = $this->createEntity();
 
@@ -378,8 +377,6 @@ class Mapper
 
                 $entity->setBitmapHash($this->hash($entity));
                 $entity->onPostLoad();
-
-
             }
 
 		    return $entity;
@@ -391,33 +388,43 @@ class Mapper
     /**
      * @param ResultSet $result
      * @param Context $context
-     * @param int $depth
      *
      * @return Entity[]
      */
-    public function loadAll(ResultSet $result, Context $context, $depth = 0)
+    public function loadAll(ResultSet $result, Context $context)
     {
         $entities = [];
 
-        foreach ($result->getValuesAllEntity($this, $depth) as $data) {
-            $entity = $this->createEntity();
-            foreach ($data as $name => $value) {
-                $this->fieldsByName[$name]->set($entity, $value);
-            }
+        foreach ($result->getValuesAllEntity($this, $context->getDepth()) as $values) {
+            $entity = null;
 
-            foreach ($this->associations as $association) {
-                if ($context->hasDependency($association->getName())) {
-                    $association->set($result, $entity, $context->getDependency($association->getName()));
+            if (null === $entity = $result->getEntity($this, $values[$this->primary->getName()])) {
+                $entity = $this->createEntity();
+                foreach ($values as $name => $value) {
+                    $this->fieldsByName[$name]->set($entity, $value);
                 }
-            }
 
-            $entity->setBitmapHash($this->hash($entity));
-            $entity->onPostLoad();
+                $result->addEntity($this, $values[$this->primary->getName()], $entity);
+
+                foreach ($this->associations as $association) {
+                    if ($context->hasDependency($association->getName())) {
+                        $association->set($result, $entity, $context->getDependency($association->getName()));
+                    }
+                }
+
+                $entity->setBitmapHash($this->hash($entity));
+                $entity->onPostLoad();
+            }
 
             $entities[] = $entity;
         }
 
         return $entities;
+    }
+
+    public function equals(Mapper $right)
+    {
+        return $this->class == $right->class;
     }
 
     /**

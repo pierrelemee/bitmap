@@ -31,20 +31,20 @@ class ResultSet
         return null;
     }
 
-    protected function read(Mapper $mapper, array $data, FieldMappingStrategy $strategy, Context $context, $depth = 0)
+    protected function read(Mapper $mapper, array $data, FieldMappingStrategy $strategy, Context $context)
     {
-        $primary = $this->value($mapper, $mapper->getPrimary(), $data, $strategy, $depth);
+        $primary = $this->value($mapper, $mapper->getPrimary(), $data, $strategy, $context->getDepth());
 
         if (null !== $primary && !isset($this->values[$mapper->getClass()][$mapper->getPrimary()->getName()])) {
-            $this->values[$mapper->getClass()][$depth][$primary] = [];
+            $this->values[$mapper->getClass()][$context->getDepth()][$primary] = [];
             foreach ($mapper->getFields() as $name => $field) {
-                $this->values[$mapper->getClass()][$depth][$primary][$field->getName()] = $this->value($mapper, $field, $data, $strategy, $depth);
+                $this->values[$mapper->getClass()][$context->getDepth()][$primary][$field->getName()] = $this->value($mapper, $field, $data, $strategy, $context->getDepth());
             }
         }
 
-        foreach ($mapper->associations() as $name => $association) {
-            if ($context->hasDependency($association->getName())) {
-                $this->read($association->getMapper(), $data, $strategy, $context->getDependency($association->getName()), $depth + ($mapper->getClass() === $association->getMapper() ? 1 : 0));
+        foreach ($context->getDependencies() as $name => $subcontext) {
+            if ($context->hasDependency($name)) {
+                $this->read($subcontext->getMapper(), $data, $strategy, $subcontext);
             }
         }
     }

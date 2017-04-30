@@ -6,6 +6,8 @@ use Chinook\Valid\Inline\Album;
 use Chinook\Valid\Inline\Artist;
 use Chinook\Valid\Inline\Employee;
 use Chinook\Valid\Inline\Track;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 
 class SelectTest extends TestCase
@@ -164,11 +166,13 @@ class SelectTest extends TestCase
 
     public function testGetEmployeeAndSuperior()
     {
+        /** @var Employee $employee */
         $employee= Employee::select()->where('EmployeeId', '=', 8)->one();
 
         $this->assertNotNull($employee);
         $this->assertNotNull($employee->getSuperior());
         $this->assertEquals(Employee::class, get_class($employee->getSuperior()));
+        $this->assertEquals(6, $employee->getSuperior()->getId());
     }
 
 }
