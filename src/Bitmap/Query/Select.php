@@ -26,6 +26,7 @@ class Select extends Query
      */
     protected $context;
     protected $tables;
+    protected $links;
     protected $fields;
     protected $joins;
 
@@ -36,6 +37,7 @@ class Select extends Query
         $this->order = [];
         $this->with = [];
         $this->tables = [];
+        $this->links = [];
         $this->fields = [];
         $this->joins = [];
         $this->strategy = new PrefixStrategy();
@@ -225,13 +227,23 @@ class Select extends Query
                     $this->incrementMapperDepth($mapper);
                 }
 
-                $this->joins = array_merge(
-                    $this->joins,
-                    $association->joinClauses(
-                        $mapper->getTable(),
-                        $this->mapperDepth($association->getMapper())
-                    )
-                );
+
+                if (!isset($this->links[$association->getMapper()->getClass()]) || !in_array($mapper->getClass(), $this->links[$association->getMapper()->getClass()])) {
+                    if (!isset($this->links[$mapper->getClass()])) {
+                        $this->links[$mapper->getClass()] = [];
+                    }
+
+                    $this->links[$mapper->getClass()][] = $association->getMapper()->getClass();
+
+                    $this->joins = array_merge(
+                        $this->joins,
+                        $association->joinClauses(
+                            $mapper->getTable(),
+                            $this->mapperDepth($association->getMapper())
+                        )
+                    );
+                }
+
                 $this->tables($association->getMapper(), $context->getDependency($association->getName()));
             }
         }

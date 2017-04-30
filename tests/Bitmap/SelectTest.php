@@ -62,7 +62,7 @@ class SelectTest extends TestCase
     public function testGetArtistById()
     {
         foreach (array_keys(self::connections()) as $connection) {
-            //$artist = Artist::query(sprintf('select * from `Artist` where ArtistId = %d', 94))->one();
+            /** @var Artist $artist */
             $artist = Artist::select()->where('ArtistId', '=', 94)->one($connection);
 
             $this->assertNotNull($artist);

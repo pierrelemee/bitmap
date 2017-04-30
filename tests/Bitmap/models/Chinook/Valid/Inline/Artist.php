@@ -35,11 +35,15 @@ class Artist extends Entity
 
     public function onPostLoad()
     {
-        foreach ($this->albums as $album) {
-            if (null === $album->getArtist()) {
-                $album->setArtist($this);
+        /*
+        if (null !== $this->albums) {
+            foreach ($this->albums as $album) {
+                if (null === $album->getArtist()) {
+                    $album->setArtist($this);
+                }
             }
         }
+        */
     }
 
     /**
