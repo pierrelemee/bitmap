@@ -41,7 +41,7 @@ class Mapper
     public function __construct($class, $table = null)
     {
         $this->class = $class;
-        $this->table = $table ? : ($index = strrpos($class, '\\')) !== false ? substr($class, $index + 1) : $class;
+        $this->table = $table ? : ($index = strrpos($class, '\\')) !== false ? trim(substr($class, $index + 1)) : $class;
         $this->fieldsByName = [];
         $this->fieldsByColumn = [];
         $this->associations = [];
@@ -395,6 +395,15 @@ class Mapper
     {
         $entities = [];
 
+        foreach ($result->getPrimaries($this) as $primary) {
+            echo $primary . "\n";
+            $entity = $this->inflate($result, $context, $primary);
+
+            $entities[] = $entity;
+        }
+
+        /*
+
         foreach ($result->getValuesAllEntity($this, $context->getDepth()) as $values) {
             $entity = null;
 
@@ -419,7 +428,32 @@ class Mapper
             $entities[] = $entity;
         }
 
+        */
+
         return $entities;
+    }
+
+    public function inflate(ResultSet $result, Context $context, $primary)
+    {
+        $entity = $this->createEntity();
+
+        if (null !== $values = $result->getEntity($this, $primary)) {
+            var_dump($values);
+
+            foreach ($values as $name => $value) {
+                $this->fieldsByName[$name]->set($entity, $value);
+            }
+
+            foreach ($this->associations as $association) {
+                if ($context->hasDependency($association->getName()) && $association->hasLocalValue()) {
+                    $association->set($entity, $association->getMapper()->inflate($result, $context->getDependency($association->getName()), $values[$association->getName()]));
+                }
+            }
+
+            return $entity;
+        }
+
+        return null;
     }
 
     public function equals(Mapper $right)

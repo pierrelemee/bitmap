@@ -18,6 +18,7 @@ class SelectTest extends TestCase
 
     public static function setUpBeforeClass()
     {
+        Bitmap::current()->setLogger(new Logger(new StreamHandler(fopen('php://stdout', 'a'))));
         foreach (self::connections() as $name => $arguments) {
             Bitmap::addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
         }
@@ -92,6 +93,7 @@ class SelectTest extends TestCase
 
     public function testGetArtists()
     {
+        /** @var Artist[] */
         $artists = Artist::select()->where('Name', 'like', 'The%')->all();
 
         $expected = [
@@ -113,9 +115,14 @@ class SelectTest extends TestCase
 
         $this->assertSameSize($expected, $artists);
 
+        /** @var Artist $artist*/
         foreach ($artists as $artist) {
             $this->assertArrayHasKey($artist->getId(), $expected);
             $this->assertEquals($expected[$artist->getId()], $artist->name);
+            //var_dump($artist->name);
+            //var_dump($artist->getId());
+            var_dump($artist->getAlbums()[0]->getArtist()->name);
+            //$this->assertSame($artist, $artist->getAlbums()[0]->getArtist());
         }
     }
 
@@ -138,7 +145,7 @@ class SelectTest extends TestCase
 	 *
 	 * @dataProvider getAlbumTracksOrderedByDurationData
 	 */
-    public function testGetAlbumTracksOrderedByDuration($asc, $limit, $expected, $offset = null)
+    public function testGetAlbumTracksOrderedByDuration($asc, $limit, array $expected, $offset = null)
     {
     	/** @var Track[] $tracks */
 	    $tracks = Track::select()

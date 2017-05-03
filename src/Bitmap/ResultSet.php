@@ -25,7 +25,7 @@ class ResultSet
 
     protected function value(Mapper $mapper, Field $field, array $data, FieldMappingStrategy $strategy, $depth = 0)
     {
-        if (($key = $strategy->getFieldLabel($mapper, $field, $depth)) !== null && isset($data[$key])) {
+        if (($key = $strategy->getFieldLabel($mapper, $field->getName(), $depth)) !== null && isset($data[$key])) {
             return $data[$key];
         }
         return null;
@@ -70,6 +70,20 @@ class ResultSet
     public function getEntity(Mapper $mapper, $primary)
     {
         return isset($this->entities[$mapper->getClass()][$primary]) ? $this->entities[$mapper->getClass()][$primary] : null;
+    }
+
+    public function getPrimaries(Mapper $mapper, $depth = 0)
+    {
+        return array_keys($this->values[$mapper->getClass()][$depth]);
+    }
+
+    public function getValuesEntity(Mapper $mapper, $primary, $depth = 0)
+    {
+        if (isset($this->values[$mapper->getClass()][$depth][$primary])) {
+            return $this->values[$mapper->getClass()][$depth][$primary];
+        }
+
+        return null;
     }
 
     public function getValuesAllEntity(Mapper $mapper, $depth = 0)

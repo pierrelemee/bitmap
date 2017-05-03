@@ -212,8 +212,19 @@ class Select extends Query
                 "`%s`.`%s` as `%s`",
                 $mapper->getTable() . ($context->getDepth() > 0 ? $context->getDepth() : ''),
                 $field->getName(),
-                $this->strategy->getFieldLabel($mapper, $field, $context->getDepth())
+                $this->strategy->getFieldLabel($mapper, $field->getName(), $context->getDepth())
             );
+        }
+
+        foreach ($mapper->associations() as $association) {
+            if ($context->hasDependency($association->getName()) && $association->hasLocalValue()) {
+                $this->fields[] = sprintf(
+                    "`%s`.`%s` as `%s`",
+                    $mapper->getTable() . ($context->getDepth() > 0 ? $context->getDepth() : ''),
+                    $association->getColumn(),
+                    $this->strategy->getFieldLabel($mapper, $association->getColumn(), $context->getDepth())
+                );
+            }
         }
 
         foreach ($context->getDependencies() as $name => $subcontext) {
