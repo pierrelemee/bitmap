@@ -41,7 +41,7 @@ class Mapper
     public function __construct($class, $table = null)
     {
         $this->class = $class;
-        $this->table = $table ? : ($index = strrpos($class, '\\')) !== false ? substr($class, $index + 1) : $class;
+        $this->table = preg_replace('~[[:cntrl:]]~', '', trim($table ? : substr(strrchr($class, "\\"), 1)));
         $this->fieldsByName = [];
         $this->fieldsByColumn = [];
         $this->associations = [];

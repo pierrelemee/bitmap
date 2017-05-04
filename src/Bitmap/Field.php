@@ -133,7 +133,7 @@ abstract class Field
 
     public function get(Entity $entity)
     {
-        return $this->transformer->fromObject($this->getValue($entity));
+        return ($value = $this->getValue($entity)) !== null ? $this->transformer->fromObject($value) : null;
     }
 
     public abstract function getValue(Entity $entity);
