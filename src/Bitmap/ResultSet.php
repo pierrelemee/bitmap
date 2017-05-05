@@ -3,6 +3,7 @@
 namespace Bitmap;
 
 use Bitmap\Query\Context\Context;
+use Chinook\Valid\Inline\Artist;
 use PDOStatement;
 
 class ResultSet
@@ -44,9 +45,11 @@ class ResultSet
 
         foreach ($context->getDependencies() as $name => $subcontext) {
             if ($context->hasDependency($name)) {
-                $this->read($subcontext->getMapper(), $data, $strategy, $subcontext);
+                $this->values[$mapper->getClass()][$context->getDepth()][$primary][$name][] = $this->read($subcontext->getMapper(), $data, $strategy, $subcontext);
             }
         }
+
+        return $primary;
     }
 
     public function getValuesOneEntity(Mapper $mapper, $depth = 0)

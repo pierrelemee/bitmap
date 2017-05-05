@@ -438,15 +438,14 @@ class Mapper
         $entity = $this->createEntity();
 
         if (null !== $values = $result->getEntity($this, $primary)) {
-            var_dump($values);
 
             foreach ($values as $name => $value) {
                 $this->fieldsByName[$name]->set($entity, $value);
             }
 
             foreach ($this->associations as $association) {
-                if ($context->hasDependency($association->getName()) && $association->hasLocalValue()) {
-                    $association->set($entity, $association->getMapper()->inflate($result, $context->getDependency($association->getName()), $values[$association->getName()]));
+                if ($context->hasDependency($association->getName())) {
+	                $association->set($entity, $association->getMapper()->inflate($result, $context->getDependency($association->getName()), $values[$association->getName()]));
                 }
             }
 
