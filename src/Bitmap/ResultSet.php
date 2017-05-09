@@ -3,7 +3,6 @@
 namespace Bitmap;
 
 use Bitmap\Query\Context\Context;
-use Chinook\Valid\Inline\Artist;
 use PDOStatement;
 
 class ResultSet
@@ -36,17 +35,24 @@ class ResultSet
     {
         $primary = $this->value($mapper, $mapper->getPrimary(), $data, $strategy, $context->getDepth());
 
-        if (null !== $primary && !isset($this->values[$mapper->getClass()][$mapper->getPrimary()->getName()])) {
-            $this->values[$mapper->getClass()][$context->getDepth()][$primary] = [];
-            foreach ($mapper->getFields() as $name => $field) {
-                $this->values[$mapper->getClass()][$context->getDepth()][$primary][$field->getName()] = $this->value($mapper, $field, $data, $strategy, $context->getDepth());
-            }
-        }
+        if (null !== $primary) {
+        	if (!isset($this->values[$mapper->getClass()][$context->getDepth()][$primary])) {
+		        $this->values[$mapper->getClass()][$context->getDepth()][$primary] = [];
 
-        foreach ($context->getDependencies() as $name => $subcontext) {
-            if ($context->hasDependency($name)) {
-                $this->values[$mapper->getClass()][$context->getDepth()][$primary][$name][] = $this->read($subcontext->getMapper(), $data, $strategy, $subcontext);
-            }
+		        foreach ($mapper->getFields() as $name => $field) {
+			        $this->values[$mapper->getClass()][$context->getDepth()][$primary][$field->getName()] = $this->value($mapper, $field, $data, $strategy, $context->getDepth());
+		        }
+	        }
+
+	        foreach ($context->getDependencies() as $name => $subcontext) {
+		        if ($context->hasDependency($name)) {
+			        $p = $this->read($subcontext->getMapper(), $data, $strategy, $subcontext);
+
+		        	if (!isset($this->values[$mapper->getClass()][$context->getDepth()][$primary][$name]) || !in_array($p, $this->values[$mapper->getClass()][$context->getDepth()][$primary][$name])) {
+				        $this->values[$mapper->getClass()][$context->getDepth()][$primary][$name][] = $p;
+			        }
+		        }
+	        }
         }
 
         return $primary;

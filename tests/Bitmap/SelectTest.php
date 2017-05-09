@@ -94,7 +94,7 @@ class SelectTest extends TestCase
     public function testGetArtists()
     {
         /** @var Artist[] */
-        $artists = Artist::select()->where('Name', 'like', 'The%')->all();
+        $artists = Artist::select()->where('Name', 'like', 'The%')->all(['albums' => ['artist']]);
 
         $expected = [
             137 => 'The Black Crowes',
@@ -119,10 +119,10 @@ class SelectTest extends TestCase
         foreach ($artists as $artist) {
             $this->assertArrayHasKey($artist->getId(), $expected);
             $this->assertEquals($expected[$artist->getId()], $artist->name);
-            //var_dump($artist->name);
-            //var_dump($artist->getId());
-            var_dump($artist->getAlbums()[0]->getArtist()->name);
-            //$this->assertSame($artist, $artist->getAlbums()[0]->getArtist());
+
+            if (sizeof($artist->getAlbums()) > 0) {
+	            $this->assertSame($artist, $artist->getAlbums()[0]->getArtist());
+            }
         }
     }
 
