@@ -25,7 +25,7 @@ class ResultSet
 
     protected function value(Mapper $mapper, Field $field, array $data, FieldMappingStrategy $strategy, $depth = 0)
     {
-        if (($key = $strategy->getFieldLabel($mapper, $field, $depth)) !== null && isset($data[$key])) {
+        if (($key = $strategy->getFieldLabel($mapper, $field->getName(), $depth)) !== null && isset($data[$key])) {
             return $data[$key];
         }
         return null;
@@ -35,18 +35,27 @@ class ResultSet
     {
         $primary = $this->value($mapper, $mapper->getPrimary(), $data, $strategy, $context->getDepth());
 
-        if (null !== $primary && !isset($this->values[$mapper->getClass()][$mapper->getPrimary()->getName()])) {
-            $this->values[$mapper->getClass()][$context->getDepth()][$primary] = [];
-            foreach ($mapper->getFields() as $name => $field) {
-                $this->values[$mapper->getClass()][$context->getDepth()][$primary][$field->getName()] = $this->value($mapper, $field, $data, $strategy, $context->getDepth());
-            }
+        if (null !== $primary) {
+        	if (!isset($this->values[$mapper->getClass()][$context->getDepth()][$primary])) {
+		        $this->values[$mapper->getClass()][$context->getDepth()][$primary] = [];
+
+		        foreach ($mapper->getFields() as $name => $field) {
+			        $this->values[$mapper->getClass()][$context->getDepth()][$primary][$field->getName()] = $this->value($mapper, $field, $data, $strategy, $context->getDepth());
+		        }
+	        }
+
+	        foreach ($context->getDependencies() as $name => $subcontext) {
+		        if ($context->hasDependency($name)) {
+			        $p = $this->read($subcontext->getMapper(), $data, $strategy, $subcontext);
+
+		        	if (!isset($this->values[$mapper->getClass()][$context->getDepth()][$primary][$name]) || !in_array($p, $this->values[$mapper->getClass()][$context->getDepth()][$primary][$name])) {
+				        $this->values[$mapper->getClass()][$context->getDepth()][$primary][$name][] = $p;
+			        }
+		        }
+	        }
         }
 
-        foreach ($context->getDependencies() as $name => $subcontext) {
-            if ($context->hasDependency($name)) {
-                $this->read($subcontext->getMapper(), $data, $strategy, $subcontext);
-            }
-        }
+        return $primary;
     }
 
     public function getValuesOneEntity(Mapper $mapper, $depth = 0)
@@ -70,6 +79,20 @@ class ResultSet
     public function getEntity(Mapper $mapper, $primary)
     {
         return isset($this->entities[$mapper->getClass()][$primary]) ? $this->entities[$mapper->getClass()][$primary] : null;
+    }
+
+    public function getPrimaries(Mapper $mapper, $depth = 0)
+    {
+        return isset($this->values[$mapper->getClass()]) ? array_keys($this->values[$mapper->getClass()][$depth]) : [];
+    }
+
+    public function getValuesEntity(Mapper $mapper, $primary, $depth = 0)
+    {
+        if (isset($this->values[$mapper->getClass()][$depth][$primary])) {
+            return $this->values[$mapper->getClass()][$depth][$primary];
+        }
+
+        return null;
     }
 
     public function getValuesAllEntity(Mapper $mapper, $depth = 0)

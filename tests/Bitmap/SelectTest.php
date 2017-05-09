@@ -18,6 +18,7 @@ class SelectTest extends TestCase
 
     public static function setUpBeforeClass()
     {
+        Bitmap::current()->setLogger(new Logger(new StreamHandler(fopen('php://stdout', 'a'))));
         foreach (self::connections() as $name => $arguments) {
             Bitmap::addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
         }
@@ -92,7 +93,8 @@ class SelectTest extends TestCase
 
     public function testGetArtists()
     {
-        $artists = Artist::select()->where('Name', 'like', 'The%')->all();
+        /** @var Artist[] */
+        $artists = Artist::select()->where('Name', 'like', 'The%')->all(['albums' => ['artist']]);
 
         $expected = [
             137 => 'The Black Crowes',
@@ -113,9 +115,14 @@ class SelectTest extends TestCase
 
         $this->assertSameSize($expected, $artists);
 
+        /** @var Artist $artist*/
         foreach ($artists as $artist) {
             $this->assertArrayHasKey($artist->getId(), $expected);
             $this->assertEquals($expected[$artist->getId()], $artist->name);
+
+            if (sizeof($artist->getAlbums()) > 0) {
+	            $this->assertSame($artist, $artist->getAlbums()[0]->getArtist());
+            }
         }
     }
 
@@ -138,7 +145,7 @@ class SelectTest extends TestCase
 	 *
 	 * @dataProvider getAlbumTracksOrderedByDurationData
 	 */
-    public function testGetAlbumTracksOrderedByDuration($asc, $limit, $expected, $offset = null)
+    public function testGetAlbumTracksOrderedByDuration($asc, $limit, array $expected, $offset = null)
     {
     	/** @var Track[] $tracks */
 	    $tracks = Track::select()
@@ -167,7 +174,7 @@ class SelectTest extends TestCase
     public function testGetEmployeeAndSuperior()
     {
         /** @var Employee $employee */
-        $employee= Employee::select()->where('EmployeeId', '=', 8)->one();
+        $employee= Employee::select()->where('EmployeeId', '=', 8)->one(['superior']);
 
         $this->assertNotNull($employee);
         $this->assertNotNull($employee->getSuperior());
