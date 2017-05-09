@@ -56,9 +56,9 @@ abstract class AssociationManyToMany extends Association
      */
     protected abstract function getEntities(Entity $entity);
 
-    public function set(ResultSet $result, Entity $entity, Context $context, $depth = 0)
+    public function set($value, Entity $entity)
     {
-        $this->setEntities($entity, $this->getMapper()->loadAll($result, $context, $depth));
+        $this->setEntities($entity, $value);
     }
 
     /**

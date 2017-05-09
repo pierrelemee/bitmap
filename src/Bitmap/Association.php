@@ -86,5 +86,5 @@ abstract class Association
      */
     public abstract function getAll(Entity $entity);
 
-    public abstract function set(ResultSet $result, Entity $entity, Context $context, $depth = 0);
+    public abstract function set($value, Entity $entity);
 }

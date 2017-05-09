@@ -26,6 +26,7 @@ class Select extends Query
      */
     protected $context;
     protected $tables;
+    protected $links;
     protected $fields;
     protected $joins;
 
@@ -36,6 +37,7 @@ class Select extends Query
         $this->order = [];
         $this->with = [];
         $this->tables = [];
+        $this->links = [];
         $this->fields = [];
         $this->joins = [];
         $this->strategy = new PrefixStrategy();
@@ -54,14 +56,14 @@ class Select extends Query
     }
 
     /**
-     * @param array|null|Context $with
+     * @param array|null $with
      * @param null $connection
      *
      * @return Entity|null
      */
     public function one($with = null, $connection = null)
     {
-        $this->context = $with ? Context::fromContext($with) : Context::fromMapper($this->mapper);
+        $this->context = new Context($this->mapper, $with);
         $stmt = $this->execute(Bitmap::connection($connection));
         $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
 
@@ -69,14 +71,14 @@ class Select extends Query
     }
 
     /**
-     * @param array|null|Context $with
+     * @param array|null $with
      * @param null $connection
      *
      * @return Entity[]
      */
     public function all($with = null, $connection = null)
     {
-        $this->context = $with ? Context::fromContext($with) : Context::fromMapper($this->mapper);
+        $this->context = new Context($this->mapper, $with);
         $stmt = $this->execute(Bitmap::connection($connection));
         $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
 
@@ -141,17 +143,6 @@ class Select extends Query
         return $this->tables[$mapper->getTable()];
     }
 
-    protected function incrementMapperDepth(Mapper $mapper)
-    {
-        if (!isset($this->tables[$mapper->getTable()])) {
-            $this->tables[$mapper->getTable()] = 0;
-        } else {
-            $this->tables[$mapper->getTable()]++;
-        }
-
-        return $this->tables[$mapper->getTable()];
-    }
-
     /**
      * @param $mapper Mapper
      * @param $with array
@@ -208,31 +199,45 @@ class Select extends Query
 
     protected function tables(Mapper $mapper, Context $context)
     {
-        $depth = $this->mapperDepth($mapper);
+        if (!isset($this->tables[$context->getMapper()->getClass()][$context->getDepth()])) {
+            if (!isset($this->tables[$context->getMapper()->getClass()])) {
+                $this->tables[$context->getMapper()->getClass()] = [];
+            }
+
+            $this->tables[$context->getMapper()->getClass()][$context->getDepth()] = true;
+        }
 
         foreach ($mapper->getFields() as $field) {
             $this->fields[] = sprintf(
                 "`%s`.`%s` as `%s`",
-                $mapper->getTable() . ($depth > 0 ? $depth : ''),
+                $mapper->getTable() . ($context->getDepth() > 0 ? $context->getDepth() : ''),
                 $field->getName(),
-                $this->strategy->getFieldLabel($mapper, $field, $depth)
+                $this->strategy->getFieldLabel($mapper, $field->getName(), $context->getDepth())
             );
         }
 
-        foreach ($mapper->associations() as $name => $association) {
-            if ($context->hasDependency($association->getName())) {
-                if ($mapper->getClass() === $association->getMapper()->getClass()) {
-                    $this->incrementMapperDepth($mapper);
-                }
+        foreach ($mapper->associations() as $association) {
+            if ($context->hasDependency($association->getName()) && $association->hasLocalValue()) {
+                $this->fields[] = sprintf(
+                    "`%s`.`%s` as `%s`",
+                    $mapper->getTable() . ($context->getDepth() > 0 ? $context->getDepth() : ''),
+                    $association->getColumn(),
+                    $this->strategy->getFieldLabel($mapper, $association->getColumn(), $context->getDepth())
+                );
+            }
+        }
 
+        foreach ($context->getDependencies() as $name => $subcontext) {
+            if (!isset($this->tables[$subcontext->getMapper()->getClass()][$subcontext->getDepth()])) {
                 $this->joins = array_merge(
                     $this->joins,
-                    $association->joinClauses(
+                    $mapper->getAssociation($name)->joinClauses(
                         $mapper->getTable(),
-                        $this->mapperDepth($association->getMapper())
+                        $subcontext->getMapperDepth()
                     )
                 );
-                $this->tables($association->getMapper(), $context->getDependency($association->getName()));
+
+                $this->tables($mapper->getAssociation($name)->getMapper(), $subcontext);
             }
         }
     }

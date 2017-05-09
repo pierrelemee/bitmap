@@ -49,23 +49,30 @@ abstract class Entity
         return Bitmap::getMapper($class);
     }
 
-
+    /**
+     * @return Select
+     */
     public static function select()
     {
         return new Select(self::getClassMapper(get_called_class()));
     }
 
+    public function onPostLoad()
+    {
+        // To be implemented if needed
+    }
+
     /**
      * @param $connection string the name of the connection to use
-     * @param null|array|Context $context the list of association (by their names) to recursively save
+     * @param null|array|Context $with the list of association (by their names) to recursively save
      *
      * @return boolean whether the save operation completed successfully
      *
      * @throws Exception
      */
-    public function save($context = null, $connection = null)
+    public function save($with = null, $connection = null)
     {
-        $context = $context !== null ? Context::fromContext($context) : Context::fromMapper($this->mapper());
+        $context = ($with instanceof Context) ? $with : new Context($this->mapper(), $with);
         if ($this->bitmapHash === null) {
             $status = $this->mapper()->insert($this, $context, $connection);
         } else {

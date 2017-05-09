@@ -38,9 +38,9 @@ abstract class AssociationOne extends Association
      */
     protected abstract function getEntity(Entity $entity);
 
-    public function set(ResultSet $result, Entity $entity, Context $context, $depth = 0)
+    public function set($value, Entity $entity)
     {
-        $this->setEntity($entity, $this->getMapper()->loadOne($result, $context, $depth));
+        $this->setEntity($entity, $value);
     }
 
     protected abstract function setEntity(Entity $entity, Entity $associated);

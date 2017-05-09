@@ -16,14 +16,14 @@ abstract class ModifyEntityQuery extends ModifyQuery
      */
     protected $context;
 
-    public function __construct(Entity $entity, $context)
+    public function __construct(Entity $entity, $context = null)
     {
         parent::__construct($entity->getMapper());
         $this->entity = $entity;
         $this->context = $context;
     }
 
-    protected function fieldValues()
+    protected function fieldValues($includeAssociations = true)
     {
         $values = [];
         foreach ($this->mapper->getFields() as $name => $field) {
@@ -38,10 +38,15 @@ abstract class ModifyEntityQuery extends ModifyQuery
             }
         }
 
-        foreach ($this->mapper->associations() as $name => $association) {
-            if ($association->hasLocalValue() && $association->getMapper()->hasPrimary() || $this->context->hasDependency($association->getName())) {
-                if (null !== $entity = $association->get($this->entity)) {
-                    $values[$association->getColumn()] = $association->getMapper()->getPrimary()->get($entity);
+        if ($includeAssociations) {
+            foreach ($this->mapper->associations() as $name => $association) {
+                if ($association->hasLocalValue() && $association->getMapper()->hasPrimary() || $this->context->hasDependency($association->getName())) {
+                    $entities = is_array($association->get($this->entity)) ? $association->get($this->entity) : [$association->get($this->entity)];
+                    foreach ($entities as $entity) {
+                        if (null !== $entity) {
+                            $values[$association->getColumn()] = $association->getMapper()->getPrimary()->get($entity);
+                        }
+                    }
                 }
             }
         }

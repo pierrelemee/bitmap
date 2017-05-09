@@ -12,7 +12,7 @@ class Update extends ModifyEntityQuery
      * @{@inheritdoc}
      * @param string $class
      *
-     * @return Delete
+     * @return Update
      */
     public static function fromEntity(Entity $entity)
     {
@@ -23,7 +23,7 @@ class Update extends ModifyEntityQuery
     {
         $sql = [];
 
-        foreach ($this->fieldValues() as $name => $value) {
+        foreach ($this->fieldValues(false) as $name => $value) {
             $sql[] = sprintf("`%s` = %s", $name, $value);
         }
 
