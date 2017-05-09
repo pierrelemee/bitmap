@@ -83,7 +83,7 @@ class ResultSet
 
     public function getPrimaries(Mapper $mapper, $depth = 0)
     {
-        return array_keys($this->values[$mapper->getClass()][$depth]);
+        return isset($this->values[$mapper->getClass()]) ? array_keys($this->values[$mapper->getClass()][$depth]) : [];
     }
 
     public function getValuesEntity(Mapper $mapper, $primary, $depth = 0)

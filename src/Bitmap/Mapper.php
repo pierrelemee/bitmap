@@ -388,7 +388,7 @@ class Mapper
 	    if (null === $entity = $result->getEntity($this, $primary)) {
 		    $entity = $this->createEntity();
 
-		    if (null !== $values = $result->getValuesEntity($this, $primary)) {
+		    if (null !== $values = $result->getValuesEntity($this, $primary, $context->getDepth())) {
 
 			    foreach ($this->fieldsByName as $name => $field) {
 				    $field->set($entity, $values[$name]);

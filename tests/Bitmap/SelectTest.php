@@ -174,7 +174,7 @@ class SelectTest extends TestCase
     public function testGetEmployeeAndSuperior()
     {
         /** @var Employee $employee */
-        $employee= Employee::select()->where('EmployeeId', '=', 8)->one();
+        $employee= Employee::select()->where('EmployeeId', '=', 8)->one(['superior']);
 
         $this->assertNotNull($employee);
         $this->assertNotNull($employee->getSuperior());
