@@ -97,6 +97,16 @@ class Select extends Query
 		    );
 
 		    return $this;
+	    } else if ($this->mapper->hasFieldByColumn($field)) {
+		    $this->where[] = sprintf(
+			    "`%s`.`%s` %s %s",
+			    $this->mapper->getTable(),
+			    $this->mapper->getFieldByColumn($field)->getColumn(),
+			    $operation,
+			    $this->mapper->getFieldByColumn($field)->getTransformer()->fromObject($value)
+		    );
+
+		    return $this;
 	    }
 
 	    foreach ($this->mapper->associations() as $association) {
@@ -211,7 +221,7 @@ class Select extends Query
             $this->fields[] = sprintf(
                 "`%s`.`%s` as `%s`",
                 $mapper->getTable() . ($context->getDepth() > 0 ? $context->getDepth() : ''),
-                $field->getName(),
+                $field->getColumn(),
                 $this->strategy->getFieldLabel($mapper, $field->getColumn(), $context->getDepth())
             );
         }

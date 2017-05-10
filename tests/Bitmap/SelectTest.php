@@ -18,7 +18,11 @@ class SelectTest extends TestCase
 
     public static function setUpBeforeClass()
     {
-        Bitmap::current()->setLogger(new Logger(new StreamHandler(fopen('php://stdout', 'a'))));
+
+    	if (isset(Logger::getLevels()[strtoupper(getenv('PHPUNIT_LOGGING'))])) {
+		    Bitmap::current()->setLogger(new Logger(new StreamHandler(fopen('php://stdout', 'a'), strtoupper(getenv('PHPUNIT_LOGGING')))));
+	    }
+
         foreach (self::connections() as $name => $arguments) {
             Bitmap::addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
         }
@@ -62,15 +66,30 @@ class SelectTest extends TestCase
 
     }
 
-    public function testGetArtistById()
+	/**
+	 * @param $field
+	 * @param $id
+	 * @param $expected
+	 *
+	 * @dataProvider getArtistByIdData
+	 */
+    public function testGetArtistById($field, $id, $expected)
     {
         foreach (array_keys(self::connections()) as $connection) {
             /** @var Artist $artist */
-            $artist = Artist::select()->where('ArtistId', '=', 94)->one($connection);
+            $artist = Artist::select()->where($field, '=', $id)->one($connection);
 
             $this->assertNotNull($artist);
-            $this->assertSame('Jimi Hendrix', $artist->name);
+            $this->assertSame($expected, $artist->name);
         }
+    }
+
+    public function getArtistByIdData()
+    {
+    	return [
+    		['ArtistId', 94, 'Jimi Hendrix'],
+    		['id', 94, 'Jimi Hendrix']
+	    ];
     }
 
     public function testGetArtistAndItsArtWork()

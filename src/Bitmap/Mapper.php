@@ -133,20 +133,25 @@ class Mapper
 	 * @param bool $nullable
 	 * @param string|null $getter
 	 * @param string|null $setter
-	 * @param bool $incremented
+	 * @param bool $primary
 	 *
 	 * @return Mapper
 	 *
 	 * @throws MapperException
 	 */
-	public function addNewField($name, $type, $column = null, $nullable = false, $getter = null, $setter = null, $incremented = false)
+	public function addNewField($name, $type, $column = null, $nullable = false, $getter = null, $setter = null, $primary = false)
 	{
 		$column = $column ? : $name;
 		$reflection = new ReflectionClass($this->class);
 
 		if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
 			$field = new PropertyField($name, $reflection->getProperty($name), $type, $column, $nullable);
-			$field->setIncremented($incremented);
+
+			if ($primary) {
+				$field->setIncremented(true);
+				$this->primary = $field;
+			}
+
 			return $this->addField($field);
 		} else {
 			if (null === $getter) {
@@ -158,7 +163,10 @@ class Mapper
 
 			if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
 				$field = new MethodField($name, $reflection->getMethod($getter), $reflection->getMethod($setter), $type, $column, $nullable);
-				$field->setIncremented($incremented);
+				if ($primary) {
+					$field->setIncremented(true);
+					$this->primary = $field;
+				}
 				return $this->addField($field);
 			} else {
 				throw new MapperException("Unable to create a field with name {$name}' to '{$this->class}'");
