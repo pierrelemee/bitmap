@@ -17,7 +17,7 @@ class MediaType extends Entity
     public function getMapper()
     {
         $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::of(get_class($this))
+        return Mapper::from(get_class($this))
             ->addPrimary(
                 MethodField::fromMethods($reflection->getMethod('getId'), $reflection->getMethod('setId'), 'MediaTypeId')
                     ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))

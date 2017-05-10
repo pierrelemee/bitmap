@@ -31,7 +31,8 @@ class Delete extends ModifyQuery
         return sprintf(
             "delete from `%s` where `%s` = %s",
             $this->mapper->getTable(),
-            $this->mapper->getPrimary()->getName(),
+            $this->mapper->getPrimary()->getColumn()
+		        ,
             $this->mapper->getPrimary()->get($this->entity)
         );
     }

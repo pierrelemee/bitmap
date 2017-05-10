@@ -2,6 +2,7 @@
 
 namespace Bitmap\Fields;
 
+use Bitmap\Bitmap;
 use Bitmap\Field;
 use Bitmap\Entity;
 use ReflectionClass;
@@ -14,9 +15,9 @@ class PropertyField extends Field
      */
     protected $property;
 
-    public function __construct($name, ReflectionProperty $property)
+    public function __construct($name, ReflectionProperty $property, $type = Bitmap::TYPE_STRING, $column = null, $nullable = false)
     {
-        parent::__construct($name);
+        parent::__construct($name, $type, $column, $nullable);
         $this->property = $property;
     }
 

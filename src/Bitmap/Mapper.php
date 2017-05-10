@@ -10,6 +10,7 @@ use Bitmap\Associations\PropertyAssociationOne;
 use Bitmap\Associations\PropertyAssociationOneToMany;
 use Bitmap\Exceptions\MapperException;
 use Bitmap\Fields\MethodField;
+use Bitmap\Fields\PropertyField;
 use Bitmap\Query\Context\Context;
 use Bitmap\Query\Delete;
 use Bitmap\Query\Insert;
@@ -79,6 +80,22 @@ class Mapper
         return $this;
     }
 
+	/**
+	 * @param string $name
+	 * @param string|null $column
+	 * @param string|Transformer $type
+	 * @param string|null $getter
+	 * @param string|null $setter
+	 *
+	 * @return Mapper
+	 *
+	 * @throws MapperException
+	 */
+	public function addNewPrimary($name, $type, $column = null, $getter = null, $setter = null)
+	{
+		return $this->addNewField($name, $type, $column, false, $getter, $setter, true);
+	}
+
     /**
      * @return boolean
      */
@@ -104,10 +121,58 @@ class Mapper
     {
         // TODO: check for existence
         $this->fieldsByName[$field->getName()] = $field;
-        $this->fieldsByColumn[$field->getName()] = $field;
+        $this->fieldsByColumn[$field->getColumn()] = $field;
 
         return $this;
     }
+
+	/**
+	 * @param string $name
+	 * @param string|null $column
+	 * @param string|Transformer $type
+	 * @param bool $nullable
+	 * @param string|null $getter
+	 * @param string|null $setter
+	 * @param bool $primary
+	 *
+	 * @return Mapper
+	 *
+	 * @throws MapperException
+	 */
+	public function addNewField($name, $type, $column = null, $nullable = false, $getter = null, $setter = null, $primary = false)
+	{
+		$column = $column ? : $name;
+		$reflection = new ReflectionClass($this->class);
+
+		if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
+			$field = new PropertyField($name, $reflection->getProperty($name), $type, $column, $nullable);
+
+			if ($primary) {
+				$field->setIncremented(true);
+				$this->primary = $field;
+			}
+
+			return $this->addField($field);
+		} else {
+			if (null === $getter) {
+				$getter = MethodField::getterForName($name);
+				$setter = MethodField::setterForName($name);
+			} else {
+				$setter = $setter ? : preg_replace("/^get/", "set", $getter);
+			}
+
+			if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
+				$field = new MethodField($name, $reflection->getMethod($getter), $reflection->getMethod($setter), $type, $column, $nullable);
+				if ($primary) {
+					$field->setIncremented(true);
+					$this->primary = $field;
+				}
+				return $this->addField($field);
+			} else {
+				throw new MapperException("Unable to create a field with name {$name}' to '{$this->class}'");
+			}
+		}
+	}
 
     /**
      * @param $name
@@ -228,9 +293,9 @@ class Mapper
 
             }
 
-            $viaSourceColumn = $this->primary->getName();
+            $viaSourceColumn = $this->primary->getColumn();
         }
-        $viaTargetColumn = $viaTargetColumn ? : Bitmap::getMapper($class)->getPrimary()->getName();
+        $viaTargetColumn = $viaTargetColumn ? : Bitmap::getMapper($class)->getPrimary()->getColumn();
         $reflection = new ReflectionClass($this->class);
 
         if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
@@ -437,7 +502,7 @@ class Mapper
      *
      * @throws Exception
      */
-    public static function of($class)
+    public static function from($class)
     {
         if (null === $class) {
             throw new Exception("Can't find mapper of null class");

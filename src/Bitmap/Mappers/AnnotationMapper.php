@@ -108,7 +108,7 @@ class AnnotationMapper extends Mapper
      * @param $class
      * @return Mapper
      */
-    public static function of($class)
+    public static function from($class)
     {
         return new AnnotationMapper(is_object($class) ? get_class($class) : $class);
     }

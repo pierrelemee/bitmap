@@ -15,7 +15,7 @@ abstract class FieldMappingStrategy
 
     /**
      * @param Mapper $mapper
-     * @param Field $field
+     * @param string $field
      * @param integer $depth
      *
      * @return string

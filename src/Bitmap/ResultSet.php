@@ -25,7 +25,7 @@ class ResultSet
 
     protected function value(Mapper $mapper, Field $field, array $data, FieldMappingStrategy $strategy, $depth = 0)
     {
-        if (($key = $strategy->getFieldLabel($mapper, $field->getName(), $depth)) !== null && isset($data[$key])) {
+        if (($key = $strategy->getFieldLabel($mapper, $field->getColumn(), $depth)) !== null && isset($data[$key])) {
             return $data[$key];
         }
         return null;

@@ -2,6 +2,7 @@
 
 namespace Bitmap\Fields;
 
+use Bitmap\Bitmap;
 use Bitmap\Field;
 use Bitmap\Entity;
 use ReflectionMethod;
@@ -18,9 +19,9 @@ class MethodField extends Field
      */
     protected $setter;
 
-    public function __construct($name, ReflectionMethod $getter, ReflectionMethod $setter)
+    public function __construct($name, ReflectionMethod $getter, ReflectionMethod $setter, $type = Bitmap::TYPE_STRING, $column = null, $nullable = false)
     {
-        parent::__construct($name);
+        parent::__construct($name, $type, $column, $nullable);
         $this->getter = $getter;
         $this->setter = $setter;
     }
