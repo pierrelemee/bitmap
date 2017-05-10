@@ -91,7 +91,7 @@ class Select extends Query
 		    $this->where[] = sprintf(
 			    "`%s`.`%s` %s %s",
 			    $this->mapper->getTable(),
-			    $this->mapper->getField($field)->getName(),
+			    $this->mapper->getField($field)->getColumn(),
 			    $operation,
 			    $this->mapper->getField($field)->getTransformer()->fromObject($value)
 		    );
@@ -183,7 +183,7 @@ class Select extends Query
     {
         $fields = [];
         foreach ($mapper->getFields() as $field) {
-            $fields[] = "`{$mapper->getTable()}`.`{$field->getName()}` as `{$this->strategy->getFieldLabel($mapper, $field)}`";
+            $fields[] = "`{$mapper->getTable()}`.`{$field->getColumn()}` as `{$this->strategy->getFieldLabel($mapper, $field->getColumn())}`";
         }
 
         return $fields;
@@ -212,7 +212,7 @@ class Select extends Query
                 "`%s`.`%s` as `%s`",
                 $mapper->getTable() . ($context->getDepth() > 0 ? $context->getDepth() : ''),
                 $field->getName(),
-                $this->strategy->getFieldLabel($mapper, $field->getName(), $context->getDepth())
+                $this->strategy->getFieldLabel($mapper, $field->getColumn(), $context->getDepth())
             );
         }
 

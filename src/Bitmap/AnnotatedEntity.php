@@ -8,7 +8,7 @@ class AnnotatedEntity extends Entity
 {
     public function getMapper()
     {
-        return AnnotationMapper::of($this);
+        return AnnotationMapper::from($this);
     }
 
 }

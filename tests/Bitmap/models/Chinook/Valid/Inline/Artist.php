@@ -4,10 +4,7 @@ namespace Chinook\Valid\Inline;
 
 use Bitmap\Bitmap;
 use Bitmap\Entity;
-use Bitmap\Fields\PropertyField;
-use Bitmap\Fields\MethodField;
 use Bitmap\Mapper;
-use ReflectionClass;
 
 class Artist extends Entity
 {
@@ -20,16 +17,9 @@ class Artist extends Entity
 
     public function getMapper()
     {
-        $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::of(get_class($this))
-            ->addPrimary(
-                MethodField::fromClass('ArtistId', $reflection, 'getId')
-                ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
-            )
-            ->addField(
-                PropertyField::fromClass('Name', $reflection, 'name')
-                ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
-            )
+        return Mapper::from(get_class($this))
+            ->addNewPrimary('id', Bitmap::TYPE_INTEGER, 'ArtistId')
+            ->addNewField('name', Bitmap::TYPE_STRING, 'Name')
             ->addAssociationOneToMany('albums', Album::class, 'ArtistId');
     }
 

@@ -25,7 +25,7 @@ class Employee extends Entity
     public function getMapper()
     {
         $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::of(__CLASS__)
+        return Mapper::from(__CLASS__)
             ->addPrimary(
                 MethodField::fromClass('EmployeeId', $reflection, 'id')
                 ->setType(Bitmap::TYPE_INTEGER)
