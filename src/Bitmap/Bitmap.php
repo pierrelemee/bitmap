@@ -37,6 +37,7 @@ class Bitmap
     private static $BITMAP;
 
     const TYPE_INTEGER  = "integer";
+    const TYPE_BOOLEAN  = "boolean";
     const TYPE_FLOAT    = "float";
     const TYPE_STRING   = "string";
     const TYPE_OBJECT   = "object";
