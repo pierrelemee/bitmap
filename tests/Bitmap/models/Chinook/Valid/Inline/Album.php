@@ -28,10 +28,7 @@ class Album extends Entity
     {
         $reflection = new ReflectionClass(__CLASS__);
         return Mapper::from(get_class($this))
-            ->addPrimary(
-                MethodField::fromClass('AlbumId', $reflection, 'getId')
-                    ->setType(Bitmap::TYPE_INTEGER)
-            )
+            ->addNewPrimary('id', Bitmap::TYPE_INTEGER, 'AlbumId')
             ->addField(
                 MethodField::fromClass('Title', $reflection)
                     ->setType(Bitmap::TYPE_STRING)

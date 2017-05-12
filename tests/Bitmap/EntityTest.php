@@ -7,12 +7,21 @@ use Chinook\Valid\Inline\Artist;
 use Chinook\Valid\Inline\Track;
 use Chinook\Valid\Inline\Genre;
 use Chinook\Valid\Inline\MediaType;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use PDO;
 
 class EntityTest extends TestCase
 {
     const CONNECTION_NAME = 'chinook';
+
+    public static function setUpBeforeClass()
+    {
+	    if (isset(Logger::getLevels()[strtoupper(getenv('PHPUNIT_LOGGING'))])) {
+		    Bitmap::current()->setLogger(new Logger(new StreamHandler(fopen('php://stdout', 'a'), strtoupper(getenv('PHPUNIT_LOGGING')))));
+	    }
+    }
 
     /**
      * @before
@@ -71,6 +80,24 @@ class EntityTest extends TestCase
 
 		$this->assertNotNull($artist->getId());
         $this->assertEquals(348, Bitmap::connection('chinook')->query("select count(*) as `total` from `Album`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+	}
+
+	/**
+	 * Attempt to add a new song in the database with no declared genre
+	 */
+	public function testAddNewSong()
+	{
+		$track = new Track();
+		$track->setName("Silly song");
+		$track->setAlbum(Album::select()->where('id', '=', 321)->one());
+		$track->setBytes(12345);
+		$track->setMilliseconds(123000);
+		$track->setComposer("Anonymous");
+		$track->setUnitPrice(0.01);
+		$track->setMedia(MediaType::select()->where('id', '=', 1)->one());
+
+		$track->save(['genre']);
+		$this->assertNotNull($track->getId());
 	}
 
 	public function addNewAlbumData()
