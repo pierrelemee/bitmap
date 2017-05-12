@@ -480,7 +480,7 @@ class Mapper
 				    }
 			    }
 
-			    $entity->setBitmapHash(base64_encode(serialize($values)));
+			    $entity->setBitmapHash(base64_encode(serialize($this->values($entity))));
 
 			    return $entity;
 		    }

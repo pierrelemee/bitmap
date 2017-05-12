@@ -14,7 +14,7 @@ abstract class Entity
 	 */
     protected $mapper;
 
-    protected function getBitmapHash()
+    public function getBitmapHash()
     {
         return $this->bitmapHash;
     }
@@ -78,6 +78,8 @@ abstract class Entity
         } else {
             $status = $this->mapper()->update($this, $context, $connection);
         }
+
+	    $this->setBitmapHash(base64_encode(serialize($this->mapper()->values($this))));
 
         return $status;
     }

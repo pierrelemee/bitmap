@@ -98,6 +98,7 @@ class EntityTest extends TestCase
 
 		$track->save(['genre']);
 		$this->assertNotNull($track->getId());
+		$this->assertNotNull($track->getBitmapHash());
 	}
 
 	public function addNewAlbumData()
