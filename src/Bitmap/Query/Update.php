@@ -23,7 +23,7 @@ class Update extends ModifyEntityQuery
     {
         $sql = [];
 
-        foreach ($this->fieldValues(false) as $name => $value) {
+        foreach ($this->fieldValues() as $name => $value) {
             $sql[] = sprintf("`%s` = %s", $name, $value);
         }
 
