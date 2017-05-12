@@ -137,7 +137,7 @@ class EntityTest extends TestCase
     {
         $artist = Artist::select()->where('ArtistId', '=', 179)->one();
         // "Scorpions" in database
-        $artist->name = "The Scorpions";
+	    $artist->name = "The Scorpions";
         $this->assertTrue($artist->save());
 
         $this->assertEquals(15, Bitmap::connection('chinook')->query('select count(*) as `total` from `Artist` where name like "The%"')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
