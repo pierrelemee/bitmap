@@ -115,7 +115,7 @@ class ArrayMapper extends Mapper
         if (null === $class = self::value($data, 'class', null)) {
             throw new MapperException("No class defined for association '{$name}'", $this->reflection->name);
         }
-        $mapper = Entity::mapper($class);
+        $mapper = Entity::getMapper($class);
 
         if (null === $type = self::value($data, 'type', null)) {
             throw new MapperException("No type defined for association '{$name}'", $this->reflection->name);

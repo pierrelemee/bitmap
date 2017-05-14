@@ -2,7 +2,7 @@
 
 namespace Bitmap\Strategies;
 
-use Bitmap\Field;
+
 use Bitmap\FieldMappingStrategy;
 use Bitmap\Mapper;
 use PDO;

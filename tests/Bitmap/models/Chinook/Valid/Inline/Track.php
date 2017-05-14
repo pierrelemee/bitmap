@@ -23,39 +23,19 @@ class Track extends Entity
     protected $bytes;
     protected $unitPrice;
 
-    public function getMapper()
+    public function initializeMapper(Mapper $mapper)
     {
-        $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::from(get_class($this))
-            ->addPrimary(
-                MethodField::fromClass('TrackId', $reflection, 'id')
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
-            )
-            ->addField(
-                MethodField::fromClass('Name', $reflection)
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
-            )
-            ->addField(
-                MethodField::fromClass('Composer', $reflection)
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
-            )
-            ->addField(
-                MethodField::fromClass('Milliseconds', $reflection)
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
-            )
-            ->addField(
-                MethodField::fromClass('Bytes', $reflection)
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
-            )
-            ->addField(
-                MethodField::fromClass('UnitPrice', $reflection)
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_FLOAT))
-            )
+        $mapper
+            ->addPrimary('id', Bitmap::TYPE_INTEGER, 'TrackId')
+            ->addField('name', Bitmap::TYPE_STRING, 'Name')
+            ->addField('composer', Bitmap::TYPE_STRING, 'Composer')
+            ->addField('milliseconds', Bitmap::TYPE_INTEGER, 'Milliseconds')
+            ->addField('bytes', Bitmap::TYPE_INTEGER, 'Bytes')
+            ->addField('unitPrice', Bitmap::TYPE_FLOAT, 'UnitPrice')
 	        ->addAssociationOne('album', Album::class, 'AlbumId')
             ->addAssociationOne('genre', Genre::class, 'GenreId')
             ->addAssociationOne('media', MediaType::class, 'MediaTypeId');
     }
-
 
     /**
      * @return mixed

@@ -2,7 +2,7 @@
 
 namespace Bitmap;
 
-use Bitmap\Query\Context\Context;
+
 
 abstract class AssociationOne extends Association
 {

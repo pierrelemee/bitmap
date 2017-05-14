@@ -20,18 +20,11 @@ class Playlist extends Entity
      */
     protected $tracks;
 
-    public function getMapper()
+    public function initializeMapper(Mapper $mapper)
     {
-        $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::from(get_class($this))
-            ->addPrimary(
-                MethodField::fromMethods($reflection->getMethod('getId'), $reflection->getMethod('setId'), 'PlaylistId')
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
-            )
-            ->addField(
-                MethodField::fromClass('name', $reflection, null, 'Name')
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
-            )
+        $mapper
+            ->addPrimary('id', Bitmap::TYPE_INTEGER, 'PlaylistId')
+            ->addField('name', Bitmap::TYPE_STRING, 'Name')
             ->addAssociationManyToMany('tracks', Track::class, 'PlaylistTrack', 'PlaylistId', 'TrackId');
     }
 

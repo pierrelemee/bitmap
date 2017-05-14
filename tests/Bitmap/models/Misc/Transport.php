@@ -2,22 +2,18 @@
 
 namespace Misc;
 
+use Bitmap\Bitmap;
 use Bitmap\Entity;
-use Bitmap\Fields\PropertyField;
 use Bitmap\Mapper;
-use ReflectionClass;
 
 class Transport extends Entity
 {
     public $id;
 
-    public function getMapper()
+    public function initializeMapper(Mapper $mapper)
     {
-        $mapper = new Mapper(__CLASS__);
-        $reflection = new ReflectionClass(__CLASS__);
-        $mapper->addPrimary(new PropertyField('id', $reflection->getProperty('id')));
-
-        return $mapper;
+        $mapper
+            ->addPrimary('id', Bitmap::TYPE_INTEGER);
     }
 
 }

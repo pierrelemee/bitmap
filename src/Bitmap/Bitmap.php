@@ -3,7 +3,7 @@
 namespace Bitmap;
 
 use Monolog\Handler\NullHandler;
-use Monolog\Handler\StreamHandler;
+
 use Monolog\Logger;
 use PDO;
 use ReflectionClass;
@@ -144,7 +144,7 @@ class Bitmap
         if (!self::current()->hasMapper($class)) {
             $entity = new ReflectionClass($class);
             if ($entity->isSubclassOf(Entity::class)) {
-                self::current()->addMapper($entity->newInstance()->mapper());
+                self::current()->addMapper($entity->newInstance()->getMapper());
             } else {
                 throw new Exception(sprintf("'%s' must be a sub class of '%s'", $class, Entity::class));
             }

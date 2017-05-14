@@ -150,7 +150,8 @@ abstract class Field
 
     public function get(Entity $entity)
     {
-        return ($value = $this->getValue($entity)) !== null ? $this->transformer->fromObject($value) : null;
+        $value = $this->getValue($entity);
+        return null !== $value ? $this->transformer->fromObject($value) : null;
     }
 
     public abstract function getValue(Entity $entity);

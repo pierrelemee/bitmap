@@ -22,31 +22,16 @@ class Employee extends Entity
     protected $bornAt;
     protected $hiredAt;
 
-    public function getMapper()
+    public function initializeMapper(Mapper $mapper)
     {
-        $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::from(__CLASS__)
-            ->addPrimary(
-                MethodField::fromClass('EmployeeId', $reflection, 'id')
-                ->setType(Bitmap::TYPE_INTEGER)
-            )
+        $mapper
+            ->addPrimary('id', Bitmap::TYPE_INTEGER, 'EmployeeId')
             ->addAssociationOne('superior', Employee::class, 'ReportsTo')
-            ->addField(
-                MethodField::fromClass('LastName', $reflection, 'lastname')
-                    ->setType(Bitmap::TYPE_STRING)
-            )
-            ->addField(
-                MethodField::fromClass('FirstName', $reflection, 'firstname')
-                    ->setType(Bitmap::TYPE_STRING)
-            )
-            ->addField(
-                MethodField::fromClass('BirthDate', $reflection, 'bornAt')
-                    ->setType(Bitmap::TYPE_DATETIME)
-            )
-            ->addField(
-                MethodField::fromClass('HireDate', $reflection, 'hiredAt')
-                    ->setType(Bitmap::TYPE_DATETIME)
-            );
+            ->addField('lastname', Bitmap::TYPE_STRING, 'LastName')
+            ->addField('firstname', Bitmap::TYPE_STRING, 'FirstName')
+            ->addField('title', Bitmap::TYPE_STRING, 'Title')
+            ->addField('bornAt', Bitmap::TYPE_DATETIME, 'BirthDate')
+            ->addField('hiredAt', Bitmap::TYPE_DATETIME, 'HireDate');
     }
 
     /**

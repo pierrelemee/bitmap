@@ -71,15 +71,6 @@ class Mapper
         return $this->class;
     }
 
-    public function addPrimary(Field $field, $incremented = true, $nullable = false)
-    {
-        $field->setIncremented($incremented);
-        $field->setNullable($nullable);
-        $this->addField($field);
-        $this->primary = $this->fieldsByName[$field->getName()];
-        return $this;
-    }
-
 	/**
 	 * @param string $name
 	 * @param string|null $column
@@ -91,9 +82,9 @@ class Mapper
 	 *
 	 * @throws MapperException
 	 */
-	public function addNewPrimary($name, $type, $column = null, $getter = null, $setter = null)
+	public function addPrimary($name, $type = null, $column = null, $getter = null, $setter = null)
 	{
-		return $this->addNewField($name, $type, $column, false, $getter, $setter, true);
+		return $this->addField($name, $type, $column, false, $getter, $setter, true);
 	}
 
     /**
@@ -112,22 +103,8 @@ class Mapper
         return $this->primary;
     }
 
-    /**
-     * @param Field $field
-     *
-     * @return Mapper
-     */
-    public function addField(Field $field)
-    {
-        // TODO: check for existence
-        $this->fieldsByName[$field->getName()] = $field;
-        $this->fieldsByColumn[$field->getColumn()] = $field;
-
-        return $this;
-    }
-
 	/**
-	 * @param string $name
+	 * @param string|Field $name
 	 * @param string|null $column
 	 * @param string|Transformer $type
 	 * @param bool $nullable
@@ -139,40 +116,45 @@ class Mapper
 	 *
 	 * @throws MapperException
 	 */
-	public function addNewField($name, $type, $column = null, $nullable = false, $getter = null, $setter = null, $primary = false)
+	public function addField($name, $type, $column = null, $nullable = false, $getter = null, $setter = null, $primary = false)
 	{
-		$column = $column ? : $name;
-		$reflection = new ReflectionClass($this->class);
+        $field = null;
 
-		if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
-			$field = new PropertyField($name, $reflection->getProperty($name), $type, $column, $nullable);
+        if ($name instanceof Field) {
+            $field = $name;
+        } else {
+            $column = $column ? : $name;
+            $reflection = new ReflectionClass($this->class);
 
-			if ($primary) {
-				$field->setIncremented(true);
-				$this->primary = $field;
-			}
+            if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
+                $field = new PropertyField($name, $reflection->getProperty($name), $type, $column, $nullable);
+            } else {
+                if (null === $getter) {
+                    $getter = MethodField::getterForName($name);
+                    $setter = MethodField::setterForName($name);
+                } else {
+                    $setter = $setter ? : preg_replace("/^get/", "set", $getter);
+                }
 
-			return $this->addField($field);
-		} else {
-			if (null === $getter) {
-				$getter = MethodField::getterForName($name);
-				$setter = MethodField::setterForName($name);
-			} else {
-				$setter = $setter ? : preg_replace("/^get/", "set", $getter);
-			}
+                if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
+                    $field = new MethodField($name, $reflection->getMethod($getter), $reflection->getMethod($setter), $type, $column, $nullable);
+                } else {
+                    throw new MapperException("Unable to create a field with name {$name}' to '{$this->class}'");
+                }
+            }
+        }
 
-			if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
-				$field = new MethodField($name, $reflection->getMethod($getter), $reflection->getMethod($setter), $type, $column, $nullable);
-				if ($primary) {
-					$field->setIncremented(true);
-					$this->primary = $field;
-				}
-				return $this->addField($field);
-			} else {
-				throw new MapperException("Unable to create a field with name {$name}' to '{$this->class}'");
-			}
-		}
-	}
+        // TODO: check for existence
+        $this->fieldsByName[$field->getName()] = $field;
+        $this->fieldsByColumn[$field->getColumn()] = $field;
+
+        if ($primary) {
+            $field->setIncremented(true);
+            $this->primary = $field;
+        }
+
+        return $this;
+    }
 
     /**
      * @param $name
@@ -336,11 +318,6 @@ class Mapper
         }
 
         return $values;
-    }
-
-    public function hash(Entity $entity)
-    {
-        return sha1(implode(":", array_values($this->values($entity))));
     }
 
     /**

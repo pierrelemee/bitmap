@@ -30,10 +30,10 @@ abstract class Entity
 	/**
 	 * @return Mapper
 	 */
-    public function mapper()
+    public function getMapper()
     {
     	if (null === $this->mapper) {
-    		$this->mapper = $this->getMapper();
+    		$this->mapper = $this->createMapper();
 	    }
 
     	return $this->mapper;
@@ -42,7 +42,14 @@ abstract class Entity
     /**
      * @return Mapper
      */
-    public abstract function getMapper();
+    public function createMapper()
+    {
+        $mapper = new Mapper(get_class($this));
+        $this->initializeMapper($mapper);
+        return $mapper;
+    }
+
+    public abstract function initializeMapper(Mapper $mapper);
 
     public static function getClassMapper($class)
     {
@@ -72,14 +79,13 @@ abstract class Entity
      */
     public function save($with = null, $connection = null)
     {
-        $context = ($with instanceof Context) ? $with : new Context($this->mapper(), $with);
+        $context = ($with instanceof Context) ? $with : new Context($this->getMapper(), $with);
         if ($this->bitmapHash === null) {
-            $status = $this->mapper()->insert($this, $context, $connection);
+            $status = $this->getMapper()->insert($this, $context, $connection);
+            $this->setBitmapHash(base64_encode(serialize($this->getMapper()->values($this))));
         } else {
-            $status = $this->mapper()->update($this, $context, $connection);
+            $status = $this->getMapper()->update($this, $context, $connection);
         }
-
-	    $this->setBitmapHash(base64_encode(serialize($this->mapper()->values($this))));
 
         return $status;
     }
@@ -93,6 +99,6 @@ abstract class Entity
      */
     public function delete($connection = null)
     {
-        return $this->getMapper()->delete($this, $connection);
+        return $this->createMapper()->delete($this, $connection);
     }
 }

@@ -18,7 +18,7 @@ abstract class ModifyEntityQuery extends ModifyQuery
 
     public function __construct(Entity $entity, $context = null)
     {
-        parent::__construct($entity->getMapper());
+        parent::__construct($entity->createMapper());
         $this->entity = $entity;
         $this->context = $context;
     }

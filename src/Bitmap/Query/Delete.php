@@ -10,7 +10,7 @@ class Delete extends ModifyQuery
 
     public function __construct(Entity $entity)
     {
-        parent::__construct($entity->getMapper());
+        parent::__construct($entity->createMapper());
         $this->entity = $entity;
     }
 

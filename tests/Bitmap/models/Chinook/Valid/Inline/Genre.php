@@ -14,18 +14,11 @@ class Genre extends Entity
     protected $id;
     protected $name;
 
-    public function getMapper()
+    public function initializeMapper(Mapper $mapper)
     {
-        $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::from(get_class($this))
-            ->addPrimary(
-                MethodField::fromMethods($reflection->getMethod('getId'), $reflection->getMethod('setId'), 'GenreId')
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_INTEGER))
-            )
-            ->addField(
-                MethodField::fromClass('Name', $reflection)
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
-            );
+        $mapper
+            ->addPrimary('id', Bitmap::TYPE_INTEGER, 'GenreId')
+            ->addField('name', Bitmap::TYPE_STRING, 'Name');
     }
 
     /**

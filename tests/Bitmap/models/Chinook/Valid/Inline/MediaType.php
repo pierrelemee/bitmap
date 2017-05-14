@@ -14,15 +14,11 @@ class MediaType extends Entity
     protected $id;
     protected $name;
 
-    public function getMapper()
+    public function initializeMapper(Mapper $mapper)
     {
-        $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::from(get_class($this))
-            ->addNewPrimary('id', Bitmap::TYPE_INTEGER, 'MediaTypeId')
-            ->addField(
-                MethodField::fromClass('Name', $reflection)
-                    ->setTransformer(Bitmap::getTransformer(Bitmap::TYPE_STRING))
-            );
+        $mapper
+            ->addPrimary('id', Bitmap::TYPE_INTEGER, 'MediaTypeId')
+            ->addField('name', Bitmap::TYPE_STRING, 'Name');
     }
 
     /**

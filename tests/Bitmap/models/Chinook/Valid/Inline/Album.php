@@ -24,15 +24,11 @@ class Album extends Entity
      */
     protected $tracks;
 
-    public function getMapper()
+    public function initializeMapper(Mapper $mapper)
     {
-        $reflection = new ReflectionClass(__CLASS__);
-        return Mapper::from(get_class($this))
-            ->addNewPrimary('id', Bitmap::TYPE_INTEGER, 'AlbumId')
-            ->addField(
-                MethodField::fromClass('Title', $reflection)
-                    ->setType(Bitmap::TYPE_STRING)
-            )
+        $mapper
+            ->addPrimary('id', Bitmap::TYPE_INTEGER, 'AlbumId')
+            ->addField('title', Bitmap::TYPE_STRING, 'Title')
             ->addAssociationOne('artist', Artist::class, 'ArtistId')
             ->addAssociationOneToMany('tracks', Track::class, 'AlbumId');
     }

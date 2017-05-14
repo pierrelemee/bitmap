@@ -55,11 +55,11 @@ class AnnotationMapper extends Mapper
             } else if ($annotations->has("association")) {
                 $name = $annotations->get('association', 0, $property->getName());
                 if ($property->isPublic()) {
-                    $this->addAssociation(new PropertyAssociation($name, Entity::mapper($annotations->get("association", 2, null)), $property, $annotations->get("association", 3, null)));
+                    $this->addAssociation(new PropertyAssociation($name, Entity::getMapper($annotations->get("association", 2, null)), $property, $annotations->get("association", 3, null)));
                 } else {
                     $getter = $this->reflection->getMethod("get" . ucfirst($property->getName()));
                     $setter = $this->reflection->getMethod("set" . ucfirst($property->getName()));
-                    $this->addAssociation(new MethodAssociation($name, Entity::mapper($annotations->get("association", 2, null)), $getter, $setter, $annotations->get("association", 3, null)));
+                    $this->addAssociation(new MethodAssociation($name, Entity::getMapper($annotations->get("association", 2, null)), $getter, $setter, $annotations->get("association", 3, null)));
                 }
             }
         }
@@ -99,7 +99,7 @@ class AnnotationMapper extends Mapper
                     $this->addField($field);
                 }
             } else if ($annotations->has("association")) {
-                $this->addAssociation(new MethodAssociation($annotations->get("association", 0, $method->getName()), Entity::mapper($annotations->get("association", 2, null)), $method, MethodField::setterForGetter($method), $annotations->get("association", 3, null)));
+                $this->addAssociation(new MethodAssociation($annotations->get("association", 0, $method->getName()), Entity::getMapper($annotations->get("association", 2, null)), $method, MethodField::setterForGetter($method), $annotations->get("association", 3, null)));
             }
         }
     }

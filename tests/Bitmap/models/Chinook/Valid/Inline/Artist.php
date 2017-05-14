@@ -15,25 +15,17 @@ class Artist extends Entity
      */
     protected $albums;
 
-    public function getMapper()
+    public function initializeMapper(Mapper $mapper)
     {
-        return Mapper::from(get_class($this))
-            ->addNewPrimary('id', Bitmap::TYPE_INTEGER, 'ArtistId')
-            ->addNewField('name', Bitmap::TYPE_STRING, 'Name')
+        $mapper
+            ->addPrimary('id', Bitmap::TYPE_INTEGER, 'ArtistId')
+            ->addField('name', Bitmap::TYPE_STRING, 'Name')
             ->addAssociationOneToMany('albums', Album::class, 'ArtistId');
     }
 
     public function onPostLoad()
     {
-        /*
-        if (null !== $this->albums) {
-            foreach ($this->albums as $album) {
-                if (null === $album->getArtist()) {
-                    $album->setArtist($this);
-                }
-            }
-        }
-        */
+
     }
 
     /**

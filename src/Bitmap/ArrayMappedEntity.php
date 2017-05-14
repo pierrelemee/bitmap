@@ -6,7 +6,7 @@ use Bitmap\Mappers\ArrayMapper;
 
 abstract class ArrayMappedEntity extends Entity
 {
-    public function getMapper()
+    public function createMapper()
     {
         return new ArrayMapper($this->mapping());
     }
