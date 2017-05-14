@@ -270,13 +270,7 @@ class Mapper
     public function addAssociationManyToMany($name, $class, $via, $column = null, $viaSourceColumn = null, $viaTargetColumn = null, $getter = null, $setter = null)
     {
         $column = $column ? : $name;
-        if (null === $viaSourceColumn) {
-            if (null === $this->primary) {
-
-            }
-
-            $viaSourceColumn = $this->primary->getColumn();
-        }
+        $viaSourceColumn = $viaSourceColumn ? : $this->primary->getColumn();
         $viaTargetColumn = $viaTargetColumn ? : Bitmap::getMapper($class)->getPrimary()->getColumn();
         $reflection = new ReflectionClass($this->class);
 
@@ -307,6 +301,7 @@ class Mapper
     }
 
     /**
+     * @param $entity Entity
      *
      * @return array
      */
