@@ -21,6 +21,11 @@ abstract class AssociationManyToMany extends Association
         $this->viaTargetColumn = $viaTargetColumn;
     }
 
+    protected function getDefaultAutoload()
+    {
+        return false;
+    }
+
     public function joinClauses(Mapper $mapper, $name)
     {
         return [

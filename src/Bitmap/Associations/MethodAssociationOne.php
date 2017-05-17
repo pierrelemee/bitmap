@@ -14,9 +14,9 @@ class MethodAssociationOne extends AssociationOne
     protected $getter;
     protected $setter;
 
-    public function __construct($name, $class, ReflectionMethod $getter, ReflectionMethod $setter, $column)
+    public function __construct($name, $class, ReflectionMethod $getter, ReflectionMethod $setter, $column, $options = [])
     {
-        parent::__construct($name, $class, $column);
+        parent::__construct($name, $class, $column, $options);
         $this->getter = $getter;
         $this->setter = $setter;
     }
@@ -29,10 +29,5 @@ class MethodAssociationOne extends AssociationOne
     protected function setEntity(Entity $entity, Entity $associated)
     {
         $this->setter->invoke($entity, $associated);
-    }
-
-    public static function fromMethods($name, $class, ReflectionMethod $getter, ReflectionMethod $setter, $column = null)
-    {
-        return new MethodAssociationOne($name, $class, $getter, $setter, $column);
     }
 }
