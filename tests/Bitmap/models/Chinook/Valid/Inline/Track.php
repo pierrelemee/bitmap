@@ -34,7 +34,7 @@ class Track extends Entity
             ->addField('unitPrice', Bitmap::TYPE_FLOAT, 'UnitPrice')
 	        ->addAssociationOne('album', Album::class, 'AlbumId')
             ->addAssociationOne('genre', Genre::class, 'GenreId')
-            ->addAssociationOne('media', MediaType::class, 'MediaTypeId');
+            ->addAssociationOne('media', MediaType::class, 'MediaTypeId', null, null, []);
     }
 
     /**

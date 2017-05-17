@@ -2,14 +2,9 @@
 
 namespace Chinook\Valid\Inline;
 
-use Bitmap\Associations\MethodAssociationOneToMany;
-use Bitmap\Associations\MethodAssociationOne;
 use Bitmap\Entity;
-use Bitmap\Query\Context\Context;
-use ReflectionClass;
 use Bitmap\Bitmap;
 use Bitmap\Mapper;
-use Bitmap\Fields\MethodField;
 
 class Album extends Entity
 {

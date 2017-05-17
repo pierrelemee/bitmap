@@ -151,12 +151,13 @@ class SelectTest extends TestCase
      * @param mixed $with
      * @param boolean $artist
      * @param boolean $tracks
+     * @param boolean $media
      *
      * @throws Exception
      *
      * @dataProvider getAlbumByIdData
      */
-    public function testGetAlbumById($with, $artist = true, $tracks = false)
+    public function testGetAlbumById($with, $artist = true, $tracks = false, $media = false)
     {
         /** @var Album $album */
         $album = Album::select()->where('AlbumId', '=', 148)->one($with);
@@ -167,11 +168,17 @@ class SelectTest extends TestCase
         if ($artist) {
             $this->assertSame('Metallica', $album->getArtist()->name);
         } else {
-
+            $this->assertNull($album->getArtist());
         }
 
         if ($tracks) {
             $this->assertEquals(12, sizeof($album->getTracks()));
+
+            if ($media) {
+                $this->assertEquals("MPEG audio file", $album->getTracks()[0]->getMedia()->getName());
+            } else {
+                $this->assertNull($album->getTracks()[0]->getMedia());
+            }
         } else {
             $this->assertNull($album->getTracks());
         }
@@ -182,9 +189,9 @@ class SelectTest extends TestCase
         return [
             [null],
             [[], false],
-            [['tracks', 'artist' => []], false, true],
+            [['tracks', 'artist' => []], true, true],
             [['tracks' => 'foo', 'artist' => 4], true, true],
-            [['tracks' => 3], false, true]
+            [['tracks' => ['media']], false, true, true]
         ];
     }
 

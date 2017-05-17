@@ -12,13 +12,13 @@ abstract class Association
     protected $column;
     protected $autoload;
 
-    public function __construct($name, $class, $column, $options = [])
+    public function __construct($name, $class, $column, $options = null)
     {
         $this->name = $name;
         $this->class = $class;
         $this->column = $column;
 
-        $this->autoload = isset($options[self::OPTION_LOAD]) ? $options[self::OPTION_LOAD] : $this->getDefaultAutoload();
+        $this->autoload = is_array($options) ? in_array(self::OPTION_LOAD, $options) : $this->getDefaultAutoload();
     }
 
     public function isAutoloaded()
