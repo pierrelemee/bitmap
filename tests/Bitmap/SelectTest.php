@@ -10,6 +10,7 @@ use Misc\Character;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
+use Exception;
 
 class SelectTest extends TestCase
 {
@@ -146,15 +147,45 @@ class SelectTest extends TestCase
         }
     }
 
-    public function testGetAlbumById()
+    /**
+     * @param mixed $with
+     * @param boolean $artist
+     * @param boolean $tracks
+     *
+     * @throws Exception
+     *
+     * @dataProvider getAlbumByIdData
+     */
+    public function testGetAlbumById($with, $artist = true, $tracks = false)
     {
         /** @var Album $album */
-        $album = Album::select()->where('AlbumId', '=', 148)->one();
+        $album = Album::select()->where('AlbumId', '=', 148)->one($with);
 
         $this->assertNotNull($album);
         $this->assertSame('Black Album', $album->getTitle());
-        $this->assertSame('Metallica', $album->getArtist()->name);
-        $this->assertEquals(12, sizeof($album->getTracks()));
+
+        if ($artist) {
+            $this->assertSame('Metallica', $album->getArtist()->name);
+        } else {
+
+        }
+
+        if ($tracks) {
+            $this->assertEquals(12, sizeof($album->getTracks()));
+        } else {
+            $this->assertNull($album->getTracks());
+        }
+    }
+
+    public function getAlbumByIdData()
+    {
+        return [
+            [null],
+            [[], false],
+            [['tracks', 'artist' => []], false, true],
+            [['tracks' => 'foo', 'artist' => 4], true, true],
+            [['tracks' => 3], false, true]
+        ];
     }
 
 	/**

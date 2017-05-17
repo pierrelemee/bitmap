@@ -30,9 +30,4 @@ class MethodAssociationOneToMany extends AssociationOneToMany
     {
         $this->setter->invoke($entity, $entities);
     }
-
-    public static function fromMethods($name, $class, ReflectionMethod $getter, ReflectionMethod $setter, $column = null)
-    {
-        return new MethodAssociationOneToMany($name, $class, $getter, $setter, $column);
-    }
 }

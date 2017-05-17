@@ -30,10 +30,9 @@ class QueryContext extends Context
                 }
             }
             if (is_null($with)){
-                // TODO apply association's default loading instead
-                //if ($association->hasLocalValue()) {
-                $this->dependencies[$association->getName()] = new QueryContext($association->getMapper(), [], $this);
-                //}
+                if ($association->isAutoloaded()) {
+                    $this->dependencies[$association->getName()] = new QueryContext($association->getMapper(), [], $this);
+                }
             }
         }
     }

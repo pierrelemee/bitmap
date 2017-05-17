@@ -29,8 +29,8 @@ class Album extends Entity
         $mapper
             ->addPrimary('id', Bitmap::TYPE_INTEGER, 'AlbumId')
             ->addField('title', Bitmap::TYPE_STRING, 'Title')
-            ->addAssociationOne('artist', Artist::class, 'ArtistId')
-            ->addAssociationOneToMany('tracks', Track::class, 'AlbumId');
+            ->addAssociationOneToMany('tracks', Track::class, 'AlbumId')
+            ->addAssociationOne('artist', Artist::class, 'ArtistId');
     }
 
     /**

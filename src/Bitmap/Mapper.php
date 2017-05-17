@@ -440,14 +440,17 @@ class Mapper
 							    $association->set($s, $entity);
 						    }
 					    } else {
-						    $e = [];
-						    foreach ($values[$association->getName()] as $p) {
-						    	// TODO: find the way to choose if you want to include null values or not
-						    	if (null !== $s = $association->getMapper()->inflate($result, $context->getDependency($association->getName()), $p)) {
-								    $e[] = $s;
-							    }
-						    }
-						    $association->set($e, $entity);
+                            if (sizeof($values[$association->getName()]) > 0) {
+                                $e = [];
+                                foreach ($values[$association->getName()] as $p) {
+                                    // TODO: find the way to choose if you want to include null values or not
+                                    if (null !== $s = $association->getMapper()->inflate($result, $context->getDependency($association->getName()), $p)) {
+                                        $e[] = $s;
+                                    }
+                                }
+
+                                $association->set($e, $entity);
+                            }
 					    }
 				    }
 			    }
