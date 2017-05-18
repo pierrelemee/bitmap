@@ -17,7 +17,7 @@ class DateTimeTransformer extends Transformer
 
     public function toObject($value)
     {
-        return DateTime::createFromFormat(self::DATE_FORMAT, $value);
+        return $value ? DateTime::createFromFormat(self::DATE_FORMAT, $value) : null;
     }
 
     public function fromObject($value)
