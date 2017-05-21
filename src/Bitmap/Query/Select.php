@@ -64,7 +64,7 @@ class Select extends Query
     public function one($with = null, $connection = null)
     {
         $this->context = new Context($this->mapper, $with);
-        $stmt = $this->execute(Bitmap::connection($connection));
+        $stmt = $this->execute(Bitmap::current()->connection($connection));
         $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
 
         return $this->mapper->loadOne($result, $this->context);
@@ -79,7 +79,7 @@ class Select extends Query
     public function all($with = null, $connection = null)
     {
         $this->context = new Context($this->mapper, $with);
-        $stmt = $this->execute(Bitmap::connection($connection));
+        $stmt = $this->execute(Bitmap::current()->connection($connection));
         $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
 
         return $this->mapper->loadAll($result, $this->context);

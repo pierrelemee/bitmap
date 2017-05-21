@@ -28,8 +28,8 @@ class EntityTest extends TestCase
      */
     public function before()
     {
-        Bitmap::addConnection(self::CONNECTION_NAME, 'sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite');
-        Bitmap::connection(self::CONNECTION_NAME)->beginTransaction();
+        Bitmap::current()->addConnection(self::CONNECTION_NAME, 'sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite');
+        Bitmap::current()->connection(self::CONNECTION_NAME)->beginTransaction();
     }
 
     /**
@@ -37,7 +37,7 @@ class EntityTest extends TestCase
      */
     public function after()
     {
-        Bitmap::connection(self::CONNECTION_NAME)->rollBack();
+        Bitmap::current()->connection(self::CONNECTION_NAME)->rollBack();
     }
 
     public function testAddNewArtist()
@@ -48,7 +48,7 @@ class EntityTest extends TestCase
         $this->assertTrue($artist->save());
         $this->assertNotNull($artist->getId());
 
-        $this->assertEquals(276, Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+        $this->assertEquals(276, Bitmap::current()->connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
 
 	/**
@@ -76,10 +76,10 @@ class EntityTest extends TestCase
 		$this->assertTrue($album->save($context));
 		$this->assertNotNull($album->getId());
 
-		$this->assertEquals(275 + ($artistIsNew ? 1 : 0), Bitmap::connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+		$this->assertEquals(275 + ($artistIsNew ? 1 : 0), Bitmap::current()->connection('chinook')->query("select count(*) as `total` from `Artist`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
 
 		$this->assertNotNull($artist->getId());
-        $this->assertEquals(348, Bitmap::connection('chinook')->query("select count(*) as `total` from `Album`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+        $this->assertEquals(348, Bitmap::current()->connection('chinook')->query("select count(*) as `total` from `Album`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
 	}
 
 	/**
@@ -130,7 +130,7 @@ class EntityTest extends TestCase
         $this->assertNotNull($track->getId());
         $this->assertNotNull($track->getGenre()->getId());
 
-        $this->assertEquals(26, Bitmap::connection('chinook')->query("select count(*) as `total` from `Genre`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+        $this->assertEquals(26, Bitmap::current()->connection('chinook')->query("select count(*) as `total` from `Genre`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
 
     public function testUpdateArtist()
@@ -140,8 +140,8 @@ class EntityTest extends TestCase
 	    $artist->name = "The Scorpions";
         $this->assertTrue($artist->save());
 
-        $this->assertEquals(15, Bitmap::connection('chinook')->query('select count(*) as `total` from `Artist` where name like "The%"')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
-        $this->assertEquals(275, Bitmap::connection('chinook')->query('select count(*) as `total` from `Artist`')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+        $this->assertEquals(15, Bitmap::current()->connection('chinook')->query('select count(*) as `total` from `Artist` where name like "The%"')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+        $this->assertEquals(275, Bitmap::current()->connection('chinook')->query('select count(*) as `total` from `Artist`')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
 
     public function testUpdateTrackWithNewGenre()
@@ -156,7 +156,7 @@ class EntityTest extends TestCase
         $this->assertTrue($track->save());
         $this->assertNotNull($track->getGenre()->getId());
 
-        $this->assertEquals(26, Bitmap::connection('chinook')->query("select count(*) as `total` from `Genre`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+        $this->assertEquals(26, Bitmap::current()->connection('chinook')->query("select count(*) as `total` from `Genre`")->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
 
     public function testDeleteArtist()
@@ -165,6 +165,6 @@ class EntityTest extends TestCase
         // "Avril Lavigne" in database
         $this->assertTrue($artist->delete());
 
-        $this->assertEquals(274, Bitmap::connection('chinook')->query('select count(*) as `total` from `Artist`')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
+        $this->assertEquals(274, Bitmap::current()->connection('chinook')->query('select count(*) as `total` from `Artist`')->fetchAll(PDO::FETCH_ASSOC)[0]['total']);
     }
 }
