@@ -79,6 +79,23 @@ class Bitmap
     }
 
     /**
+     * @param $builder BitmapBuilder
+     *
+     * @return Bitmap
+     *
+     * @throws Exception
+     *
+     */
+    public static function initialize(BitmapBuilder $builder)
+    {
+        if (null !== self::$BITMAP) {
+            throw new Exception("Bitmap already initialized");
+        }
+
+        self::$BITMAP = $builder->build();
+    }
+
+    /**
      * Singleton accessor, with on-the-fly initialization
      *
      * @return Bitmap
