@@ -3,7 +3,6 @@
 namespace Bitmap;
 
 use Monolog\Handler\NullHandler;
-
 use Monolog\Logger;
 use PDO;
 use ReflectionClass;
@@ -18,7 +17,7 @@ class Bitmap
     /**
      * @var PDO[]
      */
-    protected $connections = [];
+    protected $connections;
     /**
      * @var PDO
      */
@@ -26,7 +25,7 @@ class Bitmap
     /**
      * @var Mapper[]
      */
-    protected $mappers = [];
+    protected $mappers;
     /**
      * @var Logger
      */
@@ -44,11 +43,16 @@ class Bitmap
     const TYPE_DATE     = "date";
     const TYPE_DATETIME = "datetime";
 
-    protected $transformers = [];
+    protected $transformers;
 
-    public function __construct($logger = null)
+    public function __construct($logger = null, $connections = [], $default = null, $mappers = [])
     {
+        $this->connections  = $connections;
+        $this->default      = $default;
+        $this->mappers      = $mappers;
+        $this->transformers = [];
         $this->logger = $logger ? : new Logger('bitmap', [new NullHandler(Logger::CRITICAL)]);
+
         $dir = realpath(__DIR__ . '/Transformers');
         foreach (scandir($dir) as $file) {
             if (preg_match("/\\.php$/", $file)) {
@@ -60,6 +64,8 @@ class Bitmap
                 }
             }
         }
+
+        self::$BITMAP = $this;
     }
 
     public function getLogger()
@@ -97,7 +103,7 @@ class Bitmap
      *
      * @return void
      */
-    public static function addConnection($name, $dsn, $default = true, $user = null, $password = null)
+    public function addConnection($name, $dsn, $default = true, $user = null, $password = null)
     {
         if (!isset(self::current()->connections[$name])) {
             $default = $default || sizeof(self::current()->connections) == 0;
@@ -113,9 +119,9 @@ class Bitmap
     /**
      * @param Mapper $mapper
      */
-    public static function addMapper(Mapper $mapper)
+    public function addMapper(Mapper $mapper)
     {
-        self::current()->mappers[$mapper->getClass()] = $mapper;
+        $this->mappers[$mapper->getClass()] = $mapper;
     }
 
     /**
@@ -125,9 +131,9 @@ class Bitmap
      *
      * @return boolean
      */
-    public static function hasMapper($class)
+    public function hasMapper($class)
     {
-        return isset(self::current()->mappers[$class]);
+        return isset($this->mappers[$class]);
     }
 
     /**
@@ -139,18 +145,18 @@ class Bitmap
      *
      * @throws Exception
      */
-    public static function getMapper($class)
+    public function getMapper($class)
     {
-        if (!self::current()->hasMapper($class)) {
+        if (!$this->hasMapper($class)) {
             $entity = new ReflectionClass($class);
             if ($entity->isSubclassOf(Entity::class)) {
-                self::current()->addMapper($entity->newInstance()->getMapper());
+                $this->addMapper($entity->newInstance()->getMapper());
             } else {
                 throw new Exception(sprintf("'%s' must be a sub class of '%s'", $class, Entity::class));
             }
         }
 
-        return self::current()->mappers[$class];
+        return $this->mappers[$class];
     }
 
     /**
@@ -158,27 +164,28 @@ class Bitmap
      *
      * @param Transformer $transformer
      */
-    public static function addTransformer(Transformer $transformer)
+    public function addTransformer(Transformer $transformer)
     {
-        self::current()->transformers[$transformer->getName()] = $transformer;
+        $this->transformers[$transformer->getName()] = $transformer;
     }
 
-    public static function hasTransformer($name)
+    public function hasTransformer($name)
     {
-        return isset(self::current()->transformers[$name]);
+        return isset($this->transformers[$name]);
     }
 
     /**
-     * @param $type
+     * @param string $type
+     *
      * @return Transformer
      */
-    public static function getTransformer($type)
+    public function getTransformer($type)
     {
         if (self::hasTransformer($type)) {
-            return self::current()->transformers[$type];
+            return $this->transformers[$type];
         }
 
-        return self::current()->transformers[self::TYPE_STRING];
+        return $this->transformers[self::TYPE_STRING];
     }
 
     /**
@@ -188,13 +195,13 @@ class Bitmap
      *
      * @return null|PDO
      */
-    public static function connection($name = null)
+    public function connection($name = null)
     {
         if (null !== $name) {
-            return isset(self::current()->connections[$name]) ? self::current()->connections[$name] : null;
+            return isset($this->connections[$name]) ? $this->connections[$name] : null;
         }
 
-        return self::current()->default;
+        return $this->default;
     }
 
 }

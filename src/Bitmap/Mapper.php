@@ -271,7 +271,7 @@ class Mapper
     {
         $column = $column ? : $name;
         $viaSourceColumn = $viaSourceColumn ? : $this->primary->getColumn();
-        $viaTargetColumn = $viaTargetColumn ? : Bitmap::getMapper($class)->getPrimary()->getColumn();
+        $viaTargetColumn = $viaTargetColumn ? : Bitmap::current()->getMapper($class)->getPrimary()->getColumn();
         $reflection = new ReflectionClass($this->class);
 
         if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
@@ -336,11 +336,11 @@ class Mapper
         }
 
         $query = new Insert($entity, $context);
-        $count = $query->execute(Bitmap::connection($connection));
+        $count = $query->execute(Bitmap::current()->connection($connection));
 
         if ($count > 0) {
 	        if ($this->hasPrimary() && $this->getPrimary()->isIncremented()) {
-                $this->primary->set($entity, Bitmap::connection($connection)->lastInsertId());
+                $this->primary->set($entity, Bitmap::current()->connection($connection)->lastInsertId());
             }
             return true;
         }
@@ -370,7 +370,7 @@ class Mapper
             }
 
             $query = new Update($entity, $context);
-            $count = $query->execute(Bitmap::connection($connection));
+            $count = $query->execute(Bitmap::current()->connection($connection));
 
 	        return $count > 0;
         }
@@ -382,7 +382,7 @@ class Mapper
     {
         if ($this->hasPrimary()) {
             $sql = Delete::fromEntity($entity)->sql();
-            return Bitmap::connection($connection)->exec($sql) > 0;
+            return Bitmap::current()->connection($connection)->exec($sql) > 0;
         }
 
         throw new Exception("No primary declared for class {$this->class}");

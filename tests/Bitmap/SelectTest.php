@@ -24,7 +24,7 @@ class SelectTest extends TestCase
 	    }
 
         foreach (self::connections() as $name => $arguments) {
-            Bitmap::addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
+            Bitmap::current()->addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
         }
     }
 
@@ -34,7 +34,7 @@ class SelectTest extends TestCase
     public function before()
     {
         foreach (self::connections() as $name => $arguments) {
-            Bitmap::connection($name)->beginTransaction();
+            Bitmap::current()->connection($name)->beginTransaction();
         }
     }
 
@@ -44,7 +44,7 @@ class SelectTest extends TestCase
     public function after()
     {
         foreach (self::connections() as $name => $arguments) {
-            Bitmap::connection($name)->rollBack();
+            Bitmap::current()->connection($name)->rollBack();
         }
     }
 

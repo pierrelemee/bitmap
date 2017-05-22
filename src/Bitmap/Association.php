@@ -44,7 +44,7 @@ abstract class Association
      */
     public function getMapper()
     {
-        return Bitmap::getMapper($this->class);
+        return Bitmap::current()->getMapper($this->class);
     }
 
     /**
