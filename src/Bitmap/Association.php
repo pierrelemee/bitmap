@@ -57,12 +57,12 @@ abstract class Association
     /**
      * Return the list of join clauses from the class managed by the mapper $left
      *
-     * @param string $name
+     * @param Mapper $mapper
      * @param integer $depth
      *
      * @return string[]
      */
-    public abstract function joinClauses($name, $depth);
+    public abstract function joinClauses(Mapper $mapper, $depth);
 
     protected function joinClause($tableFrom, $columnFrom, $tableTo, $columnTo, $aliasTo = null)
     {

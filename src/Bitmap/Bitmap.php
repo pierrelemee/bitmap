@@ -96,6 +96,7 @@ class Bitmap
         }
 
         self::$BITMAP = new Bitmap($logger, $connections, $default, $mappers);
+        return self::$BITMAP;
     }
 
     /**

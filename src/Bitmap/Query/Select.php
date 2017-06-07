@@ -242,7 +242,7 @@ class Select extends Query
                 $this->joins = array_merge(
                     $this->joins,
                     $mapper->getAssociation($name)->joinClauses(
-                        $mapper->getTable(),
+                        $mapper,
                         $subcontext->getMapperDepth()
                     )
                 );

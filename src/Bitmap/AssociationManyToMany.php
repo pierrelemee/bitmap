@@ -21,10 +21,10 @@ abstract class AssociationManyToMany extends Association
         $this->viaTargetColumn = $viaTargetColumn;
     }
 
-    public function joinClauses($name, $depth)
+    public function joinClauses(Mapper $mapper, $depth)
     {
         return [
-            $this->joinClause($name, $this->column, $this->via, $this->viaSourceColumn),
+            $this->joinClause($mapper->getTable(), $this->column, $this->via, $this->viaSourceColumn),
             $this->joinClause($this->via, $this->viaTargetColumn, $this->getMapper()->getTable(), $this->column)
         ];
     }
