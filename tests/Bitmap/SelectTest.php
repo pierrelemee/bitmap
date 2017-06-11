@@ -1,71 +1,22 @@
 <?php
 
-namespace Bitmap;
+namespace Bitmap\Tests;
 
 use Chinook\Valid\Inline\Album;
 use Chinook\Valid\Inline\Artist;
 use Chinook\Valid\Inline\Employee;
 use Chinook\Valid\Inline\Track;
 use Misc\Character;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use PHPUnit\Framework\TestCase;
 use Exception;
 
-class SelectTest extends TestCase
+class SelectTest extends EntityTest
 {
-    const CONNECTION_SQLITE = 'chinook_sqlite';
-    const CONNECTION_MYSQL  = 'chinook_mysql';
-
-
-    public static function setUpBeforeClass()
-    {
-
-    	if (isset(Logger::getLevels()[strtoupper(getenv('PHPUNIT_LOGGING'))])) {
-		    Bitmap::current()->setLogger(new Logger(new StreamHandler(fopen('php://stdout', 'a'), strtoupper(getenv('PHPUNIT_LOGGING')))));
-	    }
-
-        foreach (self::connections() as $name => $arguments) {
-            Bitmap::current()->addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
-        }
-    }
-
-    /**
-     * @before
-     */
-    public function before()
-    {
-        foreach (self::connections() as $name => $arguments) {
-            Bitmap::current()->connection($name)->beginTransaction();
-        }
-    }
-
-    /**
-     * @after
-     */
-    public function after()
-    {
-        foreach (self::connections() as $name => $arguments) {
-            Bitmap::current()->connection($name)->rollBack();
-        }
-    }
-
-    private static function connections()
-    {
-        return [
-            self::CONNECTION_SQLITE => ['sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite'],
-            self::CONNECTION_MYSQL => ['mysql://host=localhost;dbname=Chinook;', "root"],
-        ];
-    }
-
     public function testGetNoArtist()
     {
-        foreach (array_keys(self::connections()) as $connection) {
+        foreach (array_keys($this->connections()) as $connection) {
             $artist = Artist::select()->where('Name', '=', "Justin Bieber")->one($connection);
-
             $this->assertNull($artist);
         }
-
     }
 
 	/**

@@ -19,6 +19,7 @@
     "autoload": {
         "psr-4": {
             "": "src/",
+            "Bitmap\\Tests\\": "tests/Bitmap",
             "Chinook\\": "tests/Bitmap/models/Chinook/",
             "Misc\\": "tests/Bitmap/models/Misc/"
         }

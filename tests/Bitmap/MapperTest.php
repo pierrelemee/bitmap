@@ -1,6 +1,6 @@
 <?php
 
-namespace Bitmap;
+namespace Bitmap\Tests;
 
 use Bitmap\Associations\MethodAssociationManyToMany;
 use Bitmap\Associations\MethodAssociationOne;
@@ -8,6 +8,7 @@ use Bitmap\Associations\MethodAssociationOneToMany;
 use Bitmap\Associations\PropertyAssociationManyToMany;
 use Bitmap\Associations\PropertyAssociationOne;
 use Bitmap\Associations\PropertyAssociationOneToMany;
+use Bitmap\Mapper;
 use Misc\Transport;
 use Misc\User;
 use PHPUnit\Framework\TestCase;
