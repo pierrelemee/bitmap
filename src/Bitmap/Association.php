@@ -11,6 +11,7 @@ abstract class Association
     protected $class;
     protected $column;
     protected $autoload;
+    protected $autosave;
 
     public function __construct($name, $class, $column, $options = null)
     {
@@ -19,6 +20,7 @@ abstract class Association
         $this->column = $column;
 
         $this->autoload = is_array($options) ? in_array(self::OPTION_LOAD, $options) : $this->getDefaultAutoload();
+        $this->autosave = is_array($options) ? in_array(self::OPTION_SAVE, $options) : $this->getDefaultAutosave();
     }
 
     public function isAutoloaded()
@@ -30,6 +32,11 @@ abstract class Association
      * @return bool
      */
     protected abstract function getDefaultAutoload();
+
+    /**
+     * @return bool
+     */
+    protected abstract function getDefaultAutosave();
 
     /**
      * @return mixed
