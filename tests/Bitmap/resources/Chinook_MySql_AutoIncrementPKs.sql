@@ -154,6 +154,7 @@ CREATE TABLE `Track`
 /*******************************************************************************
    Create Foreign Keys
 ********************************************************************************/
+/* Removed to comply with SQLite behaviour
 ALTER TABLE `Album` ADD CONSTRAINT `FK_AlbumArtistId`
     FOREIGN KEY (`ArtistId`) REFERENCES `Artist` (`ArtistId`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
@@ -204,6 +205,7 @@ CREATE INDEX `IFK_TrackGenreId` ON `Track` (`GenreId`);
 
 ALTER TABLE `Track` ADD CONSTRAINT `FK_TrackMediaTypeId`
     FOREIGN KEY (`MediaTypeId`) REFERENCES `MediaType` (`MediaTypeId`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+*/
 
 CREATE INDEX `IFK_TrackMediaTypeId` ON `Track` (`MediaTypeId`);
 

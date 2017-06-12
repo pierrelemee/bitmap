@@ -109,7 +109,7 @@ class SaveTest extends EntityTest
             $this->assertNotNull($track->getId());
             $this->assertNotNull($track->getGenre()->getId());
 
-            $this->assertEquals(26, $this->getCountTracks($connection));
+            $this->assertEquals(26, $this->getCountGenres($connection));
         }
     }
 
@@ -136,7 +136,7 @@ class SaveTest extends EntityTest
             $track = Track::select()->where("TrackId", "=", 2555)->one(null, $connection);
             $track->setGenre($genre);
 
-            $this->assertTrue($track->save());
+            $this->assertTrue($track->save(null, $connection));
             $this->assertNotNull($track->getGenre()->getId());
 
             $this->assertEquals(26, $this->getCountGenres($connection));

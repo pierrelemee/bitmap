@@ -328,7 +328,7 @@ class Mapper
     {
         // Save all associated entities first:
         foreach ($this->associations as $association) {
-        	if ($context->hasDependency($association->getName())) {
+        	if ($association->hasLocalValue() && $context->hasDependency($association->getName())) {
 		        foreach ($association->getAll($entity) as $e) {
 			        $e->save($context->getDependency($association->getName()), $connection);
 		        }
@@ -342,10 +342,18 @@ class Mapper
 	        if ($this->hasPrimary() && $this->getPrimary()->isIncremented()) {
                 $this->primary->set($entity, Bitmap::current()->connection($connection)->lastInsertId());
             }
-            return true;
         }
 
-        return false;
+        foreach ($this->associations as $association) {
+            if (!$association->hasLocalValue() && $context->hasDependency($association->getName())) {
+                foreach ($association->getAll($entity) as $e) {
+                    $e->save($context->getDependency($association->getName()), $connection);
+                }
+            }
+        }
+
+
+        return $count > 0;
     }
 
 	/**
