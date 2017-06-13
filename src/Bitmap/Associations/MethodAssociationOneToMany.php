@@ -14,9 +14,9 @@ class MethodAssociationOneToMany extends AssociationOneToMany
     protected $getter;
     protected $setter;
 
-    public function __construct($name, $class, ReflectionMethod $getter, ReflectionMethod $setter, $column)
+    public function __construct($name, $class, ReflectionMethod $getter, ReflectionMethod $setter, $column, $options = null)
     {
-        parent::__construct($name, $class, $column);
+        parent::__construct($name, $class, $column, $options);
         $this->getter = $getter;
         $this->setter = $setter;
     }

@@ -12,9 +12,9 @@ class PropertyAssociationOneToMany extends AssociationOneToMany
 {
     protected $property;
 
-    public function __construct($name, $class, ReflectionProperty $property, $column)
+    public function __construct($name, $class, ReflectionProperty $property, $column, $options = null)
     {
-        parent::__construct($name, $class, $column);
+        parent::__construct($name, $class, $column, $options);
         $this->property = $property;
     }
 

@@ -244,13 +244,13 @@ class Mapper
         }
     }
 
-    public function addAssociationOneToMany($name, $class, $column = null, $getter = null, $setter = null)
+    public function addAssociationOneToMany($name, $class, $column = null, $getter = null, $setter = null, $options = null)
     {
         $column = $column ? : $name;
         $reflection = new ReflectionClass($this->class);
 
         if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
-            return $this->addAssociation(new PropertyAssociationOneToMany($name, $class, $reflection->getProperty($name), $column));
+            return $this->addAssociation(new PropertyAssociationOneToMany($name, $class, $reflection->getProperty($name), $column), $options);
         } else {
             if (null === $getter) {
                 $getter = MethodField::getterForName($name);
@@ -260,7 +260,7 @@ class Mapper
             }
 
             if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
-                return $this->addAssociation(new MethodAssociationOneToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column));
+                return $this->addAssociation(new MethodAssociationOneToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column, $options));
             } else {
                 throw new MapperException("Unable to find association one to many for '{$reflection->getName()}' with name {$name}' to '{$class}'");
             }

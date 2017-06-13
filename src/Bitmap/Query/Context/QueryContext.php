@@ -30,7 +30,7 @@ class QueryContext extends Context
                 }
             }
             if (is_null($with)){
-                if ($association->isAutoloaded()) {
+                if ($this->isAssociationDefaultIncluded($association)) {
                     $this->dependencies[$association->getName()] = new QueryContext($association->getMapper(), [], $this);
                 }
             }

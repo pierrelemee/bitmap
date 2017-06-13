@@ -70,6 +70,64 @@ class SaveTest extends EntityTest
         ];
     }
 
+    public function testAddNewAlbumWithTracks()
+    {
+        foreach (array_keys(self::$CONNECTIONS) as $connection) {
+            /** @var Genre $genre */
+            $genre = Genre::select()->where('id', '=', 4)->one(null, $connection);
+            $artist = Artist::select()->where('id', '=', 127)->one(null, $connection);
+            $composer = "Anthony Kiedis/Chad Smith/Flea/John Frusciante";
+            $price = 0.99;
+            /** @var MediaType $media */
+            $media = MediaType::select()->where('id', '=', 1)->one(null, $connection);
+            $album = new Album();
+            $album->setTitle("One Hot Minute");
+            $album->setArtist($artist);
+            $tracks = [
+                self::createTrack("Warped", $genre, $media, 304, $composer, $price),
+                self::createTrack("Aeroplane", $genre, $media, 285, $composer, $price),
+                self::createTrack("Deep kick", $genre, $media, 393, $composer, $price),
+                self::createTrack("My Friends", $genre, $media, 242, $composer, $price),
+                self::createTrack("Coffee Shop", $genre, $media, 188, $composer, $price),
+                self::createTrack("Pea", $genre, $media, 107, $composer, $price),
+                self::createTrack("One Big Mob", $genre, $media, 362, $composer, $price),
+                self::createTrack("Walkabout", $genre, $media, 307, $composer, $price),
+                self::createTrack("Tearjerker", $genre, $media, 259, $composer, $price),
+                self::createTrack("One hot minute", $genre, $media, 383, $composer, $price),
+                self::createTrack("Failing into Grace", $genre, $media, 228, $composer, $price),
+                self::createTrack("Shallow By The Game", $genre, $media, 273, $composer, $price),
+                self::createTrack("Transcending", $genre, $media, 346, $composer, $price)
+            ];
+            $album->setTracks($tracks);
+
+            $album->save(null, $connection);
+            $this->assertEquals(3503 + count($tracks), $this->getCountTracks($connection));
+        }
+    }
+
+    /**
+     * @param string $title string
+     * @param Genre $genre
+     * @param MediaType $media
+     * @param int $duration
+     * @param string $composer
+     * @param float $price
+     *
+     * @return Track
+     */
+    private static function createTrack($title, Genre $genre, MediaType $media, $duration, $composer, $price)
+    {
+        $track = new Track();
+        $track->setName($title);
+        $track->setGenre($genre);
+        $track->setMedia($media);
+        $track->setMilliseconds($duration);
+        $track->setBytes($duration * 32);
+        $track->setComposer($composer);
+        $track->setUnitPrice($price);
+        return $track;
+    }
+
     /**
      * Attempt to add a new song in the database with no declared genre
      */

@@ -4,6 +4,7 @@ namespace Bitmap;
 
 use Bitmap\Query\Context\Context;
 use Bitmap\Query\Context\QueryContext;
+use Bitmap\Query\Context\SaveContext;
 use Bitmap\Query\Select;
 use Exception;
 
@@ -85,7 +86,7 @@ abstract class Entity
      */
     public function save($with = null, $connection = null)
     {
-        $context = ($with instanceof Context) ? $with : new QueryContext($this->getMapper(), $with);
+        $context = ($with instanceof Context) ? $with : new SaveContext($this->getMapper(), $with);
         if ($this->bitmapHash === null) {
             $status = $this->getMapper()->insert($this, $context, $connection);
             $this->setBitmapHash(base64_encode(serialize($this->getMapper()->values($this))));

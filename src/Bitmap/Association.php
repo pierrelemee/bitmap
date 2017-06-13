@@ -28,6 +28,11 @@ abstract class Association
         return $this->autoload;
     }
 
+    public function isAutosaved()
+    {
+        return $this->autosave;
+    }
+
     /**
      * @return bool
      */
