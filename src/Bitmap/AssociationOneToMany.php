@@ -7,7 +7,7 @@ abstract class AssociationOneToMany extends Association
     public function joinClauses(Mapper $mapper, $depth)
     {
         return [
-            $this->joinClause($mapper->getTable(), $mapper->getPrimary()->getColumn(), $this->getMapper()->getTable(), $this->column)
+            $this->joinClause($mapper->getTable(), $mapper->getPrimary()->getColumn(), $this->getMapper()->getTable(), $this->column, $this->getMapper()->getTable() . ($depth > 0 ?  $depth : ''))
         ];
     }
 
