@@ -3,6 +3,7 @@
 namespace Bitmap;
 
 use Bitmap\Query\Context\Context;
+use Misc\Character;
 use PDOStatement;
 
 class ResultSet

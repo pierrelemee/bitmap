@@ -238,17 +238,17 @@ class Select extends Query
         }
 
         foreach ($context->getDependencies() as $name => $subcontext) {
-            if (!isset($this->tables[$subcontext->getMapper()->getClass()][$subcontext->getDepth()])) {
-                $this->joins = array_merge(
+            $this->joins = array_unique(
+                array_merge(
                     $this->joins,
                     $mapper->getAssociation($name)->joinClauses(
                         $mapper,
-                        $subcontext->getMapperDepth()
+                        $subcontext->getDepth()
                     )
-                );
+                )
+            );
 
-                $this->tables($mapper->getAssociation($name)->getMapper(), $subcontext);
-            }
+            $this->tables($mapper->getAssociation($name)->getMapper(), $subcontext);
         }
     }
 

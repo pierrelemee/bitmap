@@ -19,6 +19,7 @@ class Context
      */
     protected $parent;
     protected $depth;
+    protected $depths;
 
     /**
      * Context constructor.
@@ -33,6 +34,12 @@ class Context
         $this->dependencies = [];
         $this->parent = $parent;
 
+        if ($this->isRoot()) {
+            $this->depths = [];
+        }
+
+        $this->depth = $this->getMapperDepth($this->mapper);
+
         if (null !== $mapper) {
             foreach ($mapper->associations() as $association) {
                 if (!is_array($with) || is_int(array_search($association->getName(), $with)) || isset($with[$association->getName()])) {
@@ -41,8 +48,22 @@ class Context
                 }
             }
         }
+    }
 
-        $this->depth = $this->parent !== null && $this->parent->mapper->equals($this->mapper) ? $this->getMapperDepth($this->mapper) : 0;
+    /**
+     * @return bool
+     */
+    protected function isRoot()
+    {
+        return null === $this->parent;
+    }
+
+    /**
+     * @return Context
+     */
+    protected function getRoot()
+    {
+        return $this->isRoot() ? $this : $this->parent->getRoot();
     }
 
     /**
@@ -81,7 +102,13 @@ class Context
     public function getMapperDepth($mapper = null)
     {
         $mapper = $mapper ? : $this->mapper;
-        return $this->parent !== null ? ($this->parent->mapper->equals($mapper) ? 1 : 0) + $this->parent->getMapperDepth($mapper) : 0;
+        if (!isset($this->getRoot()->depths[$mapper->getClass()])) {
+            $this->getRoot()->depths[$mapper->getClass()] = 0;
+        } else {
+            $this->getRoot()->depths[$mapper->getClass()]++;
+        }
+
+        return $this->getRoot()->depths[$mapper->getClass()];
     }
 
     /**
