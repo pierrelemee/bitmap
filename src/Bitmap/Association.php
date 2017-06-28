@@ -58,16 +58,15 @@ abstract class Association
      * Return the list of join clauses from the class managed by the mapper $left
      *
      * @param Mapper $mapper
-     * @param integer $depth
+     * @param string $name
      *
      * @return string[]
      */
-    public abstract function joinClauses(Mapper $mapper, $depth);
+    public abstract function joinClauses(Mapper $mapper, $name);
 
-    protected function joinClause($tableFrom, $columnFrom, $tableTo, $columnTo, $aliasTo = null)
+    protected function joinClause($tableFrom, $columnFrom, $tableTo, $columnTo)
     {
-        $alias = $aliasTo ? : $tableTo;
-        return " left join `{$tableTo}` {$alias} on `{$tableFrom}`.`{$columnFrom}` = `{$alias}`.`{$columnTo}`";
+        return " left join `{$tableTo}` {$tableTo} on `{$tableFrom}`.`{$columnFrom}` = `{$tableTo}`.`{$columnTo}`";
     }
 
     /**

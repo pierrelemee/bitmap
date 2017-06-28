@@ -254,8 +254,6 @@ class Select extends Query
 
     public function sql()
     {
-        $this->tables($this->mapper, $this->context);
-
         return sprintf("select %s from %s %s%s%s",
             implode(", ", $this->fields),
             $this->mapper->getTable() . (implode("", $this->joins)),

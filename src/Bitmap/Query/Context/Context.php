@@ -50,6 +50,35 @@ class Context
         }
     }
 
+    public function getTableName()
+    {
+        return $this->mapper->getTable() . ($this->depth === 0 ? '' : $this->depth + 1);
+    }
+
+    public function getTables()
+    {
+        $tables = [$this->getTableName()];
+
+        foreach ($this->dependencies as $dependency) {
+            $tables = array_merge($tables, $dependency->getTables());
+        }
+        return $tables;
+    }
+
+    public function getJoins()
+    {
+        $joins = [];
+
+        foreach ($this->dependencies as $name => $dependency) {
+            $joins = array_merge(
+                $joins,
+                $this->mapper->getAssociation($name)->joinClauses($this->mapper, $dependency->getTableName()),
+                $dependency->getJoins()
+            );
+        }
+        return $joins;
+    }
+
     /**
      * @return bool
      */
