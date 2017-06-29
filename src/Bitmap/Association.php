@@ -64,9 +64,9 @@ abstract class Association
      */
     public abstract function joinClauses(Mapper $mapper, $name);
 
-    protected function joinClause($tableFrom, $columnFrom, $tableTo, $columnTo)
+    protected function joinClause($tableFrom, $columnFrom, $tableTo, $aliasTableTo, $columnTo)
     {
-        return " left join `{$tableTo}` {$tableTo} on `{$tableFrom}`.`{$columnFrom}` = `{$tableTo}`.`{$columnTo}`";
+        return " left join `{$tableTo}` {$aliasTableTo} on `{$tableFrom}`.`{$columnFrom}` = `{$tableTo}`.`{$columnTo}`";
     }
 
     /**

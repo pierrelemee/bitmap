@@ -9,7 +9,7 @@ abstract class AssociationOne extends Association
     public function joinClauses(Mapper $mapper, $name)
     {
         return [
-            $this->joinClause($mapper->getTable(), $this->column, $name, $this->getMapper()->getPrimary()->getColumn())
+            $this->joinClause($mapper->getTable(), $this->column, $this->getMapper()->getTable(), $name, $this->getMapper()->getPrimary()->getColumn())
         ];
     }
 

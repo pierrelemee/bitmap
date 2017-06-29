@@ -2,6 +2,7 @@
 
 namespace Bitmap\Query\Context;
 
+use Bitmap\FieldMappingStrategy;
 use Bitmap\Mapper;
 
 class Context
@@ -42,9 +43,17 @@ class Context
 
         if (null !== $mapper) {
             foreach ($mapper->associations() as $association) {
-                if (!is_array($with) || is_int(array_search($association->getName(), $with)) || isset($with[$association->getName()])) {
-                    $sub = !$this->hasCircularReference($association->getMapper()) ? (isset($with[$association->getName()]) && is_array($with[$association->getName()]) ? $with[$association->getName()] : null) : [];
-                    $this->dependencies[$association->getName()] = new Context($association->getMapper(), $sub, $this);
+                /**
+                 * How to know if the association is enabled as a dependency:
+                 * -
+                 */
+                if ($this->isRoot() || !$this->parent->getMapper()->equals($association->getMapper())) {
+                    $this->dependencies[$association->getName()] = new Context($association->getMapper(), [], $this);
+                } else {
+                    if (!is_array($with) || is_int(array_search($association->getName(), $with)) || isset($with[$association->getName()])) {
+                        $sub = !$this->hasCircularReference($association->getMapper()) ? (isset($with[$association->getName()]) && is_array($with[$association->getName()]) ? $with[$association->getName()] : null) : [];
+                        $this->dependencies[$association->getName()] = new Context($association->getMapper(), $sub, $this);
+                    }
                 }
             }
         }
@@ -63,6 +72,26 @@ class Context
             $tables = array_merge($tables, $dependency->getTables());
         }
         return $tables;
+    }
+
+    public function getFields(FieldMappingStrategy $strategy)
+    {
+        $fields = [];
+
+        foreach ($this->mapper->getFields() as $name => $field) {
+            $fields[] = sprintf(
+                "`%s`.`%s` as `%s`",
+                $this->getTableName(),
+                $field->getColumn(),
+                $strategy->getFieldLabel($this->mapper, $field->getColumn(), $this->depth)
+            );
+        }
+
+        foreach ($this->dependencies as $dependency) {
+            $fields = array_merge($fields, $dependency->getFields($strategy));
+        }
+
+        return $fields;
     }
 
     public function getJoins()
