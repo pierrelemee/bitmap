@@ -4,6 +4,7 @@ namespace Bitmap\Query;
 
 use Bitmap\Bitmap;
 use Bitmap\Query\Context\Context;
+use Bitmap\Query\Context\QueryContext;
 use Bitmap\Strategies\PrefixStrategy;
 use Bitmap\Mapper;
 use PDO;
@@ -63,7 +64,7 @@ class Select extends Query
      */
     public function one($with = null, $connection = null)
     {
-        $this->context = new Context($this->mapper, $with);
+        $this->context = new QueryContext($this->mapper, $with);
         $stmt = $this->execute(Bitmap::current()->connection($connection));
         $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
 
@@ -78,7 +79,7 @@ class Select extends Query
      */
     public function all($with = null, $connection = null)
     {
-        $this->context = new Context($this->mapper, $with);
+        $this->context = new QueryContext($this->mapper, $with);
         $stmt = $this->execute(Bitmap::current()->connection($connection));
         $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
 

@@ -6,7 +6,7 @@ use Bitmap\FieldMappingStrategy;
 use Bitmap\Mapper;
 use Exception;
 
-class Context
+abstract class Context
 {
     /**
      * @var Mapper|null
@@ -27,48 +27,18 @@ class Context
      * Context constructor.
      *
      * @param Mapper $mapper
-     * @param null|array $with
      * @param Context $parent
-     * @param int $depth
      *
      * @throws Exception
      */
-    public function __construct($mapper = null, $with = null, $parent = null, $depth = null)
+    public function __construct($mapper = null, $parent = null)
     {
-        $this->mapper = $mapper;
+        $this->mapper       = $mapper;
         $this->dependencies = [];
-        $this->parent = $parent;
+        $this->parent       = $parent;
 
         if ($this->isRoot()) {
             $this->depths = [];
-        }
-
-        $this->depth = (null !== $depth) ? $depth : $this->calculateMapperDepth();
-
-        $this->initialize($with);
-    }
-
-    protected function initialize($with = null)
-    {
-        foreach ($this->mapper->associations() as $association) {
-            if (is_array($with)) {
-                if (is_int(array_search($name = $association->getName(), $with)) || isset($with[$name])) {
-                    $this->dependencies[$association->getName()] = new Context($association->getMapper(), isset($with[$name]) ? $with[$name] : null, $this);
-                } else if (is_int(array_search($name = "@{$association->getName()}", $with)) || isset($with[$name])) {
-                    echo "Reference $name\n";
-                    if (null === $source = $this->findParentWithMapper($association->getMapper())) {
-                        throw new Exception("Undefined source mapper in hierarchy for reference $name");
-                    }
-
-                    $this->dependencies[$association->getName()] = new ReferenceContext($association->getMapper(), $source, $this);
-                }
-            }
-            if (is_null($with)){
-                // TODO apply association's default loading instead
-                //if ($association->hasLocalValue()) {
-                $this->dependencies[$association->getName()] = new Context($association->getMapper(), [], $this);
-                //}
-            }
         }
     }
 
@@ -77,49 +47,22 @@ class Context
         return $this->mapper->getTable() . ($this->depth === 0 ? '' : $this->depth + 1);
     }
 
-    public function getTables()
-    {
-        $tables = [$this->getTableName()];
+    /**
+     * @return string[]
+     */
+    public abstract function getTables();
 
-        foreach ($this->dependencies as $dependency) {
-            $tables = array_merge($tables, $dependency->getTables());
-        }
-        return $tables;
-    }
+    /**
+     * @param $strategy FieldMappingStrategy
+     *
+     * @return string[]
+     */
+    public abstract function getFields(FieldMappingStrategy $strategy);
 
-    public function getFields(FieldMappingStrategy $strategy)
-    {
-        $fields = [];
-
-        foreach ($this->mapper->getFields() as $name => $field) {
-            $fields[] = sprintf(
-                "`%s`.`%s` as `%s`",
-                $this->getTableName(),
-                $field->getColumn(),
-                $strategy->getFieldLabel($this->mapper, $field->getColumn(), $this->depth)
-            );
-        }
-
-        foreach ($this->dependencies as $dependency) {
-            $fields = array_merge($fields, $dependency->getFields($strategy));
-        }
-
-        return $fields;
-    }
-
-    public function getJoins()
-    {
-        $joins = [];
-
-        foreach ($this->dependencies as $name => $dependency) {
-            $joins = array_merge(
-                $joins,
-                $this->mapper->getAssociation($name)->joinClauses($this->mapper, $dependency->getTableName()),
-                $dependency->getJoins()
-            );
-        }
-        return $joins;
-    }
+    /**
+     * @return string[]
+     */
+    public abstract function getJoins();
 
     /**
      * @return bool
@@ -171,42 +114,7 @@ class Context
      */
     public function getHierarchyDepth()
     {
-        return $this->parent !== null ? 1 + $this->parent->getDepth() : 0;
-    }
-
-    /**
-     * Returns depth in the hierarchy filtered by this mapper only
-     *
-     * @return int
-     */
-    protected function calculateMapperDepth()
-    {
-        if (!isset($this->getRoot()->depths[$this->mapper->getClass()])) {
-            $this->getRoot()->depths[$this->mapper->getClass()] = 0;
-        } else {
-            $this->getRoot()->depths[$this->mapper->getClass()]++;
-        }
-
-        return $this->getRoot()->depths[$this->mapper->getClass()];
-    }
-
-    /**
-     * @param Mapper $mapper
-     *
-     * @return int
-     */
-    protected function getMapperParentDistance(Mapper $mapper)
-    {
-        if ($this->mapper->equals($mapper)) {
-            return 1;
-        }
-
-        return $this->parent !== null ? 1 + $this->parent->getMapperParentDistance($mapper) : 0;
-    }
-
-    protected function hasCircularReference(Mapper $mapper)
-    {
-        return $this->getMapperParentDistance($mapper) >= 1;
+        return $this->isRoot() ? 0 : 1 + $this->parent->getDepth();
     }
 
     public function hasDependency($name)
@@ -216,7 +124,7 @@ class Context
 
     public function getDependency($name)
     {
-        return isset($this->dependencies[$name]) ? $this->dependencies[$name] : new Context();
+        return isset($this->dependencies[$name]) ? $this->dependencies[$name] : null;
     }
 
     /**
@@ -244,6 +152,9 @@ class Context
 
     public function __toString()
     {
-        return json_encode($this->toArray());
+        return str_repeat("\t", $this->getHierarchyDepth()) .
+            "{$this->getMapper()->getTable()}[{$this->depth}]" . PHP_EOL .
+            implode("", array_map(function($dependecy) {return $dependecy->__toString(); }, $this->dependencies)
+        );
     }
 }

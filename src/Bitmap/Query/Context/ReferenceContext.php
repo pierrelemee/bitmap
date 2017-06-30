@@ -10,14 +10,9 @@ class ReferenceContext extends Context
 
     public function __construct($mapper, Context $source, $parent = null)
     {
-        parent::__construct($mapper, null, $parent);
+        parent::__construct($mapper, $parent);
 
         $this->source = $source;
-    }
-
-    protected function initialize($with = null)
-    {
-
     }
 
     public function getTables()
