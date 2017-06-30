@@ -145,61 +145,6 @@ class Select extends Query
     	return $this;
     }
 
-    protected function mapperDepth(Mapper $mapper)
-    {
-        if (!isset($this->tables[$mapper->getTable()])) {
-            $this->tables[$mapper->getTable()] = 0;
-        }
-
-        return $this->tables[$mapper->getTable()];
-    }
-
-    /**
-     * @param $mapper Mapper
-     * @param $with array
-     *
-     * @return array
-     */
-    protected function joinClauses($mapper, $with)
-    {
-        $joins = [];
-
-        foreach ($mapper->associations() as $association) {
-            if (in_array($association->getName(), $with)) {
-                if (!isset($counters[$association->getName()])) {
-                    $counters[$association->getName()] = 0;
-                } else {
-                    $counters[$association->getName()]++;
-                }
-
-                $joins = array_merge($joins, $association->joinClauses($mapper, $counters[$association->getName()]));
-            }
-        }
-
-        foreach ($mapper->associations() as $association) {
-            if (isset($with[$association->getName()])) {
-                $joins = array_merge($joins, $this->joinClauses($association->getMapper(), is_array($with[$association->getName()]) ? $with[$association->getName()] : [], $counters));
-            }
-        }
-
-        return $joins;
-    }
-
-    /**
-     * @param Mapper $mapper
-     *
-     * @return array
-     */
-    protected function fields($mapper)
-    {
-        $fields = [];
-        foreach ($mapper->getFields() as $field) {
-            $fields[] = "`{$mapper->getTable()}`.`{$field->getColumn()}` as `{$this->strategy->getFieldLabel($mapper, $field->getColumn())}`";
-        }
-
-        return $fields;
-    }
-
 	/**
 	 * @return string
 	 */
@@ -207,51 +152,6 @@ class Select extends Query
 	{
 		return sizeof($this->order) > 0 ? ' order by ' . implode(', ', $this->order) : '';
 	}
-
-    protected function tables(Mapper $mapper, Context $context)
-    {
-        if (!isset($this->tables[$context->getMapper()->getClass()][$context->getDepth()])) {
-            if (!isset($this->tables[$context->getMapper()->getClass()])) {
-                $this->tables[$context->getMapper()->getClass()] = [];
-            }
-
-            $this->tables[$context->getMapper()->getClass()][$context->getDepth()] = true;
-        }
-
-        foreach ($mapper->getFields() as $field) {
-            $this->fields[] = sprintf(
-                "`%s`.`%s` as `%s`",
-                $mapper->getTable() . ($context->getDepth() > 0 ? $context->getDepth() : ''),
-                $field->getColumn(),
-                $this->strategy->getFieldLabel($mapper, $field->getColumn(), $context->getDepth())
-            );
-        }
-
-        foreach ($mapper->associations() as $association) {
-            if ($context->hasDependency($association->getName()) && $association->hasLocalValue()) {
-                $this->fields[] = sprintf(
-                    "`%s`.`%s` as `%s`",
-                    $mapper->getTable() . ($context->getDepth() > 0 ? $context->getDepth() : ''),
-                    $association->getColumn(),
-                    $this->strategy->getFieldLabel($mapper, $association->getColumn(), $context->getDepth())
-                );
-            }
-        }
-
-        foreach ($context->getDependencies() as $name => $subcontext) {
-            $this->joins = array_unique(
-                array_merge(
-                    $this->joins,
-                    $mapper->getAssociation($name)->joinClauses(
-                        $mapper,
-                        $subcontext->getDepth()
-                    )
-                )
-            );
-
-            $this->tables($mapper->getAssociation($name)->getMapper(), $subcontext);
-        }
-    }
 
     public function sql()
     {
