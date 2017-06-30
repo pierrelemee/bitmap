@@ -6,6 +6,7 @@ use Chinook\Valid\Inline\Album;
 use Chinook\Valid\Inline\Artist;
 use Chinook\Valid\Inline\Employee;
 use Chinook\Valid\Inline\Track;
+use Misc\Character;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
@@ -95,7 +96,7 @@ class SelectTest extends TestCase
     public function testGetArtistAndItsArtWork()
     {
         /** @var Artist $artist */
-        $artist = Artist::select()->where('ArtistId', '=', 22)->one(['albums' => ['tracks', 'artist']]);
+        $artist = Artist::select()->where('ArtistId', '=', 22)->one(['albums' => ['tracks', '@artist']]);
 
         $this->assertNotNull($artist);
         $this->assertEquals(14, sizeof($artist->getAlbums()));
@@ -113,7 +114,7 @@ class SelectTest extends TestCase
     public function testGetArtists()
     {
         /** @var Artist[] */
-        $artists = Artist::select()->where('Name', 'like', 'The%')->all(['albums' => ['artist']]);
+        $artists = Artist::select()->where('Name', 'like', 'The%')->all(['albums' => ['@artist']]);
 
         $expected = [
             137 => 'The Black Crowes',
@@ -193,12 +194,50 @@ class SelectTest extends TestCase
     public function testGetEmployeeAndSuperior()
     {
         /** @var Employee $employee */
-        $employee= Employee::select()->where('EmployeeId', '=', 8)->one(['superior']);
+        $employee= Employee::select()->where('EmployeeId', '=', 8)->one(['superior' => []]);
 
         $this->assertNotNull($employee);
         $this->assertNotNull($employee->getSuperior());
         $this->assertEquals(Employee::class, get_class($employee->getSuperior()));
         $this->assertEquals(6, $employee->getSuperior()->getId());
+    }
+
+    public function testGetSiblings()
+    {
+        $connection = Bitmap::current()->connection(self::CONNECTION_SQLITE);
+        $connection->exec("
+           create table Character(
+              id int unsigned auto_increment,
+              firstname varchar(16) not null,
+              lastname varchar(16) not null,
+              father int unsigned,
+              mother int unsigned,
+              primary key(id)
+           )
+        ");
+
+        $connection->exec("
+            insert into Character (id, firstname, lastname, father, mother) values
+            (1, 'Homer', 'Simpson', NULL, NULL),
+            (2, 'Marge', 'Simpson', NULL, NULL),
+            (3, 'Bart', 'Simpson', 1, 2),
+            (4, 'Lisa', 'Simpson', 1, 2),
+            (5, 'Maggie', 'Simpson', 1, 2)
+        ");
+
+        /* @var Character[] $characters */
+        $characters = Character::select()
+            ->where('id', 'in', '(3,4,5)')
+            ->all(null,self::CONNECTION_SQLITE);
+
+        $this->assertEquals(3, count($characters));
+
+        foreach ($characters as $character) {
+            $this->assertNotNull($character->getFather());
+            $this->assertEquals(1, $character->getFather()->getId());
+            $this->assertNotNull($character->getMother());
+            $this->assertEquals(2, $character->getMother()->getId());
+        }
     }
 
 }
