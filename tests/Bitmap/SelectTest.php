@@ -96,7 +96,7 @@ class SelectTest extends TestCase
     public function testGetArtistAndItsArtWork()
     {
         /** @var Artist $artist */
-        $artist = Artist::select()->where('ArtistId', '=', 22)->one(['albums' => ['tracks', 'artist']]);
+        $artist = Artist::select()->where('ArtistId', '=', 22)->one(['albums' => ['tracks', '@artist']]);
 
         $this->assertNotNull($artist);
         $this->assertEquals(14, sizeof($artist->getAlbums()));
@@ -114,7 +114,7 @@ class SelectTest extends TestCase
     public function testGetArtists()
     {
         /** @var Artist[] */
-        $artists = Artist::select()->where('Name', 'like', 'The%')->all(['albums' => ['artist']]);
+        $artists = Artist::select()->where('Name', 'like', 'The%')->all(['albums' => ['@artist']]);
 
         $expected = [
             137 => 'The Black Crowes',

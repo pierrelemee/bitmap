@@ -66,7 +66,7 @@ abstract class Association
 
     protected function joinClause($tableFrom, $columnFrom, $tableTo, $aliasTableTo, $columnTo)
     {
-        return " left join `{$tableTo}` {$aliasTableTo} on `{$tableFrom}`.`{$columnFrom}` = `{$tableTo}`.`{$columnTo}`";
+        return " left join `{$tableTo}` {$aliasTableTo} on `{$tableFrom}`.`{$columnFrom}` = `{$aliasTableTo}`.`{$columnTo}`";
     }
 
     /**

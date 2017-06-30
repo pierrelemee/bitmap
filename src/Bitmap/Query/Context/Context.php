@@ -29,7 +29,7 @@ class Context
      * @param Context $parent
      * @param int $depth
      */
-    public function __construct($mapper = null, $with = null, $parent = null, $depth = 0)
+    public function __construct($mapper = null, $with = null, $parent = null, $depth = null)
     {
         $this->mapper = $mapper;
         $this->dependencies = [];
@@ -39,7 +39,7 @@ class Context
             $this->depths = [];
         }
 
-        $this->depth = $this->getMapperDepth($this->mapper);
+        $this->depth = null !== $depth ? $depth : $this->calculateMapperDepth();
 
         if (null !== $mapper) {
             foreach ($mapper->associations() as $association) {
@@ -47,14 +47,29 @@ class Context
                  * How to know if the association is enabled as a dependency:
                  * -
                  */
+                /*
                 if ($this->isRoot() || !$this->parent->getMapper()->equals($association->getMapper())) {
+                    // TODO apply association's default loading instead
                     $this->dependencies[$association->getName()] = new Context($association->getMapper(), [], $this);
                 } else {
+                */
+                    /*
                     if (!is_array($with) || is_int(array_search($association->getName(), $with)) || isset($with[$association->getName()])) {
                         $sub = !$this->hasCircularReference($association->getMapper()) ? (isset($with[$association->getName()]) && is_array($with[$association->getName()]) ? $with[$association->getName()] : null) : [];
                         $this->dependencies[$association->getName()] = new Context($association->getMapper(), $sub, $this);
                     }
-                }
+                    */
+
+                    if (is_array($with)) {
+                        if (is_int(array_search($name = $association->getName(), $with)) || isset($with[$name])) {
+                            $this->dependencies[$association->getName()] = new Context($association->getMapper(), isset($with[$name]) ? $with[$name] : null);
+                        } else if (is_int(array_search($name = "@{$association->getName()}", $with)) || isset($with[$name])) {
+                            $this->dependencies[$association->getName()] = new Context($association->getMapper(), [], $this->parent->depth);
+                        }
+                    } else {
+                        $this->dependencies[$association->getName()] = new Context($association->getMapper(), [], $this);
+                    }
+                //}
             }
         }
     }
@@ -157,16 +172,15 @@ class Context
      *
      * @return int
      */
-    public function getMapperDepth($mapper = null)
+    protected function calculateMapperDepth()
     {
-        $mapper = $mapper ? : $this->mapper;
-        if (!isset($this->getRoot()->depths[$mapper->getClass()])) {
-            $this->getRoot()->depths[$mapper->getClass()] = 0;
+        if (!isset($this->getRoot()->depths[$this->mapper->getClass()])) {
+            $this->getRoot()->depths[$this->mapper->getClass()] = 0;
         } else {
-            $this->getRoot()->depths[$mapper->getClass()]++;
+            $this->getRoot()->depths[$this->mapper->getClass()]++;
         }
 
-        return $this->getRoot()->depths[$mapper->getClass()];
+        return $this->getRoot()->depths[$this->mapper->getClass()];
     }
 
     /**
