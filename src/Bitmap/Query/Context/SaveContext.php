@@ -4,15 +4,17 @@ namespace Bitmap\Query\Context;
 
 use Bitmap\Association;
 
-class SaveContext extends Context
+class SaveContext extends QueryContext
 {
     protected function isAssociationDefaultIncluded(Association $association)
     {
         return $association->isAutosaved();
     }
 
-    protected function children($mapper = null, $with = null, $parent = null, $depth = 0)
+    protected function children($mapper, $parent = null, $with = null)
     {
-        return new SaveContext($mapper, $with, $parent, $depth);
+        return new SaveContext($mapper, $with, $parent);
     }
+
+
 }

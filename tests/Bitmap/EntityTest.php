@@ -25,7 +25,7 @@ abstract class EntityTest extends TestCase
         }
 
         foreach (self::$CONNECTIONS as $name => $arguments) {
-            Bitmap::addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
+            Bitmap::current()->addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
         }
     }
 
@@ -39,8 +39,8 @@ abstract class EntityTest extends TestCase
      */
     public function before()
     {
-        foreach (self::connections() as $name => $arguments) {
-            Bitmap::connection($name)->beginTransaction();
+        foreach ($this->connections() as $name => $arguments) {
+            Bitmap::current()->connection($name)->beginTransaction();
         }
     }
 
@@ -49,20 +49,20 @@ abstract class EntityTest extends TestCase
      */
     public function after()
     {
-        foreach (self::connections() as $name => $arguments) {
-            Bitmap::connection($name)->rollBack();
+        foreach ($this->connections() as $name => $arguments) {
+            Bitmap::current()->connection($name)->rollBack();
         }
     }
 
     protected function queryOne($connection, $sql)
     {
-        $statement = Bitmap::connection($connection)->query($sql);
+        $statement = Bitmap::current()->connection($connection)->query($sql);
         return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     protected function queryAll($connection, $sql)
     {
-        $statement = Bitmap::connection($connection)->query($sql);
+        $statement = Bitmap::current()->connection($connection)->query($sql);
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 

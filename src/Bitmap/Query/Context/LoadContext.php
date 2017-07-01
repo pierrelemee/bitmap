@@ -4,15 +4,15 @@ namespace Bitmap\Query\Context;
 
 use Bitmap\Association;
 
-class LoadContext extends Context
+class LoadContext extends QueryContext
 {
     protected function isAssociationDefaultIncluded(Association $association)
     {
         return $association->isAutoloaded();
     }
 
-    protected function children($mapper = null, $with = null, $parent = null, $depth = 0)
+    protected function children($mapper, $parent = null, $with = null)
     {
-        return new LoadContext($mapper, $with, $parent, $depth);
+        return new LoadContext($mapper, $with, $parent);
     }
 }

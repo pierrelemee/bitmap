@@ -2,6 +2,7 @@
 
 namespace Bitmap\Tests;
 
+use Bitmap\Bitmap;
 use Chinook\Valid\Inline\Album;
 use Chinook\Valid\Inline\Artist;
 use Chinook\Valid\Inline\Employee;
@@ -28,7 +29,7 @@ class SelectTest extends EntityTest
 	 */
     public function testGetArtistById($field, $id, $expected)
     {
-        foreach (array_keys(self::connections()) as $connection) {
+        foreach (array_keys($this->connections()) as $connection) {
             /** @var Artist $artist */
             $artist = Artist::select()->where($field, '=', $id)->one($connection);
 

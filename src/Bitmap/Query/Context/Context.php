@@ -5,6 +5,7 @@ namespace Bitmap\Query\Context;
 use Bitmap\Association;
 use Bitmap\Mapper;
 use Exception;
+use Bitmap\FieldMappingStrategy;
 
 abstract class Context
 {
@@ -88,11 +89,6 @@ abstract class Context
 
         return $this->isRoot() ? null : $this->parent->findParentWithMapper($mapper);
     }
-
-    /**
-     * @return boolean
-     */
-    protected abstract function isAssociationDefaultIncluded(Association $association);
 
     /**
      * @return Mapper|null
