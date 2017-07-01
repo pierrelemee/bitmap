@@ -4,16 +4,44 @@ namespace Bitmap;
 
 abstract class Association
 {
+    const OPTION_LOAD = 'load';
+    const OPTION_SAVE = 'save';
+
     protected $name;
     protected $class;
     protected $column;
+    protected $autoload;
+    protected $autosave;
 
-    public function __construct($name, $class, $column)
+    public function __construct($name, $class, $column, $options = null)
     {
         $this->name = $name;
         $this->class = $class;
         $this->column = $column;
+
+        $this->autoload = is_array($options) ? in_array(self::OPTION_LOAD, $options) : $this->getDefaultAutoload();
+        $this->autosave = is_array($options) ? in_array(self::OPTION_SAVE, $options) : $this->getDefaultAutosave();
     }
+
+    public function isAutoloaded()
+    {
+        return $this->autoload;
+    }
+
+    public function isAutosaved()
+    {
+        return $this->autosave;
+    }
+
+    /**
+     * @return bool
+     */
+    protected abstract function getDefaultAutoload();
+
+    /**
+     * @return bool
+     */
+    protected abstract function getDefaultAutosave();
 
     /**
      * @return mixed

@@ -2,14 +2,10 @@
 
 namespace Chinook\Valid\Inline;
 
-use Bitmap\Associations\MethodAssociationOneToMany;
-use Bitmap\Associations\MethodAssociationOne;
+use Bitmap\Association;
 use Bitmap\Entity;
-use Bitmap\Query\Context\Context;
-use ReflectionClass;
 use Bitmap\Bitmap;
 use Bitmap\Mapper;
-use Bitmap\Fields\MethodField;
 
 class Album extends Entity
 {
@@ -29,8 +25,8 @@ class Album extends Entity
         $mapper
             ->addPrimary('id', Bitmap::TYPE_INTEGER, 'AlbumId')
             ->addField('title', Bitmap::TYPE_STRING, 'Title')
-            ->addAssociationOne('artist', Artist::class, 'ArtistId')
-            ->addAssociationOneToMany('tracks', Track::class, 'AlbumId');
+            ->addAssociationOneToMany('tracks', Track::class, 'AlbumId', null, null, [Association::OPTION_SAVE])
+            ->addAssociationOne('artist', Artist::class, 'ArtistId');
     }
 
     /**

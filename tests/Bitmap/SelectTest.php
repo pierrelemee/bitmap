@@ -1,70 +1,23 @@
 <?php
 
-namespace Bitmap;
+namespace Bitmap\Tests;
 
+use Bitmap\Bitmap;
 use Chinook\Valid\Inline\Album;
 use Chinook\Valid\Inline\Artist;
 use Chinook\Valid\Inline\Employee;
 use Chinook\Valid\Inline\Track;
 use Misc\Character;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use PHPUnit\Framework\TestCase;
+use Exception;
 
-class SelectTest extends TestCase
+class SelectTest extends EntityTest
 {
-    const CONNECTION_SQLITE = 'chinook_sqlite';
-    const CONNECTION_MYSQL  = 'chinook_mysql';
-
-
-    public static function setUpBeforeClass()
-    {
-
-    	if (isset(Logger::getLevels()[strtoupper(getenv('PHPUNIT_LOGGING'))])) {
-		    Bitmap::current()->setLogger(new Logger(new StreamHandler(fopen('php://stdout', 'a'), strtoupper(getenv('PHPUNIT_LOGGING')))));
-	    }
-
-        foreach (self::connections() as $name => $arguments) {
-            Bitmap::current()->addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
-        }
-    }
-
-    /**
-     * @before
-     */
-    public function before()
-    {
-        foreach (self::connections() as $name => $arguments) {
-            Bitmap::current()->connection($name)->beginTransaction();
-        }
-    }
-
-    /**
-     * @after
-     */
-    public function after()
-    {
-        foreach (self::connections() as $name => $arguments) {
-            Bitmap::current()->connection($name)->rollBack();
-        }
-    }
-
-    private static function connections()
-    {
-        return [
-            self::CONNECTION_SQLITE => ['sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite'],
-            self::CONNECTION_MYSQL => ['mysql://host=localhost;dbname=Chinook;', "root"],
-        ];
-    }
-
     public function testGetNoArtist()
     {
-        foreach (array_keys(self::connections()) as $connection) {
+        foreach (array_keys($this->connections()) as $connection) {
             $artist = Artist::select()->where('Name', '=', "Justin Bieber")->one($connection);
-
             $this->assertNull($artist);
         }
-
     }
 
 	/**
@@ -76,7 +29,7 @@ class SelectTest extends TestCase
 	 */
     public function testGetArtistById($field, $id, $expected)
     {
-        foreach (array_keys(self::connections()) as $connection) {
+        foreach (array_keys($this->connections()) as $connection) {
             /** @var Artist $artist */
             $artist = Artist::select()->where($field, '=', $id)->one($connection);
 
@@ -146,15 +99,52 @@ class SelectTest extends TestCase
         }
     }
 
-    public function testGetAlbumById()
+    /**
+     * @param mixed $with
+     * @param boolean $artist
+     * @param boolean $tracks
+     * @param boolean $media
+     *
+     * @throws Exception
+     *
+     * @dataProvider getAlbumByIdData
+     */
+    public function testGetAlbumById($with, $artist = true, $tracks = false, $media = false)
     {
         /** @var Album $album */
-        $album = Album::select()->where('AlbumId', '=', 148)->one();
+        $album = Album::select()->where('AlbumId', '=', 148)->one($with);
 
         $this->assertNotNull($album);
         $this->assertSame('Black Album', $album->getTitle());
-        $this->assertSame('Metallica', $album->getArtist()->name);
-        $this->assertEquals(12, sizeof($album->getTracks()));
+
+        if ($artist) {
+            $this->assertSame('Metallica', $album->getArtist()->name);
+        } else {
+            $this->assertNull($album->getArtist());
+        }
+
+        if ($tracks) {
+            $this->assertEquals(12, sizeof($album->getTracks()));
+
+            if ($media) {
+                $this->assertEquals("MPEG audio file", $album->getTracks()[0]->getMedia()->getName());
+            } else {
+                $this->assertNull($album->getTracks()[0]->getMedia());
+            }
+        } else {
+            $this->assertNull($album->getTracks());
+        }
+    }
+
+    public function getAlbumByIdData()
+    {
+        return [
+            [null],
+            [[], false],
+            [['tracks', 'artist' => []], true, true],
+            [['tracks' => 'foo', 'artist' => 4], true, true],
+            [['tracks' => ['media']], false, true, true]
+        ];
     }
 
 	/**

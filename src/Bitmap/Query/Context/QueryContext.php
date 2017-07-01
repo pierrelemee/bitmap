@@ -1,10 +1,13 @@
 <?php
 
 namespace Bitmap\Query\Context;
+
+use Bitmap\Association;
 use Bitmap\FieldMappingStrategy;
+use Bitmap\Mapper;
 use Exception;
 
-class QueryContext extends Context
+abstract class QueryContext extends Context
 {
     public function __construct($mapper, $with = null, $parent = null)
     {
@@ -20,7 +23,7 @@ class QueryContext extends Context
         foreach ($this->mapper->associations() as $association) {
             if (is_array($with)) {
                 if (is_int(array_search($name = $association->getName(), $with)) || isset($with[$name])) {
-                    $this->dependencies[$association->getName()] = new QueryContext($association->getMapper(), isset($with[$name]) ? $with[$name] : null, $this);
+                    $this->dependencies[$association->getName()] = $this->children($association->getMapper(), $this, isset($with[$name]) ? $with[$name] : null);
                 } else if (is_int(array_search($name = "@{$association->getName()}", $with)) || isset($with[$name])) {
                     if (null === $source = $this->findParentWithMapper($association->getMapper())) {
                         throw new Exception("Undefined source mapper in hierarchy for reference $name");
@@ -30,13 +33,28 @@ class QueryContext extends Context
                 }
             }
             if (is_null($with)){
-                // TODO apply association's default loading instead
-                //if ($association->hasLocalValue()) {
-                $this->dependencies[$association->getName()] = new QueryContext($association->getMapper(), [], $this);
-                //}
+                if ($this->isAssociationDefaultIncluded($association)) {
+                    $this->dependencies[$association->getName()] = $this->children($association->getMapper(), $this, []);
+                }
             }
         }
     }
+
+    /**
+     * @param Association $association
+     *
+     * @return boolean
+     */
+    protected abstract function isAssociationDefaultIncluded(Association $association);
+
+    /**
+     * @param Mapper $mapper
+     * @param Context $parent
+     * @param null|array $with
+     *
+     * @return boolean
+     */
+    protected abstract function children($mapper, $parent = null, $with = null);
 
     public function getTables()
     {

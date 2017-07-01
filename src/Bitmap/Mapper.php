@@ -221,13 +221,13 @@ class Mapper
         return $this;
     }
 
-    public function addAssociationOne($name, $class, $column = null, $getter = null, $setter = null)
+    public function addAssociationOne($name, $class, $column = null, $getter = null, $setter = null, $options = null)
     {
         $column = $column ? : $name;
         $reflection = new ReflectionClass($this->class);
 
         if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
-            return $this->addAssociation(new PropertyAssociationOne($name, $class, $reflection->getProperty($name), $column));
+            return $this->addAssociation(new PropertyAssociationOne($name, $class, $reflection->getProperty($name), $column, $options));
         } else {
             if (null === $getter) {
                 $getter = MethodField::getterForName($name);
@@ -237,20 +237,20 @@ class Mapper
             }
 
             if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
-                return $this->addAssociation(new MethodAssociationOne($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column));
+                return $this->addAssociation(new MethodAssociationOne($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column, $options));
             } else {
                 throw new MapperException("Unable to find association one for '{$reflection->getName()}' with name {$name}' to '{$class}'");
             }
         }
     }
 
-    public function addAssociationOneToMany($name, $class, $column = null, $getter = null, $setter = null)
+    public function addAssociationOneToMany($name, $class, $column = null, $getter = null, $setter = null, $options = null)
     {
         $column = $column ? : $name;
         $reflection = new ReflectionClass($this->class);
 
         if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
-            return $this->addAssociation(new PropertyAssociationOneToMany($name, $class, $reflection->getProperty($name), $column));
+            return $this->addAssociation(new PropertyAssociationOneToMany($name, $class, $reflection->getProperty($name), $column), $options);
         } else {
             if (null === $getter) {
                 $getter = MethodField::getterForName($name);
@@ -260,7 +260,7 @@ class Mapper
             }
 
             if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
-                return $this->addAssociation(new MethodAssociationOneToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column));
+                return $this->addAssociation(new MethodAssociationOneToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column, $options));
             } else {
                 throw new MapperException("Unable to find association one to many for '{$reflection->getName()}' with name {$name}' to '{$class}'");
             }
@@ -328,7 +328,7 @@ class Mapper
     {
         // Save all associated entities first:
         foreach ($this->associations as $association) {
-        	if ($context->hasDependency($association->getName())) {
+        	if ($association->hasLocalValue() && $context->hasDependency($association->getName())) {
 		        foreach ($association->getAll($entity) as $e) {
 			        $e->save($context->getDependency($association->getName()), $connection);
 		        }
@@ -342,10 +342,18 @@ class Mapper
 	        if ($this->hasPrimary() && $this->getPrimary()->isIncremented()) {
                 $this->primary->set($entity, Bitmap::current()->connection($connection)->lastInsertId());
             }
-            return true;
         }
 
-        return false;
+        foreach ($this->associations as $association) {
+            if (!$association->hasLocalValue() && $context->hasDependency($association->getName())) {
+                foreach ($association->getAll($entity) as $e) {
+                    $e->save($context->getDependency($association->getName()), $connection);
+                }
+            }
+        }
+
+
+        return $count > 0;
     }
 
 	/**
@@ -440,14 +448,17 @@ class Mapper
 							    $association->set($s, $entity);
 						    }
 					    } else {
-						    $e = [];
-						    foreach ($values[$association->getName()] as $p) {
-						    	// TODO: find the way to choose if you want to include null values or not
-						    	if (null !== $s = $association->getMapper()->inflate($result, $context->getDependency($association->getName()), $p)) {
-								    $e[] = $s;
-							    }
-						    }
-						    $association->set($e, $entity);
+                            if (sizeof($values[$association->getName()]) > 0) {
+                                $e = [];
+                                foreach ($values[$association->getName()] as $p) {
+                                    // TODO: find the way to choose if you want to include null values or not
+                                    if (null !== $s = $association->getMapper()->inflate($result, $context->getDependency($association->getName()), $p)) {
+                                        $e[] = $s;
+                                    }
+                                }
+
+                                $association->set($e, $entity);
+                            }
 					    }
 				    }
 			    }

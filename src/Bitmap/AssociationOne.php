@@ -13,6 +13,16 @@ abstract class AssociationOne extends Association
         ];
     }
 
+    protected function getDefaultAutoload()
+    {
+        return true;
+    }
+
+    protected function getDefaultAutosave()
+    {
+        return true;
+    }
+
     /**
      * @param Entity $entity
      *

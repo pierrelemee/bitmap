@@ -1,6 +1,6 @@
 <?php
 
-namespace Bitmap;
+namespace Bitmap\Tests;
 
 class ContextTest
 {

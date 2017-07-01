@@ -13,7 +13,7 @@ class PropertyAssociationOne extends AssociationOne
 {
     protected $property;
 
-    public function __construct($name, $class, ReflectionProperty $property, $column)
+    public function __construct($name, $class, ReflectionProperty $property, $column, $options = [])
     {
         parent::__construct($name, $class, $column);
         $this->property = $property;
