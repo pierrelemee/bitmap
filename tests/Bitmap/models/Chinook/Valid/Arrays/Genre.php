@@ -3,25 +3,25 @@
 namespace Chinook\Valid\Arrays;
 
 use Bitmap\ArrayMappedEntity;
+use Bitmap\Bitmap;
 
 class Genre extends ArrayMappedEntity
 {
     protected $id;
     protected $name;
 
-    protected function getMapping()
+    protected function getMappingArray()
     {
         return [
             'primary' => [
+                'name'   => 'id',
                 'column' => 'GenreId',
-                'type' => 'int',
-                'getter' => 'getId'
+                'type'   => Bitmap::TYPE_INTEGER
             ],
             'fields' => [
                 'name' => [
                     'column' => 'Name',
-                    'type' => 'string',
-                    'getter' => 'getName'
+                    'type' => Bitmap::TYPE_STRING
                 ]
             ]
         ];
