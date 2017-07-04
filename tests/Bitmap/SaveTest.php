@@ -27,7 +27,7 @@ class SaveTest extends EntityTest
      *
      * @dataProvider addNewAlbumData
      */
-    public function testAddNewAlbum($artist, $context = null)
+    public function testAddNewAlbum($connection, $artist, $context = null)
     {
         $artistIsNew = false;
         if (is_string($artist)) {
@@ -36,20 +36,32 @@ class SaveTest extends EntityTest
             $artist->name = $name;
             $artistIsNew = true;
         } else if (is_int($artist)) {
-            $artist = Artist::select()->where('ArtistId', '=', $artist)->one();
+            $artist = Artist::select()->where('ArtistId', '=', $artist)->one(null, $connection);
         }
 
         $album = new Album();
         $album->setTitle("OK Computer");
         $album->setArtist($artist);
 
-        $this->assertTrue($album->save($context));
+        $this->assertTrue($album->save($context, $connection));
         $this->assertNotNull($album->getId());
 
-        $this->assertEquals(275 + ($artistIsNew ? 1 : 0), $this->queryCount(null, 'Artist'));
+        $this->assertEquals(275 + ($artistIsNew ? 1 : 0), $this->queryCount($connection, 'Artist'));
 
         $this->assertNotNull($artist->getId());
-        $this->assertEquals(348, $this->queryCount(null, 'Album'));
+        $this->assertEquals(348, $this->queryCount($connection, 'Album'));
+    }
+
+    public function addNewAlbumData()
+    {
+        return $this->data([
+            [ 'Radiohead', ['artist']],
+            [ 'Radiohead', ['artist' => 1]],
+            [ 'Radiohead'],
+            [ 193, ['artist']],
+            [ 193, ['artist' => 1]],
+            [ 193 ]
+        ]);
     }
 
     /**
@@ -71,17 +83,7 @@ class SaveTest extends EntityTest
         $this->assertNotNull($track->getBitmapHash());
     }
 
-    public function addNewAlbumData()
-    {
-        return [
-            [ 'Radiohead', ['artist']],
-            [ 'Radiohead', ['artist' => 1]],
-            [ 'Radiohead'],
-            [ 193, ['artist']],
-            [ 193, ['artist' => 1]],
-            [ 193 ]
-        ];
-    }
+
 
     public function testAddNewTrackAndGenre()
     {

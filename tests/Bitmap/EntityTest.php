@@ -58,6 +58,20 @@ abstract class EntityTest extends TestCase
         return [self::CONNECTION_MYSQL, self::CONNECTION_SQLITE];
     }
 
+    /**
+     * @param $data array
+     *
+     * @return array
+     */
+    protected function data(array $data)
+    {
+        return array_map(function ($line) {
+            return array_map(function ($connection) use ($line) {
+                return array_merge([$connection], $line);
+            }, $this->getConnectionNames());
+        }, $data);
+    }
+
     protected function queryValue($connection, $sql, $default = null)
     {
         $result = Bitmap::current()->connection($connection)->query($sql)->fetch(PDO::FETCH_NUM);
