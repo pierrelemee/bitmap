@@ -14,23 +14,30 @@ class Artist extends ArrayMappedEntity
 {
     protected $id;
     public $name;
+    /**
+     * @var Album[]
+     */
+    protected $albums;
 
-    protected function getMapping()
+    protected function getMappingArray()
     {
         return [
             'primary' => [
+                'name'   => 'id',
                 'column' => 'ArtistId',
-                'type' => 'int',
-                'incremented' => true,
-                'nullable' => false,
-                'getter' => 'getId'
-
+                'type'   => Bitmap::TYPE_INTEGER
             ],
             'fields' => [
                 'name' => [
                     'column' => 'Name',
-                    'type' => 'string',
-                    'property' => 'name'
+                    'type'   => Bitmap::TYPE_STRING
+                ]
+            ],
+            'associations' => [
+                'albums' => [
+                    'type'   => 'one-to-many',
+                    'column' => 'ArtistId',
+                    'class'  => Album::class
                 ]
             ]
         ];
@@ -50,5 +57,21 @@ class Artist extends ArrayMappedEntity
     public function setId($id)
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return Album[]
+     */
+    public function getAlbums()
+    {
+        return $this->albums;
+    }
+
+    /**
+     * @param mixed $albums
+     */
+    public function setAlbums($albums)
+    {
+        $this->albums = $albums;
     }
 }

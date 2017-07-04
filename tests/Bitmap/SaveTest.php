@@ -1,203 +1,212 @@
 <?php
 
-namespace Bitmap\Tests;
+namespace Tests\Bitmap;
 
-use Bitmap\Bitmap;
-use Chinook\Valid\Inline\Album;
-use Chinook\Valid\Inline\Artist;
-use Chinook\Valid\Inline\Genre;
-use Chinook\Valid\Inline\MediaType;
-use Chinook\Valid\Inline\Track;
-use PDO;
+use Chinook\Valid\Inline\Album as InlineAlbum;
+use Chinook\Valid\Inline\Artist as InlineArtist;
+use Chinook\Valid\Inline\Genre as InlineGenre;
+use Chinook\Valid\Inline\MediaType as InlineMediaType;
+use Chinook\Valid\Inline\Track as InlineTrack;
+use Chinook\Valid\Arrays\Artist as ArraysArtist;
+use Chinook\Valid\Arrays\Album as ArraysAlbum;
+use Chinook\Valid\Arrays\Genre as ArraysGenre;
+use Chinook\Valid\Arrays\MediaType as ArraysMediaType;
+use Chinook\Valid\Arrays\Track as ArraysTrack;
 
 class SaveTest extends EntityTest
 {
-    public function testAddNewArtist()
+    public function getDefaultData()
     {
-        foreach (array_keys(self::$CONNECTIONS) as $connection) {
-            $artist = new Artist();
-            $artist->name = 'Radiohead';
+        return $this->data([[]]);
+    }
 
-            $this->assertTrue($artist->save(null, $connection));
-            $this->assertNotNull($artist->getId());
-
-            $this->assertEquals(276, $this->getCountArtists($connection));
-        }
+    public function getArtistDataClasses()
+    {
+        return $this->dataClasses([InlineArtist::class, ArraysArtist::class]);
     }
 
     /**
+     * @param $artistClass string
+     * @param $connection string
+     *
+     * @dataProvider getArtistDataClasses
+     */
+    public function testAddNewArtist($artistClass, $connection)
+    {
+        $artist = new $artistClass();
+        $artist->name = 'Radiohead';
+
+        $this->assertTrue($artist->save(null, $connection));
+        $this->assertNotNull($artist->getId());
+
+        $this->assertEquals(276, $this->queryCount($connection, 'Artist'));
+    }
+
+    /**
+     * @param $artistClass string
+     * @param $albumClass string
+     * @param $connection string
      * @param string|int $artist
      * @param array|null $context
      *
      * @dataProvider addNewAlbumData
      */
-    public function testAddNewAlbum($artist, $context = null)
+    public function testAddNewAlbum($artistClass, $albumClass, $connection, $artist, $context = null)
     {
-        foreach (array_keys(self::$CONNECTIONS) as $connection) {
-            $artistIsNew = false;
-            if (is_string($artist)) {
-                $name = $artist;
-                $artist = new Artist();
-                $artist->name = $name;
-                $artistIsNew = true;
-            } else if (is_int($artist)) {
-                $artist = Artist::select()->where('ArtistId', '=', $artist)->one(null, $connection);
-            }
-
-            $album = new Album();
-            $album->setTitle("OK Computer");
-            $album->setArtist($artist);
-
-            $this->assertTrue($album->save($context, $connection));
-            $this->assertNotNull($album->getId());
-
-            $this->assertEquals(275 + ($artistIsNew ? 1 : 0), $this->getCountArtists($connection));
-
-            $this->assertNotNull($artist->getId());
-            $this->assertEquals(348, $this->getCountAlbums($connection));
+        $artistIsNew = false;
+        if (is_string($artist)) {
+            $name = $artist;
+            $artist = new $artistClass();
+            $artist->name = $name;
+            $artistIsNew = true;
+        } else if (is_int($artist)) {
+            $artist = $artistClass::select()->where('ArtistId', '=', $artist)->one(null, $connection);
         }
+
+        $album = new $albumClass();
+        $album->setTitle("OK Computer");
+        $album->setArtist($artist);
+
+        $this->assertTrue($album->save($context, $connection));
+        $this->assertNotNull($album->getId());
+
+        $this->assertEquals(275 + ($artistIsNew ? 1 : 0), $this->queryCount($connection, 'Artist'));
+
+        $this->assertNotNull($artist->getId());
+        $this->assertEquals(348, $this->queryCount($connection, 'Album'));
     }
 
     public function addNewAlbumData()
     {
-        return [
-            [ 'Radiohead', ['artist']],
-            [ 'Radiohead', ['artist' => 1]],
-            [ 'Radiohead'],
-            [ 193, ['artist']],
-            [ 193, ['artist' => 1]],
-            [ 193 ]
-        ];
-    }
-
-    public function testAddNewAlbumWithTracks()
-    {
-        foreach (array_keys(self::$CONNECTIONS) as $connection) {
-            /** @var Genre $genre */
-            $genre = Genre::select()->where('id', '=', 4)->one(null, $connection);
-            $artist = Artist::select()->where('id', '=', 127)->one(null, $connection);
-            $composer = "Anthony Kiedis/Chad Smith/Flea/John Frusciante";
-            $price = 0.99;
-            /** @var MediaType $media */
-            $media = MediaType::select()->where('id', '=', 1)->one(null, $connection);
-            $album = new Album();
-            $album->setTitle("One Hot Minute");
-            $album->setArtist($artist);
-            $tracks = [
-                self::createTrack("Warped", $genre, $media, 304, $composer, $price),
-                self::createTrack("Aeroplane", $genre, $media, 285, $composer, $price),
-                self::createTrack("Deep kick", $genre, $media, 393, $composer, $price),
-                self::createTrack("My Friends", $genre, $media, 242, $composer, $price),
-                self::createTrack("Coffee Shop", $genre, $media, 188, $composer, $price),
-                self::createTrack("Pea", $genre, $media, 107, $composer, $price),
-                self::createTrack("One Big Mob", $genre, $media, 362, $composer, $price),
-                self::createTrack("Walkabout", $genre, $media, 307, $composer, $price),
-                self::createTrack("Tearjerker", $genre, $media, 259, $composer, $price),
-                self::createTrack("One hot minute", $genre, $media, 383, $composer, $price),
-                self::createTrack("Failing into Grace", $genre, $media, 228, $composer, $price),
-                self::createTrack("Shallow By The Game", $genre, $media, 273, $composer, $price),
-                self::createTrack("Transcending", $genre, $media, 346, $composer, $price)
-            ];
-            $album->setTracks($tracks);
-
-            $album->save(null, $connection);
-            $this->assertEquals(3503 + count($tracks), $this->getCountTracks($connection));
-        }
-    }
-
-    /**
-     * @param string $title string
-     * @param Genre $genre
-     * @param MediaType $media
-     * @param int $duration
-     * @param string $composer
-     * @param float $price
-     *
-     * @return Track
-     */
-    private static function createTrack($title, Genre $genre, MediaType $media, $duration, $composer, $price)
-    {
-        $track = new Track();
-        $track->setName($title);
-        $track->setGenre($genre);
-        $track->setMedia($media);
-        $track->setMilliseconds($duration);
-        $track->setBytes($duration * 32);
-        $track->setComposer($composer);
-        $track->setUnitPrice($price);
-        return $track;
+        return $this->dataClasses(
+            [
+                [InlineArtist::class, InlineAlbum::class],
+                [ArraysArtist::class, ArraysAlbum::class]
+            ],
+            [
+                [ 'Radiohead', ['artist']],
+                [ 'Radiohead', ['artist' => 1]],
+                [ 'Radiohead'],
+                [ 193, ['artist']],
+                [ 193, ['artist' => 1]],
+                [ 193 ]
+            ]
+        );
     }
 
     /**
      * Attempt to add a new song in the database with no declared genre
+     *
+     * @param $trackClass string
+     * @param $albumClass string
+     * @param $mediaClass string
+     * @param $connection string
+     *
+     * @dataProvider addNewSongData
      */
-    public function testAddNewSong()
+    public function testAddNewSong($trackClass, $albumClass, $mediaClass, $connection)
     {
-        foreach (array_keys(self::$CONNECTIONS) as $connection) {
-            $track = new Track();
-            $track->setName("Silly song");
-            $track->setAlbum(Album::select()->where('id', '=', 321)->one(null, $connection));
-            $track->setBytes(12345);
-            $track->setMilliseconds(123000);
-            $track->setComposer("Anonymous");
-            $track->setUnitPrice(0.01);
-            $track->setMedia(MediaType::select()->where('id', '=', 1)->one(null, $connection));
+        $track = new $trackClass();
+        $track->setName("Silly song");
+        $track->setAlbum($albumClass::select()->where('id', '=', 321)->one(null, $connection));
+        $track->setBytes(12345);
+        $track->setMilliseconds(123000);
+        $track->setComposer("Anonymous");
+        $track->setUnitPrice(0.01);
+        $track->setMedia($mediaClass::select()->where('id', '=', 1)->one(null, $connection));
 
-            $track->save(['genre'], $connection);
-            $this->assertNotNull($track->getId());
-            $this->assertNotNull($track->getBitmapHash());
-        }
+        $track->save(['genre'], $connection);
+        $this->assertNotNull($track->getId());
+        $this->assertNotNull($track->getBitmapHash());
+        $this->assertEquals(3504, $this->queryCount($connection, 'Track'));
     }
 
-    public function testAddNewTrackAndGenre()
+    public function addNewSongData()
     {
-        foreach (array_keys(self::$CONNECTIONS) as $connection) {
-            $genre = new Genre();
-            $genre->setName("Funk");
-            $track = new Track();
-            $track->setName("B.Y.O.B. (funk version)");
-            $track->setUnitPrice(0.99);
-            $track->setBytes(4365405);
-            $track->setComposer("Tankian, Serj");
-            $track->setMilliseconds(217886);
-            $track->setGenre($genre);
-            $track->setMedia(MediaType::select()->where("MediaTypeId", "=", 1)->one(null, $connection));
-
-            $this->assertTrue($track->save(null, $connection));
-            $this->assertNotNull($track->getId());
-            $this->assertNotNull($track->getGenre()->getId());
-
-            $this->assertEquals(26, $this->getCountGenres($connection));
-        }
+        return $this->dataClasses([
+            [InlineTrack::class, InlineAlbum::class, InlineMediaType::class],
+            [ArraysTrack::class, ArraysAlbum::class, ArraysMediaType::class]
+        ]);
     }
 
-    public function testUpdateArtist()
+    /**
+     * @param $genreClass string
+     * @param $trackClass string
+     * @param $mediaClass string
+     * @param $connection string
+     *
+     * @dataProvider addNewTrackAndGenreData
+     */
+    public function testAddNewTrackAndGenre($genreClass, $trackClass, $mediaClass, $connection)
     {
-        foreach (array_keys(self::$CONNECTIONS) as $connection) {
-            $artist = Artist::select()->where('ArtistId', '=', 179)->one(null, $connection);
-            // "Scorpions" in database
-            $artist->name = "The Scorpions";
-            $this->assertTrue($artist->save(null, $connection));
+        $genre = new $genreClass();
+        $genre->setName("Funk");
+        $track = new $trackClass();
+        $track->setName("B.Y.O.B. (funk version)");
+        $track->setUnitPrice(0.99);
+        $track->setBytes(4365405);
+        $track->setComposer("Tankian, Serj");
+        $track->setMilliseconds(217886);
+        $track->setGenre($genre);
+        $track->setMedia($mediaClass::select()->where("MediaTypeId", "=", 1)->one(null, $connection));
 
-            $this->assertEquals(15,  $this->getCountArtists($connection, ['name like "The%"']));
-            $this->assertEquals(275, $this->getCountArtists($connection));
-        }
+        $this->assertTrue($track->save(null, $connection));
+        $this->assertNotNull($track->getId());
+        $this->assertNotNull($track->getGenre()->getId());
+
+        $this->assertEquals(26, $this->queryCount($connection, 'Genre'));
     }
 
-    public function testUpdateTrackWithNewGenre()
+    public function addNewTrackAndGenreData()
     {
-        foreach (array_keys(self::$CONNECTIONS) as $connection) {
-            /** @var Genre $genre */
-            $genre = new Genre();
-            $genre->setName("Funk");
-            /** @var Track $track */
-            $track = Track::select()->where("TrackId", "=", 2555)->one(null, $connection);
-            $track->setGenre($genre);
+        return $this->dataClasses([
+            [InlineGenre::class, InlineTrack::class, InlineMediaType::class],
+            [ArraysGenre::class, ArraysTrack::class, ArraysMediaType::class]
+        ]);
+    }
 
-            $this->assertTrue($track->save(null, $connection));
-            $this->assertNotNull($track->getGenre()->getId());
+    /**
+     * @param $artistClass string
+     * @param $connection string
+     *
+     * @dataProvider getArtistDataClasses
+     */
+    public function testUpdateArtist($artistClass, $connection)
+    {
+        $artist = $artistClass::select()->where('ArtistId', '=', 179)->one(null, $connection);
+        // "Scorpions" in database
+        $artist->name = "The Scorpions";
+        $this->assertTrue($artist->save(null, $connection));
 
-            $this->assertEquals(26, $this->getCountGenres($connection));
-        }
+        $this->assertEquals(15, $this->queryValue($connection, 'select count(*) as `total` from `Artist` where name like "The%"'));
+        $this->assertEquals(275, $this->queryCount($connection, 'Artist'));
+    }
+
+    /**
+     * @param $genreClass string
+     * @param $trackClass string
+     * @param $connection string
+     *
+     * @dataProvider updateTrackWithNewGenreData
+     */
+    public function testUpdateTrackWithNewGenre($genreClass, $trackClass, $connection)
+    {
+        $genre = new $genreClass();
+        $genre->setName("Funk");
+        $track = $trackClass::select()->where("TrackId", "=", 2555)->one(null, $connection);
+        $track->setGenre($genre);
+
+        $this->assertTrue($track->save(null, $connection));
+        $this->assertNotNull($track->getGenre()->getId());
+
+        $this->assertEquals(26, $this->queryCount($connection, 'Genre'));
+    }
+
+    public function updateTrackWithNewGenreData()
+    {
+        return $this->dataClasses([
+            [InlineGenre::class, InlineTrack::class],
+            [ArraysGenre::class, ArraysTrack::class]
+        ]);
     }
 }

@@ -1,55 +1,90 @@
 <?php
 
-namespace Bitmap\Tests;
+namespace Tests\Bitmap;
 
 use Bitmap\Bitmap;
-use Chinook\Valid\Inline\Album;
-use Chinook\Valid\Inline\Artist;
-use Chinook\Valid\Inline\Employee;
-use Chinook\Valid\Inline\Track;
 use Misc\Character;
-use Exception;
+
+use Chinook\Valid\Inline\Album as InlineAlbum;
+use Chinook\Valid\Inline\Artist as InlineArtist;
+use Chinook\Valid\Inline\Employee as InlineEmployee;
+use Chinook\Valid\Inline\Track as InlineTrack;
+use Chinook\Valid\Arrays\Artist as ArraysArtist;
+use Chinook\Valid\Arrays\Album as ArraysAlbum;
+use Chinook\Valid\Arrays\Track as ArraysTrack;
+use Chinook\Valid\Arrays\Employee as ArraysEmployee;
 
 class SelectTest extends EntityTest
 {
-    public function testGetNoArtist()
+    public function getDefaultData()
     {
-        foreach (array_keys($this->connections()) as $connection) {
-            $artist = Artist::select()->where('Name', '=', "Justin Bieber")->one($connection);
-            $this->assertNull($artist);
-        }
+        return $this->data([[]]);
+    }
+
+    public function getArtistDataClasses()
+    {
+        return $this->dataClasses([InlineArtist::class, ArraysArtist::class]);
+    }
+
+    public function getAlbumDataClasses()
+    {
+        return $this->dataClasses([InlineAlbum::class, ArraysAlbum::class]);
+    }
+
+    public function getEmployeeDataClasses()
+    {
+        return $this->dataClasses([InlineEmployee::class, ArraysEmployee::class]);
+    }
+
+    /**
+     * @param $artistClass string
+     * @param $connection string
+     *
+     * @dataProvider getArtistDataClasses
+     */
+    public function testGetNoArtist($artistClass, $connection)
+    {
+        $artist = $artistClass::select()->where('Name', '=', "Justin Bieber")->one(null, $connection);
+        $this->assertNull($artist);
     }
 
 	/**
+     * @param $artistClass string
+     * @param $connection string
 	 * @param $field
 	 * @param $id
 	 * @param $expected
 	 *
 	 * @dataProvider getArtistByIdData
 	 */
-    public function testGetArtistById($field, $id, $expected)
+    public function testGetArtistById($artistClass, $connection, $field, $id, $expected)
     {
-        foreach (array_keys($this->connections()) as $connection) {
-            /** @var Artist $artist */
-            $artist = Artist::select()->where($field, '=', $id)->one($connection);
+        $artist = $artistClass::select()->where($field, '=', $id)->one($connection);
 
-            $this->assertNotNull($artist);
-            $this->assertSame($expected, $artist->name);
-        }
+        $this->assertNotNull($artist);
+        $this->assertSame($expected, $artist->name);
     }
 
     public function getArtistByIdData()
     {
-    	return [
-    		['ArtistId', 94, 'Jimi Hendrix'],
-    		['id', 94, 'Jimi Hendrix']
-	    ];
+    	return $this->dataClasses(
+            [InlineArtist::class, ArraysArtist::class],
+    		[
+                ['ArtistId', 94, 'Jimi Hendrix'],
+                ['id', 94, 'Jimi Hendrix']
+	        ]
+        );
     }
 
-    public function testGetArtistAndItsArtWork()
+    /**
+     * @param $artistClass string
+     * @param $connection string
+     *
+     * @dataProvider getArtistDataClasses
+     */
+    public function testGetArtistAndItsArtWork($artistClass, $connection)
     {
-        /** @var Artist $artist */
-        $artist = Artist::select()->where('ArtistId', '=', 22)->one(['albums' => ['tracks', '@artist']]);
+        $artist = $artistClass::select()->where('ArtistId', '=', 22)->one(['albums' => ['tracks', '@artist']], $connection);
 
         $this->assertNotNull($artist);
         $this->assertEquals(14, sizeof($artist->getAlbums()));
@@ -57,17 +92,28 @@ class SelectTest extends EntityTest
         $this->assertSame($artist, $artist->getAlbums()[0]->getArtist());
     }
 
-    public function testGetAlbumsByArtist()
+    /**
+     * @param $albumClass string
+     * @param $connection string
+     *
+     * @dataProvider getAlbumDataClasses
+     */
+    public function testGetAlbumsByArtist($albumClass, $connection)
     {
-        $albums = Album::select()->where('ArtistId', '=', 131)->all();
+        $albums = $albumClass::select()->where('ArtistId', '=', 131)->all(null, $connection);
 
-        $this->assertEquals(2, sizeof($albums));
+        $this->assertEquals(2, count($albums));
     }
 
-    public function testGetArtists()
+    /**
+     * @param $artistClass string
+     * @param $connection string
+     *
+     * @dataProvider getArtistDataClasses
+     */
+    public function testGetArtists($artistClass, $connection)
     {
-        /** @var Artist[] */
-        $artists = Artist::select()->where('Name', 'like', 'The%')->all(['albums' => ['@artist']]);
+        $artists = $artistClass::select()->where('Name', 'like', 'The%')->all(['albums' => ['@artist']], $connection);
 
         $expected = [
             137 => 'The Black Crowes',
@@ -88,7 +134,6 @@ class SelectTest extends EntityTest
 
         $this->assertSameSize($expected, $artists);
 
-        /** @var Artist $artist*/
         foreach ($artists as $artist) {
             $this->assertArrayHasKey($artist->getId(), $expected);
             $this->assertEquals($expected[$artist->getId()], $artist->name);
@@ -100,54 +145,24 @@ class SelectTest extends EntityTest
     }
 
     /**
-     * @param mixed $with
-     * @param boolean $artist
-     * @param boolean $tracks
-     * @param boolean $media
+     * @param $albumClass string
+     * @param $connection string
      *
-     * @throws Exception
-     *
-     * @dataProvider getAlbumByIdData
+     * @dataProvider getAlbumDataClasses
      */
-    public function testGetAlbumById($with, $artist = true, $tracks = false, $media = false)
+    public function testGetAlbumById($albumClass, $connection)
     {
-        /** @var Album $album */
-        $album = Album::select()->where('AlbumId', '=', 148)->one($with);
+        $album = $albumClass::select()->where('AlbumId', '=', 148)->one(['artist', 'tracks'], $connection);
 
         $this->assertNotNull($album);
         $this->assertSame('Black Album', $album->getTitle());
-
-        if ($artist) {
-            $this->assertSame('Metallica', $album->getArtist()->name);
-        } else {
-            $this->assertNull($album->getArtist());
-        }
-
-        if ($tracks) {
-            $this->assertEquals(12, sizeof($album->getTracks()));
-
-            if ($media) {
-                $this->assertEquals("MPEG audio file", $album->getTracks()[0]->getMedia()->getName());
-            } else {
-                $this->assertNull($album->getTracks()[0]->getMedia());
-            }
-        } else {
-            $this->assertNull($album->getTracks());
-        }
-    }
-
-    public function getAlbumByIdData()
-    {
-        return [
-            [null],
-            [[], false],
-            [['tracks', 'artist' => []], true, true],
-            [['tracks' => 'foo', 'artist' => 4], true, true],
-            [['tracks' => ['media']], false, true, true]
-        ];
+        $this->assertSame('Metallica', $album->getArtist()->name);
+        $this->assertEquals(12, sizeof($album->getTracks()));
     }
 
 	/**
+     * @param $trackClass string
+     * @param $connection string
 	 * @param $asc
 	 * @param $limit
 	 * @param $expected
@@ -155,48 +170,59 @@ class SelectTest extends EntityTest
 	 *
 	 * @dataProvider getAlbumTracksOrderedByDurationData
 	 */
-    public function testGetAlbumTracksOrderedByDuration($asc, $limit, array $expected, $offset = null)
+    public function testGetAlbumTracksOrderedByDuration($trackClass, $connection, $asc, $limit, array $expected, $offset = null)
     {
-    	/** @var Track[] $tracks */
-	    $tracks = Track::select()
+    	$tracks = $trackClass::select()
 		    ->where('album', '=', 164)
 		    ->order('Milliseconds', $asc)
 		    ->limit($limit, $offset)
-		    ->all();
+		    ->all(null, $connection);
 
 	    $this->assertSameSize($expected, $tracks);
 
-	    for ($i = 0.; $i < sizeof($tracks); $i++) {
+	    for ($i = 0; $i < sizeof($tracks); $i++) {
 		    $this->assertEquals($expected[$i], $tracks[$i]->getId());
 	    }
     }
 
     public function getAlbumTracksOrderedByDurationData()
     {
-    	return [
-    		[true, 3, [2009, 2011, 2008]],
-		    [true, 3, [2011, 2008, 2006], 1],
-		    [false, 3, [2003, 2007, 2004]],
-		    [false, 3, [2007, 2004, 2014], 1]
-	    ];
+    	return $this->dataClasses(
+            [InlineTrack::class, ArraysTrack::class],
+    	    [
+                [true, 3, [2009, 2011, 2008]],
+                [true, 3, [2011, 2008, 2006], 1],
+                [false, 3, [2003, 2007, 2004]],
+                [false, 3, [2007, 2004, 2014], 1]
+            ]
+        );
     }
 
-    public function testGetEmployeeAndSuperior()
+    /**
+     * @param $employeeClass string
+     * @param $connection string
+     *
+     * @dataProvider getEmployeeDataClasses
+     */
+    public function testGetEmployeeAndSuperior($employeeClass, $connection)
     {
-        /** @var Employee $employee */
-        $employee= Employee::select()->where('EmployeeId', '=', 8)->one(['superior' => []]);
+        $employee= $employeeClass::select()->where('EmployeeId', '=', 8)->one(['superior' => []], $connection);
 
         $this->assertNotNull($employee);
         $this->assertNotNull($employee->getSuperior());
-        $this->assertEquals(Employee::class, get_class($employee->getSuperior()));
+        $this->assertEquals($employeeClass, get_class($employee->getSuperior()));
         $this->assertEquals(6, $employee->getSuperior()->getId());
     }
 
-    public function testGetSiblings()
+    /**
+     * @param $connection string
+     *
+     * @dataProvider getDefaultData
+     */
+    public function testGetSiblings($connection)
     {
-        $connection = Bitmap::current()->connection(self::CONNECTION_SQLITE);
-        $connection->exec("
-           create table Character(
+        Bitmap::current()->connection($connection)->exec("
+           create table `Character` (
               id int unsigned auto_increment,
               firstname varchar(16) not null,
               lastname varchar(16) not null,
@@ -206,8 +232,8 @@ class SelectTest extends EntityTest
            )
         ");
 
-        $connection->exec("
-            insert into Character (id, firstname, lastname, father, mother) values
+        Bitmap::current()->connection($connection)->exec("
+            insert into `Character` (id, firstname, lastname, father, mother) values
             (1, 'Homer', 'Simpson', NULL, NULL),
             (2, 'Marge', 'Simpson', NULL, NULL),
             (3, 'Bart', 'Simpson', 1, 2),
@@ -218,7 +244,7 @@ class SelectTest extends EntityTest
         /* @var Character[] $characters */
         $characters = Character::select()
             ->where('id', 'in', '(3,4,5)')
-            ->all(null,self::CONNECTION_SQLITE);
+            ->all(null, $connection);
 
         $this->assertEquals(3, count($characters));
 

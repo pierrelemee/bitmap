@@ -3,19 +3,13 @@
 namespace Chinook\Valid\Arrays;
 
 use Bitmap\ArrayMappedEntity;
-use Bitmap\Associations\MethodAssociationOne;
-use Bitmap\Entity;
-use Chinook\Valid\Inline\MediaType;
-use Chinook\Valid\Inline\Genre;
-use ReflectionClass;
-use Bitmap\Mapper;
 use Bitmap\Bitmap;
-use Bitmap\Fields\MethodField;
 
 class Track extends ArrayMappedEntity
 {
     protected $id;
     protected $name;
+    protected $album;
     protected $genre;
     protected $media;
     protected $composer;
@@ -23,42 +17,51 @@ class Track extends ArrayMappedEntity
     protected $bytes;
     protected $unitPrice;
 
-    protected function getMapping()
+    protected function getMappingArray()
     {
         return [
             'primary' => [
+                'name'   => 'id',
                 'column' => 'TrackId',
-                'type' => 'int',
-                'incremented' => true,
-                'nullable' => false,
-                'getter' => 'getId'
-
+                'type'   => Bitmap::TYPE_INTEGER
             ],
             'fields' => [
                 'name' => [
                     'column' => 'Name',
-                    'type' => 'string',
-                    'getter' => 'getName'
+                    'type' => Bitmap::TYPE_STRING
                 ],
                 'composer' => [
                     'column' => 'Composer',
-                    'type' => 'string',
-                    'getter' => 'getComposer'
+                    'type' => Bitmap::TYPE_STRING
                 ],
                 'milliseconds' => [
                     'column' => 'Milliseconds',
-                    'type' => 'string',
-                    'getter' => 'getMilliseconds'
+                    'type' => Bitmap::TYPE_INTEGER
                 ],
                 'bytes' => [
                     'column' => 'Bytes',
-                    'type' => 'integer',
-                    'getter' => 'getBytes'
+                    'type' => Bitmap::TYPE_INTEGER
                 ],
                 'unitPrice' => [
                     'column' => 'UnitPrice',
-                    'type' => 'float',
-                    'getter' => 'getUnitPrice'
+                    'type' => Bitmap::TYPE_FLOAT
+                ]
+            ],
+            'associations' => [
+                'album' => [
+                    'type'   => 'one',
+                    'class'  => Album::class,
+                    'column' => 'AlbumId'
+                ],
+                'genre' => [
+                    'type'   => 'one',
+                    'class'  => Genre::class,
+                    'column' => 'GenreId'
+                ],
+                'media' => [
+                    'type'   => 'one',
+                    'class'  => MediaType::class,
+                    'column' => 'MediaTypeId'
                 ]
             ]
         ];
@@ -94,6 +97,22 @@ class Track extends ArrayMappedEntity
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAlbum()
+    {
+        return $this->album;
+    }
+
+    /**
+     * @param mixed $album
+     */
+    public function setAlbum($album)
+    {
+        $this->album = $album;
     }
 
     /**

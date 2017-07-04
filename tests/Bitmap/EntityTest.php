@@ -1,6 +1,6 @@
 <?php
 
-namespace Bitmap\Tests;
+namespace Tests\Bitmap;
 
 use Bitmap\Bitmap;
 use Monolog\Handler\StreamHandler;
@@ -13,25 +13,16 @@ abstract class EntityTest extends TestCase
     const CONNECTION_SQLITE = 'chinook_sqlite';
     const CONNECTION_MYSQL  = 'chinook_mysql';
 
-    static $CONNECTIONS = [
-        self::CONNECTION_SQLITE => ['sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite'],
-        self::CONNECTION_MYSQL => ['mysql://host=localhost;dbname=Chinook;', "root"],
-    ];
-
     public static function setUpBeforeClass()
     {
+
         if (isset(Logger::getLevels()[strtoupper(getenv('PHPUNIT_LOGGING'))])) {
             Bitmap::current()->setLogger(new Logger(new StreamHandler(fopen('php://stdout', 'a'), strtoupper(getenv('PHPUNIT_LOGGING')))));
         }
 
-        foreach (self::$CONNECTIONS as $name => $arguments) {
+        foreach (self::connections() as $name => $arguments) {
             Bitmap::current()->addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
         }
-    }
-
-    protected function connections()
-    {
-        return self::$CONNECTIONS;
     }
 
     /**
@@ -39,7 +30,7 @@ abstract class EntityTest extends TestCase
      */
     public function before()
     {
-        foreach ($this->connections() as $name => $arguments) {
+        foreach (self::connections() as $name => $arguments) {
             Bitmap::current()->connection($name)->beginTransaction();
         }
     }
@@ -49,40 +40,64 @@ abstract class EntityTest extends TestCase
      */
     public function after()
     {
-        foreach ($this->connections() as $name => $arguments) {
+        foreach (self::connections() as $name => $arguments) {
             Bitmap::current()->connection($name)->rollBack();
         }
     }
 
-    protected function queryOne($connection, $sql)
+    private static function connections()
     {
-        $statement = Bitmap::current()->connection($connection)->query($sql);
-        return $statement->fetch(PDO::FETCH_ASSOC);
+        return [
+            self::CONNECTION_SQLITE => ['sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite'],
+            self::CONNECTION_MYSQL  => ['mysql://host=localhost;dbname=Chinook;', "root"],
+        ];
     }
 
-    protected function queryAll($connection, $sql)
+    protected function getConnectionNames()
     {
-        $statement = Bitmap::current()->connection($connection)->query($sql);
-        return $statement->fetchAll(PDO::FETCH_ASSOC);
+        return [self::CONNECTION_MYSQL, self::CONNECTION_SQLITE];
     }
 
-    protected function getCountArtists($connection, $where = [])
+    /**
+     * @param $lines array
+     *
+     * @return array
+     */
+    public function data(array $lines)
     {
-        return $this->queryOne($connection, 'select count(*) as `total` from `Artist`' . (count($where) > 0 ? " where " . implode(" and ", $where) : ''))['total'];
+        $data = [];
+
+        foreach ($this->getConnectionNames() as $connection) {
+            foreach ($lines as $line) {
+                $data[] = array_merge([$connection], $line);
+            }
+        }
+
+        return $data;
     }
 
-    protected function getCountAlbums($connection)
+    public function dataClasses(array $classes, array $lines = [[]])
     {
-        return $this->queryOne($connection, 'select count(*) as `total` from `Album`')['total'];
+        $data = [];
+
+        foreach ($classes as $class) {
+            foreach ($this->data($lines) as $line) {
+                $data[] = array_merge(is_array($class) ? $class : [$class], $line);
+            }
+        }
+
+        return $data;
     }
 
-    protected function getCountTracks($connection)
+    protected function queryValue($connection, $sql, $default = null)
     {
-        return $this->queryOne($connection, 'select count(*) as `total` from `Track`')['total'];
+        $result = Bitmap::current()->connection($connection)->query($sql)->fetch(PDO::FETCH_NUM);
+
+        return count($result) > 0 ? $result[0] : $default;
     }
 
-    protected function getCountGenres($connection)
+    protected function queryCount($connection, $table)
     {
-        return $this->queryOne($connection, 'select count(*) as `total` from `Genre`')['total'];
+        return $this->queryValue($connection, "select count(*) from $table", 0);
     }
 }

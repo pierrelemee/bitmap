@@ -3,6 +3,7 @@
 namespace Chinook\Valid\Arrays;
 
 use Bitmap\ArrayMappedEntity;
+use Bitmap\Bitmap;
 
 class Album extends ArrayMappedEntity
 {
@@ -17,42 +18,32 @@ class Album extends ArrayMappedEntity
      */
     protected $tracks;
 
-    protected function getMapping()
+    protected function getMappingArray()
     {
         return [
             'primary' => [
+                'name'   => 'id',
                 'column' => 'AlbumId',
-                'type' => 'int',
-                'incremented' => true,
-                'nullable' => false,
-                'getter' => 'getId'
-
+                'type'   => Bitmap::TYPE_INTEGER
             ],
             'fields' => [
                 'title' => [
                     'column' => 'Title',
-                    'type' => 'string',
-                    // Method
-                    'getter' => 'getTitle'
+                    'type'   => Bitmap::TYPE_STRING
                 ]
             ],
             'associations' => [
-                'ArtistId' => [
-                    'class' => 'Chinook\Valid\Arrays\Artist',
-                    'type' => 'one',
-                    'options' => [
-                        'target' => 'ArtistId',
-                    ],
-                    'getter' => 'getArtist',
+                'artist' => [
+                    'type'   => 'one',
+                    'class'  => Artist::class,
+                    'column' => 'ArtistId'
                 ],
-                'AlbumId' => [
-                    'class' => 'Chinook\Valid\Arrays\Track',
-                    'type' => 'one-to-many',
-                    'options' => [
-                        'target' => 'AlbumId',
-                    ],
-                    'getter' => 'getTracks',
+                'tracks' => [
+                    'type'   => 'one-to-many',
+                    'class'  => Track::class,
+                    'column' => 'AlbumId'
                 ]
+
             ]
         ];
     }
