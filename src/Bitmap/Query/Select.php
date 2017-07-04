@@ -155,9 +155,10 @@ class Select extends Query
 
     public function sql()
     {
-        return sprintf("select %s from %s %s%s%s",
+        return sprintf('select %s from `%s`%s %s%s%s',
             implode(", ", $this->context->getFields($this->strategy)),
-            $this->context->getTableName() . (implode("", $this->context->getJoins())),
+            $this->context->getTableName(),
+            (implode("", $this->context->getJoins())),
             sizeof($this->where) > 0 ? " where " . implode(" and ", $this->where) : "",
             $this->orders(),
             null !== $this->limit ? " limit " .(sizeof($this->limit) === 2 ? "{$this->limit[1]}, " : ''). "{$this->limit[0]}"  : ''

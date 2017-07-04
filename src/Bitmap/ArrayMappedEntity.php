@@ -29,6 +29,7 @@ abstract class ArrayMappedEntity extends Entity
                 $name,
                 self::getConfig($field, 'type', null),
                 self::getConfig($field, 'column', null),
+                false,
                 self::getConfig($field, 'getter', null),
                 self::getConfig($field, 'setter', null)
             );
@@ -40,9 +41,9 @@ abstract class ArrayMappedEntity extends Entity
                     $mapper->addAssociationOne(
                         $name,
                         self::getMandatoryConfig($association, 'class', "Missing key class in association $name config"),
-                        self::getConfig($field, 'column', null),
-                        self::getConfig($field, 'getter', null),
-                        self::getConfig($field, 'setter', null)
+                        self::getConfig($association, 'column', null),
+                        self::getConfig($association, 'getter', null),
+                        self::getConfig($association, 'setter', null)
                     );
                     break;
                 case 'one-to-many':

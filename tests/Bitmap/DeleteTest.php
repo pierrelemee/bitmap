@@ -2,18 +2,20 @@
 
 namespace Tests\Bitmap;
 
-use Chinook\Valid\Inline\Artist;
+use Chinook\Valid\Inline\Artist as InlineArtist;
+use Chinook\Valid\Arrays\Artist as ArraysArtist;
 
 class DeleteTest extends EntityTest
 {
     /**
      * @param $connection
+     * @param $classname
      *
      * @dataProvider deleteArtistData
      */
-    public function testDeleteArtist($connection)
+    public function testDeleteArtist($connection, $classname)
     {
-        $artist = Artist::select()->where('ArtistId', '=', 166)->one(null, $connection);
+        $artist = $classname::select()->where('ArtistId', '=', 166)->one(null, $connection);
         // "Avril Lavigne" in database
         $this->assertTrue($artist->delete($connection));
 
@@ -22,6 +24,9 @@ class DeleteTest extends EntityTest
 
     public function deleteArtistData()
     {
-        return array_map(function ($connection) {return [$connection];}, $this->getConnectionNames());
+        return $this->data([
+            [InlineArtist::class],
+            [ArraysArtist::class]
+        ]);
     }
 }

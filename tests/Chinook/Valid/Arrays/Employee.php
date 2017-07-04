@@ -49,7 +49,7 @@ class Employee extends ArrayMappedEntity
                 ]
             ],
             'associations' => [
-                'artist' => [
+                'superior' => [
                     'type'   => 'one',
                     'class'  => __CLASS__,
                     'column' => 'ReportsTo'

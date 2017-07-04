@@ -36,7 +36,7 @@ class Track extends ArrayMappedEntity
                 ],
                 'milliseconds' => [
                     'column' => 'Milliseconds',
-                    'type' => Bitmap::TYPE_STRING
+                    'type' => Bitmap::TYPE_INTEGER
                 ],
                 'bytes' => [
                     'column' => 'Bytes',
@@ -56,12 +56,12 @@ class Track extends ArrayMappedEntity
                 'genre' => [
                     'type'   => 'one',
                     'class'  => Genre::class,
-                    'column' => 'AlbumId'
+                    'column' => 'GenreId'
                 ],
                 'media' => [
                     'type'   => 'one',
                     'class'  => MediaType::class,
-                    'column' => 'AlbumId'
+                    'column' => 'MediaTypeId'
                 ]
             ]
         ];

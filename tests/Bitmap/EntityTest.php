@@ -59,17 +59,34 @@ abstract class EntityTest extends TestCase
     }
 
     /**
-     * @param $data array
+     * @param $lines array
      *
      * @return array
      */
-    protected function data(array $data)
+    public function data(array $lines)
     {
-        return array_map(function ($line) {
-            return array_map(function ($connection) use ($line) {
-                return array_merge([$connection], $line);
-            }, $this->getConnectionNames());
-        }, $data);
+        $data = [];
+
+        foreach ($this->getConnectionNames() as $connection) {
+            foreach ($lines as $line) {
+                $data[] = array_merge([$connection], $line);
+            }
+        }
+
+        return $data;
+    }
+
+    public function dataClasses(array $classes, array $lines = [[]])
+    {
+        $data = [];
+
+        foreach ($classes as $class) {
+            foreach ($this->data($lines) as $line) {
+                $data[] = array_merge(is_array($class) ? $class : [$class], $line);
+            }
+        }
+
+        return $data;
     }
 
     protected function queryValue($connection, $sql, $default = null)
