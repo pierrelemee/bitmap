@@ -1,20 +1,19 @@
 <?php
 
-namespace Bitmap\Tests;
+namespace Tests\Bitmap;
 
 use Bitmap\Bitmap;
+use Misc\Character;
 use Chinook\Valid\Inline\Album;
 use Chinook\Valid\Inline\Artist;
 use Chinook\Valid\Inline\Employee;
 use Chinook\Valid\Inline\Track;
-use Misc\Character;
-use Exception;
 
 class SelectTest extends EntityTest
 {
     public function testGetNoArtist()
     {
-        foreach (array_keys($this->connections()) as $connection) {
+        foreach ($this->getConnectionNames() as $connection) {
             $artist = Artist::select()->where('Name', '=', "Justin Bieber")->one($connection);
             $this->assertNull($artist);
         }
@@ -29,7 +28,7 @@ class SelectTest extends EntityTest
 	 */
     public function testGetArtistById($field, $id, $expected)
     {
-        foreach (array_keys($this->connections()) as $connection) {
+        foreach ($this->getConnectionNames() as $connection) {
             /** @var Artist $artist */
             $artist = Artist::select()->where($field, '=', $id)->one($connection);
 
@@ -99,52 +98,15 @@ class SelectTest extends EntityTest
         }
     }
 
-    /**
-     * @param mixed $with
-     * @param boolean $artist
-     * @param boolean $tracks
-     * @param boolean $media
-     *
-     * @throws Exception
-     *
-     * @dataProvider getAlbumByIdData
-     */
-    public function testGetAlbumById($with, $artist = true, $tracks = false, $media = false)
+    public function testGetAlbumById()
     {
         /** @var Album $album */
-        $album = Album::select()->where('AlbumId', '=', 148)->one($with);
+        $album = Album::select()->where('AlbumId', '=', 148)->one();
 
         $this->assertNotNull($album);
         $this->assertSame('Black Album', $album->getTitle());
-
-        if ($artist) {
-            $this->assertSame('Metallica', $album->getArtist()->name);
-        } else {
-            $this->assertNull($album->getArtist());
-        }
-
-        if ($tracks) {
-            $this->assertEquals(12, sizeof($album->getTracks()));
-
-            if ($media) {
-                $this->assertEquals("MPEG audio file", $album->getTracks()[0]->getMedia()->getName());
-            } else {
-                $this->assertNull($album->getTracks()[0]->getMedia());
-            }
-        } else {
-            $this->assertNull($album->getTracks());
-        }
-    }
-
-    public function getAlbumByIdData()
-    {
-        return [
-            [null],
-            [[], false],
-            [['tracks', 'artist' => []], true, true],
-            [['tracks' => 'foo', 'artist' => 4], true, true],
-            [['tracks' => ['media']], false, true, true]
-        ];
+        $this->assertSame('Metallica', $album->getArtist()->name);
+        $this->assertEquals(12, sizeof($album->getTracks()));
     }
 
 	/**

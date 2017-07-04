@@ -1,20 +1,27 @@
 <?php
 
-namespace Bitmap\Tests;
+namespace Tests\Bitmap;
 
 use Chinook\Valid\Inline\Artist;
 
 class DeleteTest extends EntityTest
 {
-    public function testDeleteArtist()
+    /**
+     * @param $connection
+     *
+     * @dataProvider deleteArtistData
+     */
+    public function testDeleteArtist($connection)
     {
-        foreach (array_keys(self::$CONNECTIONS) as $connection) {
-            $artist = Artist::select()->where('ArtistId', '=', 166)->one(null, $connection);
-            // "Avril Lavigne" in database
-            $this->assertTrue($artist->delete($connection));
+        $artist = Artist::select()->where('ArtistId', '=', 166)->one(null, $connection);
+        // "Avril Lavigne" in database
+        $this->assertTrue($artist->delete($connection));
 
-            $this->assertEquals(274, $this->getCountArtists($connection));
-        }
+        $this->assertEquals(274, $this->queryCount($connection, 'Artist'));
+    }
 
+    public function deleteArtistData()
+    {
+        return array_map(function ($connection) {return [$connection];}, $this->getConnectionNames());
     }
 }

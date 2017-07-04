@@ -1,6 +1,6 @@
 <?php
 
-namespace Bitmap\Tests;
+namespace Tests\Bitmap;
 
 use Bitmap\Associations\MethodAssociationManyToMany;
 use Bitmap\Associations\MethodAssociationOne;
@@ -9,6 +9,7 @@ use Bitmap\Associations\PropertyAssociationManyToMany;
 use Bitmap\Associations\PropertyAssociationOne;
 use Bitmap\Associations\PropertyAssociationOneToMany;
 use Bitmap\Mapper;
+use Bitmap\Exceptions\MapperException;
 use Misc\Transport;
 use Misc\User;
 use PHPUnit\Framework\TestCase;
@@ -168,10 +169,6 @@ class MapperTest extends TestCase
      * @param $name
      * @param $class
      * @param $via
-     * @param null $viaSourceColumn
-     * @param null $viaTargetColumn
-     * @param null $getter
-     * @param null $setter
      *
      * @dataProvider dataPropertyAssociationManyToManyFailure
      * @expectedException Bitmap\Exceptions\MapperException
