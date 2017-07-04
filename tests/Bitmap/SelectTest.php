@@ -152,7 +152,7 @@ class SelectTest extends EntityTest
      */
     public function testGetAlbumById($albumClass, $connection)
     {
-        $album = $albumClass::select()->where('AlbumId', '=', 148)->one(null, $connection);
+        $album = $albumClass::select()->where('AlbumId', '=', 148)->one(['artist', 'tracks'], $connection);
 
         $this->assertNotNull($album);
         $this->assertSame('Black Album', $album->getTitle());
