@@ -21,7 +21,13 @@ class Artist extends AnnotatedEntity
      * @type string
      * @var string
      */
-    protected $name;
+    public $name;
+    /**
+     * @association Chinook\Valid\Annotated\Album
+     * @type one-to-many albums ArtistId
+     * @var Album[]
+     */
+    protected $albums;
 
     /**
      * @return mixed
@@ -53,5 +59,21 @@ class Artist extends AnnotatedEntity
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return Album[]
+     */
+    public function getAlbums()
+    {
+        return $this->albums;
+    }
+
+    /**
+     * @param mixed $albums
+     */
+    public function setAlbums($albums)
+    {
+        $this->albums = $albums;
     }
 }

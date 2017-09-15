@@ -1,92 +1,89 @@
 <?php
 
-namespace Chinook\Valid\Arrays;
+namespace Chinook\Valid\Annotated;
 
-use Bitmap\ArrayMappedEntity;
-use Bitmap\Bitmap;
-use Chinook\Valid\Arrays\Employee;
+use Bitmap\AnnotatedEntity;
 
-class Customer extends ArrayMappedEntity
+class Customer extends AnnotatedEntity
 {
+    /**
+     * @primary CustomerId
+     * @type integer
+     * @var int
+     */
     protected $id;
+    /**
+     * @field FirstName
+     * @type string
+     * @var string
+     */
     protected $firstname;
+    /**
+     * @field LastName
+     * @type string
+     * @var string
+     */
     protected $lastname;
+    /**
+     * @field Company
+     * @type string
+     * @var string
+     */
     protected $company;
+    /**
+     * @field Address
+     * @type string
+     * @var string
+     */
     protected $address;
+    /**
+     * @field FirstName
+     * @type string
+     * @var string
+     */
     protected $city;
+    /**
+     * @field State
+     * @type string
+     * @var string
+     */
     protected $state;
+    /**
+     * @field Country
+     * @type string
+     * @var string
+     */
     protected $country;
+    /**
+     * @field PostalCode
+     * @type string
+     * @var string
+     */
     protected $postalCode;
+    /**
+     * @field Phone
+     * @type string
+     * @var string
+     */
     protected $phone;
+    /**
+     * @field Fax
+     * @type string
+     * @var string
+     */
     protected $fax;
+    /**
+     * @field Email
+     * @type string
+     * @var string
+     */
     protected $email;
     /**
+     * @association Chinook\Valid\Annotated\Employee
+     * @type one SupportRepId
      * @var Employee $referrer
      */
     protected $referrer;
-
-    protected function getMappingArray()
-    {
-        return [
-            'primary' => [
-                'name'   => 'id',
-                'column' => 'CustomerId',
-                'type'   => Bitmap::TYPE_INTEGER
-            ],
-            'fields' => [
-                'firstname' => [
-                    'column' => 'FirstName',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'lastname' => [
-                    'column' => 'LastName',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'company' => [
-                    'column' => 'Company',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'address' => [
-                    'column' => 'Address',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'city' => [
-                    'column' => 'City',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'state' => [
-                    'column' => 'State',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'country' => [
-                    'column' => 'Country',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'postalCode' => [
-                    'column' => 'PostalCode',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'phone' => [
-                    'column' => 'Phone',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'fax' => [
-                    'column' => 'Fax',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'email' => [
-                    'column' => 'Email',
-                    'type' => Bitmap::TYPE_STRING
-                ]
-            ],
-            'associations' => [
-                'referrer' => [
-                    'class' => Employee::class,
-                    'column' => 'SupportRepId'
-                ]
-            ]
-        ];
-    }
 
     /**
      * @return mixed

@@ -2,16 +2,16 @@
 
 namespace Chinook\Valid\Annotated;
 
-use Bitmap\Entity;
+use Bitmap\AnnotatedEntity;
 
 /**
  * Class MediaType
  * @package Chinook\Valid\Annotated
  */
-class MediaType extends Entity
+class MediaType extends AnnotatedEntity
 {
     /**
-     * @field MediaTypeId incremented primary
+     * @primary MediaTypeId
      * @type integer
      * @var int
      */

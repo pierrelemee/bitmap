@@ -3,6 +3,7 @@
 namespace Tests\Bitmap;
 
 use Bitmap\Bitmap;
+use Chinook\Valid\Inline\Playlist;
 use Misc\Character;
 
 use Chinook\Valid\Inline\Album as InlineAlbum;
@@ -13,6 +14,10 @@ use Chinook\Valid\Arrays\Artist as ArraysArtist;
 use Chinook\Valid\Arrays\Album as ArraysAlbum;
 use Chinook\Valid\Arrays\Track as ArraysTrack;
 use Chinook\Valid\Arrays\Employee as ArraysEmployee;
+use Chinook\Valid\Annotated\Artist as AnnotatedArtist;
+use Chinook\Valid\Annotated\Album as AnnotatedAlbum;
+use Chinook\Valid\Annotated\Track as AnnotatedTrack;
+use Chinook\Valid\Annotated\Employee as AnnotatedEmployee;
 
 class SelectTest extends EntityTest
 {
@@ -23,17 +28,17 @@ class SelectTest extends EntityTest
 
     public function getArtistDataClasses()
     {
-        return $this->dataClasses([InlineArtist::class, ArraysArtist::class]);
+        return $this->dataClasses([InlineArtist::class, ArraysArtist::class, AnnotatedArtist::class]);
     }
 
     public function getAlbumDataClasses()
     {
-        return $this->dataClasses([InlineAlbum::class, ArraysAlbum::class]);
+        return $this->dataClasses([InlineAlbum::class, ArraysAlbum::class, AnnotatedAlbum::class]);
     }
 
     public function getEmployeeDataClasses()
     {
-        return $this->dataClasses([InlineEmployee::class, ArraysEmployee::class]);
+        return $this->dataClasses([InlineEmployee::class, ArraysEmployee::class, AnnotatedEmployee::class]);
     }
 
     /**
@@ -68,7 +73,7 @@ class SelectTest extends EntityTest
     public function getArtistByIdData()
     {
     	return $this->dataClasses(
-            [InlineArtist::class, ArraysArtist::class],
+            [InlineArtist::class, ArraysArtist::class, AnnotatedArtist::class],
     		[
                 ['ArtistId', 94, 'Jimi Hendrix'],
                 ['id', 94, 'Jimi Hendrix']
@@ -144,6 +149,16 @@ class SelectTest extends EntityTest
         }
     }
 
+    public function testGetPlaylistAndTracks() {
+        $this->markTestSkipped('Unexpected behavior with joins on many-to-many assocs, needs fix');
+        /** @var Playlist $playlist */
+        $playlist = Playlist::select()->where('id', '=', 16)->one(['tracks'], EntityTest::CONNECTION_MYSQL);
+        $this->assertNotNull($playlist);
+        $this->assertEquals(Playlist::class, get_class($playlist));
+        $this->assertEquals('Grunge', $playlist->getName());
+        $this->assertEquals(15, count($playlist->getTracks()));
+    }
+
     /**
      * @param $albumClass string
      * @param $connection string
@@ -188,7 +203,7 @@ class SelectTest extends EntityTest
     public function getAlbumTracksOrderedByDurationData()
     {
     	return $this->dataClasses(
-            [InlineTrack::class, ArraysTrack::class],
+            [InlineTrack::class, ArraysTrack::class, AnnotatedTrack::class],
     	    [
                 [true, 3, [2009, 2011, 2008]],
                 [true, 3, [2011, 2008, 2006], 1],

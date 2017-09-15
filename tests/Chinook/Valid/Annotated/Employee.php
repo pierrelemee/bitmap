@@ -1,62 +1,53 @@
 <?php
 
-namespace Chinook\Valid\Arrays;
+namespace Chinook\Valid\Annotated;
 
-use Bitmap\ArrayMappedEntity;
-use Bitmap\Bitmap;
+use Bitmap\AnnotatedEntity;
 
-class Employee extends ArrayMappedEntity
+class Employee extends AnnotatedEntity
 {
+    /**
+     * @primary EmployeeId
+     * @type integer
+     * @var int
+     */
     protected $id;
     /**
-     * @var Employee
+     * @association Chinook\Valid\Annotated\Employee
+     * @type one ReportsTo
+     * @var Employee $superior
      */
     protected $superior;
+    /**
+     * @field FirstName
+     * @type string
+     * @var string
+     */
     protected $firstname;
+    /**
+     * @field LastName
+     * @type string
+     * @var string
+     */
     protected $lastname;
+    /**
+     * @field Title
+     * @type string
+     * @var string
+     */
     protected $title;
+    /**
+     * @field BirthDate
+     * @type string
+     * @var string
+     */
     protected $bornAt;
+    /**
+     * @field HireDate
+     * @type datetime
+     * @var string
+     */
     protected $hiredAt;
-
-    protected function getMappingArray()
-    {
-        return [
-            'primary' => [
-                'name'   => 'id',
-                'column' => 'EmployeeId',
-                'type'   => Bitmap::TYPE_INTEGER
-            ],
-            'fields' => [
-                'firstname' => [
-                    'column' => 'FirstName',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'lastname' => [
-                    'column' => 'LastName',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'title' => [
-                    'column' => 'Title',
-                    'type' => Bitmap::TYPE_STRING
-                ],
-                'bornAt' => [
-                    'column' => 'BirthDate',
-                    'type' => Bitmap::TYPE_DATETIME
-                ],
-                'hiredAt' => [
-                    'column' => 'HireDate',
-                    'type' => Bitmap::TYPE_DATETIME
-                ]
-            ],
-            'associations' => [
-                'superior' => [
-                    'type'   => 'one',
-                    'class'  => __CLASS__,
-                    'column' => 'ReportsTo'
-                ],
-            ]
-        ];
-    }
 
     /**
      * @return mixed

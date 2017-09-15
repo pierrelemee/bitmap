@@ -2,24 +2,24 @@
 
 namespace Chinook\Valid\Annotated;
 
-use Bitmap\Entity;
+use Bitmap\AnnotatedEntity;
 
 /**
  * Class Genre
  * @package Chinook\Valid\Annotated
  */
-class Genre extends Entity
+class Genre extends AnnotatedEntity
 {
     /**
-     * @field GenreId incremented primary
+     * @primary GenreId
      * @type integer
-     * @var int
+     * @var int $id
      */
     protected $id;
     /**
      * @field Name
      * @type string
-     * @var string
+     * @var string $name
      */
     protected $name;
 

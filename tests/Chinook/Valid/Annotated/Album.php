@@ -3,7 +3,6 @@
 namespace Chinook\Valid\Annotated;
 
 use Bitmap\AnnotatedEntity;
-use Bitmap\Entity;
 
 /**
  * Class Album
@@ -12,39 +11,44 @@ use Bitmap\Entity;
 class Album extends AnnotatedEntity
 {
     /**
-     * @field AlbumId primary
+     * @primary AlbumId
      * @type integer
      * @var int
      */
-    protected $AlbumId;
+    protected $id;
     /**
      * @field Title
      * @type string
      * @var string
      */
-    protected $Title;
+    protected $title;
     /**
-     * @field ArtistId
-     * @type integer
-     * @setter setArtist
-     * @var int
+     * @association Chinook\Valid\Annotated\Artist
+     * @type one ArtistId
+     * @var Artist $artist
      */
-    protected $ArtistId;
+    protected $artist;
+    /**
+     * @association Chinook\Valid\Annotated\Track
+     * @type one-to-many AlbumId
+     * @var Track[] $tracks
+     */
+    protected $tracks;
 
     /**
      * @return mixed
      */
-    public function getAlbumId()
+    public function getId()
     {
-        return $this->AlbumId;
+        return $this->id;
     }
 
     /**
-     * @param mixed $AlbumId
+     * @param mixed $id
      */
-    public function setAlbumId($AlbumId)
+    public function setId($id)
     {
-        $this->AlbumId = $AlbumId;
+        $this->id = $id;
     }
 
     /**
@@ -52,30 +56,46 @@ class Album extends AnnotatedEntity
      */
     public function getTitle()
     {
-        return $this->Title;
+        return $this->title;
     }
 
     /**
-     * @param mixed $Title
+     * @param mixed $title
      */
-    public function setTitle($Title)
+    public function setTitle($title)
     {
-        $this->Title = $Title;
+        $this->title = $title;
     }
 
     /**
-     * @return mixed
+     * @return Artist
      */
-    public function getArtistId()
+    public function getArtist()
     {
-        return $this->ArtistId;
+        return $this->artist;
     }
 
     /**
-     * @param mixed $ArtistId
+     * @param Artist $artist
      */
-    public function setArtist($ArtistId)
+    public function setArtist($artist)
     {
-        $this->ArtistId = $ArtistId;
+        $this->artist = $artist;
+    }
+
+    /**
+     * @return Track[]
+     */
+    public function getTracks(): array
+    {
+        return $this->tracks;
+    }
+
+    /**
+     * @param Track[] $tracks
+     */
+    public function setTracks(array $tracks)
+    {
+        $this->tracks = $tracks;
     }
 }

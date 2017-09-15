@@ -2,6 +2,7 @@
 
 namespace Bitmap;
 
+use Bitmap\Exceptions\MapperException;
 use Bitmap\Fields\MethodField;
 use Bitmap\Reflection\Annotations;
 
@@ -20,11 +21,12 @@ class AnnotatedEntity extends ArrayMappedEntity
             $annotations = Annotations::fromProperty($property);
             if ($annotations->has('primary')) {
                 $mapping['primary'] = self::fieldFromAnnotations($annotations, $property->getName(), true);
-            } else {
-                if ($annotations->has('field')) {
-                    $field = self::fieldFromAnnotations($annotations, $property->getName());
-                    $mapping['fields'][$field['name']] = $field;
-                }
+            } else if ($annotations->has('field')) {
+                $field = self::fieldFromAnnotations($annotations, $property->getName());
+                $mapping['fields'][$field['name']] = $field;
+            } else if ($annotations->has('association')) {
+                $association = self::associationFromAnnotations($annotations, $property->getName());
+                $mapping['associations'][$association['name']] = $association;
             }
         }
 
@@ -32,11 +34,12 @@ class AnnotatedEntity extends ArrayMappedEntity
             $annotations = Annotations::fromMethod($method);
             if ($annotations->has('primary')) {
                 $mapping['primary'] = self::fieldFromAnnotations($annotations, MethodField::nameForGetter($method->getName()), true);
-            } else {
-                if ($annotations->has('field')) {
-                    $field = self::fieldFromAnnotations($annotations, MethodField::nameForGetter($method->getName()));
-                    $mapping['fields'][$field['name']] = $field;
-                }
+            } else if ($annotations->has('field')) {
+                $field = self::fieldFromAnnotations($annotations, MethodField::nameForGetter($method->getName()));
+                $mapping['fields'][$field['name']] = $field;
+            } else if ($annotations->has('association')) {
+                $association = self::associationFromAnnotations($annotations, MethodField::nameForGetter($method->getName()));
+                $mapping['associations'][$association['name']] = $association;
             }
         }
 
@@ -60,6 +63,62 @@ class AnnotatedEntity extends ArrayMappedEntity
             'name' => $name,
             'column' => $column,
             'type' => $annotations->get('type', 0),
+            'getter' => $annotations->get('getter', 0),
+            'setter' => $annotations->get('setter', 0)
+        ];
+    }
+
+    private static function associationFromAnnotations(Annotations $annotations, $name) {
+        $column = $name;
+        if (count($annotations->get('association')) === 0) {
+            throw new MapperException("Missing target class for association annotation $name");
+        }
+
+        $class = $annotations->get('association', 0);
+        if (!$annotations->has('type')) {
+            throw new MapperException("Missing required annotation @type for association annotation $name");
+        }
+
+        if (count($annotations->get('type')) === 0) {
+            throw new MapperException("Missing association type for association annotation $name");
+        }
+        $type = $annotations->get('type', 0);
+
+        switch ($type) {
+            case 'one':
+                switch (count($annotations->get('type'))) {
+                    case 2:
+                        $column = $annotations->get('type', 1);
+                        break;
+                    case 3:
+                        $name = $annotations->get('type', 1);
+                        $column = $annotations->get('type', 2);
+                        break;
+                }
+
+                break;
+            case 'one-to-many':
+                switch (count($annotations->get('type'))) {
+                    case 2:
+                        $column = $annotations->get('type', 1);
+                        break;
+                    case 3:
+                        $name = $annotations->get('type', 1);
+                        $column = $annotations->get('type', 2);
+                        break;
+                }
+                break;
+            case 'many-to-many':
+                break;
+            default:
+                throw new MapperException("Invalid association type '$type' for association annotation $name");
+        }
+
+        return [
+            'name' => $name,
+            'type' => $type,
+            'column' => $column,
+            'class' => $class,
             'getter' => $annotations->get('getter', 0),
             'setter' => $annotations->get('setter', 0)
         ];

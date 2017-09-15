@@ -1,100 +1,73 @@
 <?php
 
-namespace Chinook\Valid\Arrays;
+namespace Chinook\Valid\Annotated;
 
-use Bitmap\ArrayMappedEntity;
+use Bitmap\AnnotatedEntity;
 use Bitmap\Bitmap;
-use Bitmap\Entity;
 use Bitmap\Mapper;
 
-class Invoice extends ArrayMappedEntity
+class Invoice extends AnnotatedEntity
 {
+    /**
+     * @primary InvoiceId
+     * @type integer
+     * @var int $id
+     */
     protected $id;
     /**
+     * @association Chinook\Valid\Annotated\Customer
+     * @type one CustomerId
      * @var Customer $customer
      */
     protected $customer;
+    /**
+     * @field InvoiceDate
+     * @type datetime
+     * @var \DateTime $date
+     */
     protected $date;
     /**
+     * @association Chinook\Valid\Annotated\InvoiceLine
+     * @type one-to-many InvoiceId
      * @var InvoiceLine[] $lines
      */
     protected $lines;
+    /**
+     * @field Address
+     * @type string
+     * @var string $address
+     */
     protected $address;
+    /**
+     * @field City
+     * @type string
+     * @var string $city
+     */
     protected $city;
+    /**
+     * @field State
+     * @type string
+     * @var string $state
+     */
     protected $state;
+    /**
+     * @field Country
+     * @type string
+     * @var string $country
+     */
     protected $country;
+    /**
+     * @field PostalCode
+     * @type string
+     * @var string $postalCode
+     */
     protected $postalCode;
+    /**
+     * @field Total
+     * @type float
+     * @var float $total
+     */
     protected $total;
-
-    protected function getMappingArray()
-    {
-        return [
-            'primary' => [
-                'name'   => 'id',
-                'column' => 'InvoiceId',
-                'type'   => Bitmap::TYPE_INTEGER
-            ],
-            'fields' => [
-                'date' => [
-                    'column' => 'InvoiceDate',
-                    'type'   => Bitmap::TYPE_DATETIME
-                ],
-                'address' => [
-                    'column' => 'BillingAddress',
-                    'type'   => Bitmap::TYPE_STRING
-                ],
-                'city' => [
-                    'column' => 'BillingCity',
-                    'type'   => Bitmap::TYPE_STRING
-                ],
-                'state' => [
-                    'column' => 'BillingState',
-                    'type'   => Bitmap::TYPE_STRING
-                ],
-                'country' => [
-                    'column' => 'BillingCountry',
-                    'type'   => Bitmap::TYPE_STRING
-                ],
-                'postalCode' => [
-                    'column' => 'BillingPostalCode',
-                    'type'   => Bitmap::TYPE_STRING
-                ],
-                'total' => [
-                    'column' => 'Total',
-                    'type'   => Bitmap::TYPE_FLOAT
-                ]
-            ],
-            'associations' => [
-                'artist' => [
-                    'type'   => 'one',
-                    'class'  => Customer::class,
-                    'column' => 'CustomerId'
-                ],
-                'tracks' => [
-                    'type'   => 'one-to-many',
-                    'class'  => InvoiceLine::class,
-                    'column' => 'AlbumId'
-                ]
-
-            ]
-        ];
-    }
-
-
-    public function initializeMapper(Mapper $mapper)
-    {
-        $mapper
-            ->addPrimary('id', Bitmap::TYPE_INTEGER, 'InvoiceId')
-            ->addField('date', Bitmap::TYPE_DATETIME, 'InvoiceDate')
-            ->addAssociationOne('customer', Customer::class, 'CustomerId')
-            ->addAssociationOneToMany('lines', InvoiceLine::class, 'InvoiceId')
-            ->addField('address', Bitmap::TYPE_STRING, 'BillingAddress')
-            ->addField('city', Bitmap::TYPE_STRING, 'BillingCity')
-            ->addField('state', Bitmap::TYPE_STRING, 'BillingState')
-            ->addField('country', Bitmap::TYPE_STRING, 'BillingCountry')
-            ->addField('postalCode', Bitmap::TYPE_STRING, 'BillingPostalCode')
-            ->addField('total', Bitmap::TYPE_INTEGER, 'Total');
-    }
 
     /**
      * @return mixed
