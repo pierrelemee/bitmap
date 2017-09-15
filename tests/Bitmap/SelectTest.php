@@ -3,20 +3,22 @@
 namespace Tests\Bitmap;
 
 use Bitmap\Bitmap;
-use Chinook\Valid\Inline\Playlist;
 use Misc\Character;
 
 use Chinook\Valid\Inline\Album as InlineAlbum;
 use Chinook\Valid\Inline\Artist as InlineArtist;
 use Chinook\Valid\Inline\Employee as InlineEmployee;
 use Chinook\Valid\Inline\Track as InlineTrack;
+use Chinook\Valid\Inline\Playlist as InlinePlaylist;
 use Chinook\Valid\Arrays\Artist as ArraysArtist;
 use Chinook\Valid\Arrays\Album as ArraysAlbum;
 use Chinook\Valid\Arrays\Track as ArraysTrack;
+use Chinook\Valid\Arrays\Playlist as ArraysPlaylist;
 use Chinook\Valid\Arrays\Employee as ArraysEmployee;
 use Chinook\Valid\Annotated\Artist as AnnotatedArtist;
 use Chinook\Valid\Annotated\Album as AnnotatedAlbum;
 use Chinook\Valid\Annotated\Track as AnnotatedTrack;
+use Chinook\Valid\Annotated\Playlist as AnnotatedPlaylist;
 use Chinook\Valid\Annotated\Employee as AnnotatedEmployee;
 
 class SelectTest extends EntityTest
@@ -34,6 +36,11 @@ class SelectTest extends EntityTest
     public function getAlbumDataClasses()
     {
         return $this->dataClasses([InlineAlbum::class, ArraysAlbum::class, AnnotatedAlbum::class]);
+    }
+
+    public function getPlaylistDataClasses()
+    {
+        return $this->dataClasses([InlinePlaylist::class, ArraysPlaylist::class, AnnotatedPlaylist::class]);
     }
 
     public function getEmployeeDataClasses()
@@ -149,12 +156,15 @@ class SelectTest extends EntityTest
         }
     }
 
-    public function testGetPlaylistAndTracks() {
-        $this->markTestSkipped('Unexpected behavior with joins on many-to-many assocs, needs fix');
-        /** @var Playlist $playlist */
-        $playlist = Playlist::select()->where('id', '=', 16)->one(['tracks'], EntityTest::CONNECTION_MYSQL);
+    /**
+     * @param $playlistClass
+     *
+     * @dataProvider getPlaylistDataClasses
+     */
+    public function testGetPlaylistAndTracks($playlistClass) {
+        $playlist = $playlistClass::select()->where('id', '=', 16)->one(['tracks'], EntityTest::CONNECTION_MYSQL);
         $this->assertNotNull($playlist);
-        $this->assertEquals(Playlist::class, get_class($playlist));
+        $this->assertEquals($playlistClass, get_class($playlist));
         $this->assertEquals('Grunge', $playlist->getName());
         $this->assertEquals(15, count($playlist->getTracks()));
     }

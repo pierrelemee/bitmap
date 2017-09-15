@@ -35,7 +35,7 @@ abstract class AssociationManyToMany extends Association
     {
         return [
             $this->joinClause($mapper->getTable(), $this->column, $this->via, $this->via, $this->viaSourceColumn),
-            $this->joinClause($this->via, $this->viaTargetColumn, $this->getMapper()->getTable(), $name, $this->column)
+            $this->joinClause($this->via, $this->viaTargetColumn, $this->getMapper()->getTable(), $name, Bitmap::current()->getMapper($this->class)->getPrimary()->getColumn())
         ];
     }
 

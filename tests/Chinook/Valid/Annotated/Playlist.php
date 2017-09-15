@@ -1,32 +1,30 @@
 <?php
 
-namespace Chinook\Valid\Inline;
+namespace Chinook\Valid\Annotated;
 
-use Bitmap\Associations\MethodAssociationManyToMany;
-use Bitmap\Entity;
-use Bitmap\Fields\PropertyField;
-use Bitmap\Fields\MethodField;
-use Bitmap\Mapper;
-use Bitmap\Bitmap;
-use ReflectionClass;
+use Bitmap\AnnotatedEntity;
 
-class Playlist extends Entity
+class Playlist extends AnnotatedEntity
 {
 
+    /**
+     * @primary PlaylistId
+     * @type integer
+     * @var integer $id
+     */
     protected $id;
+    /**
+     * @field Name
+     * @type string
+     * @var string $name
+     */
     protected $name;
     /**
-     * @var Track[]
+     * @association Chinook\Valid\Annotated\Track
+     * @type many-to-many PlaylistTrack PlaylistId PlaylistId TrackId
+     * @var Track[] $tracks
      */
     protected $tracks;
-
-    public function initializeMapper(Mapper $mapper)
-    {
-        $mapper
-            ->addPrimary('id', Bitmap::TYPE_INTEGER, 'PlaylistId')
-            ->addField('name', Bitmap::TYPE_STRING, 'Name')
-            ->addAssociationManyToMany('tracks', Track::class, 'PlaylistTrack', 'PlaylistId', 'PlaylistId', 'TrackId');
-    }
 
     /**
      * @return mixed

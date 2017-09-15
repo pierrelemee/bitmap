@@ -35,7 +35,7 @@ class Playlist extends ArrayMappedEntity
                     'type'   => 'many-to-many',
                     'class'  => Track::class,
                     'via' => 'PlaylistTrack',
-                    'column' => 'ArtistId',
+                    'column' => 'PlaylistId',
                     'via-source' => 'PlaylistId',
                     'via-target' => 'TrackId'
                 ],
