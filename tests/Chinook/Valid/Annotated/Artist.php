@@ -2,16 +2,16 @@
 
 namespace Chinook\Valid\Annotated;
 
-use Bitmap\Entity;
+use Bitmap\AnnotatedEntity;
 
 /**
  * Class Artist
  * @package Chinook\Valid\Annotated
  */
-class Artist extends Entity
+class Artist extends AnnotatedEntity
 {
     /**
-     * @field ArtistId primary
+     * @primary ArtistId
      * @type integer
      * @var int
      */
