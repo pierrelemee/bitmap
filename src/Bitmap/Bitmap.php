@@ -34,6 +34,7 @@ class Bitmap
      * @var Bitmap
      */
     private static $BITMAP;
+    private static $PROVIDER;
 
     const TYPE_INTEGER  = "integer";
     const TYPE_BOOLEAN  = "boolean";
@@ -99,6 +100,12 @@ class Bitmap
         return self::$BITMAP;
     }
 
+    public static function setProvider($callable) {
+        if (self::$PROVIDER == null) {
+            self::$PROVIDER = $callable;
+        }
+    }
+
     /**
      * Singleton accessor, with on-the-fly initialization
      *
@@ -107,7 +114,11 @@ class Bitmap
     public static function current()
     {
         if (null === self::$BITMAP) {
-            self::$BITMAP = new Bitmap();
+            if (null !== self::$PROVIDER) {
+                self::$BITMAP = call_user_func(self::$PROVIDER);
+            } else {
+                self::$BITMAP = new Bitmap();
+            }
         }
 
         return self::$BITMAP;
