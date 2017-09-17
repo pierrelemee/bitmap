@@ -79,27 +79,6 @@ class Bitmap
         $this->logger = $logger;
     }
 
-    /**
-     * @param $logger Logger
-     * @param $connections PDO[]
-     * @param $default PDO[]
-     * @param $mappers Mapper[]
-     *
-     * @return Bitmap
-     *
-     * @throws Exception
-     *
-     */
-    public static function initialize($logger = null, $connections = [], $default = null, $mappers = [])
-    {
-        if (null !== self::$BITMAP) {
-            throw new Exception("Bitmap already initialized");
-        }
-
-        self::$BITMAP = new Bitmap($logger, $connections, $default, $mappers);
-        return self::$BITMAP;
-    }
-
     public static function setProvider($callable) {
         if (self::$PROVIDER == null) {
             self::$PROVIDER = $callable;
