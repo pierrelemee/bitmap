@@ -81,14 +81,15 @@ class Bitmap
     /**
      * Singleton accessor, with on-the-fly initialization
      *
-     * @param callable $provider
+     * @param array|null $connections
+     * @param boolean|null $default
      *
      * @return Bitmap
      */
-    public static function current($provider = null)
+    public static function current($connections = null, $default = null)
     {
         if (null === self::$BITMAP) {
-            self::$BITMAP = $provider ? call_user_func($provider) : new Bitmap();
+            self::$BITMAP = $connections ? new Bitmap(null, $connections, $default) : new Bitmap();
         }
 
         return self::$BITMAP;
