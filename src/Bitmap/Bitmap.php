@@ -15,11 +15,11 @@ use Exception;
 class Bitmap
 {
     /**
-     * @var PDO[]
+     * @var array|PDO[]
      */
     protected $connections;
     /**
-     * @var PDO
+     * @var array|PDO
      */
     protected $default;
     /**
@@ -45,10 +45,18 @@ class Bitmap
 
     protected $transformers;
 
-    public function __construct($logger = null, $connections = [], $default = null, $mappers = [])
+    public function __construct($logger = null, $connections = [], $mappers = [])
     {
-        $this->connections  = $connections;
-        $this->default      = $default;
+        $this->connections  = [];
+        foreach ($connections as $name => $connection) {
+            $this->default = $this->default ? : $connection;
+            $this->connections[$name] = $connection;
+
+            if (isset($connection['default']) && $connection['default']) {
+                $this->default = $connection;
+            }
+        }
+
         $this->mappers      = $mappers;
         $this->transformers = [];
         $this->logger = $logger ? : new Logger('bitmap', [new NullHandler(Logger::CRITICAL)]);
@@ -82,14 +90,13 @@ class Bitmap
      * Singleton accessor, with on-the-fly initialization
      *
      * @param array|null $connections
-     * @param boolean|null $default
      *
      * @return Bitmap
      */
-    public static function current($connections = null, $default = null)
+    public static function current($connections = null)
     {
         if (null === self::$BITMAP) {
-            self::$BITMAP = $connections ? new Bitmap(null, $connections, $default) : new Bitmap();
+            self::$BITMAP = $connections ? new Bitmap(null, $connections) : new Bitmap();
         }
 
         return self::$BITMAP;
@@ -109,13 +116,12 @@ class Bitmap
     public function addConnection($name, $dsn, $default = true, $user = null, $password = null)
     {
         if (!isset(self::current()->connections[$name])) {
-            $default = $default || sizeof(self::current()->connections) == 0;
-
-            self::current()->connections[$name] = new PDO($dsn, $user, $password);
-
-            if ($default) {
-                self::current()->default = self::current()->connections[$name];
-            }
+            self::current()->connections[$name] = [
+                'dsn'      => $dsn,
+                'default'  => $default,
+                'user'     => $user,
+                'password' => $password,
+            ];
         }
     }
 
@@ -201,7 +207,20 @@ class Bitmap
     public function connection($name = null)
     {
         if (null !== $name) {
-            return isset($this->connections[$name]) ? $this->connections[$name] : null;
+            if (isset($this->connections[$name])) {
+                if (is_array($this->connections[$name])) {
+                    $connection = new PDO($this->connections[$name]['dsn'], $this->connections[$name]['user'], $this->connections[$name]['password']);
+                    $this->connections[$name] = $connection;
+                }
+
+                return $this->connections[$name];
+            }
+
+            return null;
+        }
+
+        if (is_array($this->default)) {
+            $this->default = new PDO($this->default['dsn'], $this->default['user'], $this->default['password']);
         }
 
         return $this->default;
