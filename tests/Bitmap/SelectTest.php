@@ -59,7 +59,7 @@ class SelectTest extends EntityTest
 	 */
     public function testGetArtistById($artistClass, $connection, $field, $id, $expected)
     {
-        $artist = $artistClass::select()->where($field, '=', $id)->one($connection);
+        $artist = $artistClass::select()->where($field, '=', $id)->one(null, $connection);
 
         $this->assertNotNull($artist);
         $this->assertSame($expected, $artist->name);

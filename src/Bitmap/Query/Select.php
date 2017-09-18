@@ -65,7 +65,8 @@ class Select extends Query
     public function one($with = null, $connection = null)
     {
         $this->context = new LoadContext($this->mapper, $with);
-        $stmt = $this->execute(Bitmap::current()->connection($connection));
+        $connection = Bitmap::current()->connection($connection);
+        $stmt = $this->execute($connection);
         $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
 
         return $this->mapper->loadOne($result, $this->context);
