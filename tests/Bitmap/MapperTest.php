@@ -2,6 +2,7 @@
 
 namespace Tests\Bitmap;
 
+use Bitmap\Associations\ManyToMany\Via;
 use Bitmap\Associations\MethodAssociationManyToMany;
 use Bitmap\Associations\MethodAssociationOne;
 use Bitmap\Associations\MethodAssociationOneToMany;
@@ -144,12 +145,12 @@ class MapperTest extends TestCase
      *
      * @dataProvider dataPropertyAssociationManyToManySuccess
      */
-    public function testAssociationManyToManySuccess($associationClass, $name, $class, $via, $viaSourceColumn = null, $viaTargetColumn = null, $getter = null, $setter = null)
+    public function testAssociationManyToManySuccess($associationClass, $name, $class, $via, $targetColumn, $getter = null, $setter = null)
     {
         $mapper = new Mapper(User::class);
         $reflection = new ReflectionClass(User::class);
         $mapper->addPrimary(new PropertyField('id', $reflection->getProperty('id')));
-        $result = $mapper->addAssociationManyToMany($name, $class, $via, $viaSourceColumn, $viaTargetColumn, $getter, $setter);
+        $result = $mapper->addAssociationManyToMany($name, $class, $via, $targetColumn, $getter, $setter);
 
         $this->assertInstanceOf(Mapper::class, $result);
 
@@ -160,8 +161,8 @@ class MapperTest extends TestCase
     public function dataPropertyAssociationManyToManySuccess()
     {
         return [
-            [PropertyAssociationManyToMany::class, 'bikes', Transport::class, 'Bike'],
-            [MethodAssociationManyToMany::class, 'skateboards', Transport::class, 'Skateboard', null, null, 'getSkateboards', 'addSkateboards']
+            [PropertyAssociationManyToMany::class, 'bikes', Transport::class, Via::fromAnnotation('Bike(user_id,bike_id)'), 'bike_id'],
+            [MethodAssociationManyToMany::class, 'skateboards', Transport::class, Via::fromTable('Skateboard')->setSourceColumn('user_id')->setTargetColumn('skateboard_id'), 'skateboard_id', 'getSkateboards', 'addSkateboards']
         ];
     }
 
@@ -184,7 +185,7 @@ class MapperTest extends TestCase
     public function dataPropertyAssociationManyToManyFailure()
     {
         return [
-            ['skateboards', Transport::class, 'Skateboard'],
+            ['skateboards', Transport::class, Via::fromTable('Skateboard')],
         ];
     }
 }

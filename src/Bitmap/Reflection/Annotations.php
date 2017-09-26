@@ -44,7 +44,7 @@ class Annotations
     public function get($name, $index = null, $default = null)
     {
         if (isset($this->annotations[$name])) {
-            return is_int($index) ? $this->annotations[$name][$index] : $this->annotations[$name];
+            return is_int($index) && count($this->annotations[$name]) > $index ? $this->annotations[$name][$index] : $this->annotations[$name];
         }
 
         return $default;

@@ -100,9 +100,19 @@ class MethodField extends Field
         return "get" . ucfirst($name);
     }
 
+    public static function nameForGetter($name)
+    {
+        return strpos(strtolower($name),"get") === 0 ? lcfirst(substr($name, 3)) : (strpos(strtolower($name),"is") === 0 ? lcfirst(substr($name, 2)) : $name);
+    }
+
     public static function setterForName($name)
     {
         return "set" . ucfirst($name);
+    }
+
+    public static function nameForSetter($name)
+    {
+        return strpos(strtolower($name),"set") === 0 ? lcfirst(substr($name, 3)) : $name;
     }
 
     /**

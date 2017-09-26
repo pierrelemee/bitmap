@@ -2,6 +2,7 @@
 
 namespace Bitmap;
 
+use Bitmap\Associations\ManyToMany\Via;
 use Bitmap\Associations\MethodAssociationManyToMany;
 use Bitmap\Associations\MethodAssociationOne;
 use Bitmap\Associations\MethodAssociationOneToMany;
@@ -267,15 +268,22 @@ class Mapper
         }
     }
 
-    public function addAssociationManyToMany($name, $class, $via, $column = null, $viaSourceColumn = null, $viaTargetColumn = null, $getter = null, $setter = null)
+    public function addAssociationManyToMany($name, $class, Via $via, $column = null, $targetColumn = null, $getter = null, $setter = null)
     {
+        if (null === $via->getSourceColumn()) {
+            throw new MapperException("Missing source column in table {$via->getTable()} for association many-to-many with name {$name}' to '{$class}'");
+        }
+
+        if (null === $via->getSourceColumn()) {
+            throw new MapperException("Missing target column in table {$via->getTable()} for association many-to-many with name {$name}' to '{$class}'");
+        }
+
+
         $column = $column ? : $name;
-        $viaSourceColumn = $viaSourceColumn ? : $this->primary->getColumn();
-        $viaTargetColumn = $viaTargetColumn ? : Bitmap::current()->getMapper($class)->getPrimary()->getColumn();
         $reflection = new ReflectionClass($this->class);
 
         if ($reflection->hasProperty($name) && $reflection->getProperty($name)->isPublic()) {
-            return $this->addAssociation(new PropertyAssociationManyToMany($name, $class, $reflection->getProperty($name), $column, $via, $viaSourceColumn, $viaTargetColumn));
+            return $this->addAssociation(new PropertyAssociationManyToMany($name, $class, $reflection->getProperty($name), $column, $via, $targetColumn));
         } else {
             if (null === $getter) {
                 $getter = MethodField::getterForName($name);
@@ -285,7 +293,7 @@ class Mapper
             }
 
             if ($reflection->hasMethod($getter) && $reflection->hasMethod($setter)) {
-                return $this->addAssociation(new MethodAssociationManyToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column, $via, $viaSourceColumn, $viaTargetColumn));
+                return $this->addAssociation(new MethodAssociationManyToMany($name, $class, $reflection->getMethod($getter), $reflection->getMethod($setter), $column, $via, $targetColumn));
             } else {
                 throw new MapperException("Unable to find association many to many for '{$reflection->getName()}' with name {$name}' to '{$class}'");
             }

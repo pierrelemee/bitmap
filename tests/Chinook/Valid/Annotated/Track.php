@@ -2,61 +2,66 @@
 
 namespace Chinook\Valid\Annotated;
 
-use Bitmap\Entity;
-use Chinook\Valid\Annotated\MediaType;
-use Chinook\Valid\Annotated\Genre;
+use Bitmap\AnnotatedEntity;
 
 /**
  * Class Track
  * @package Chinook\Valid\Annotated
  */
-class Track extends Entity
+class Track extends AnnotatedEntity
 {
     /**
-     * @field TrackId incremented primary
+     * @primary TrackId
      * @type integer
-     * @setter setId
-     * @var int
+     * @var int $id
      */
     protected $id;
     /**
      * @field Name
      * @type string
-     * @var string
+     * @var int $name
      */
     protected $name;
     /**
-     * @association GenreId one Chinook\Valid\Annotated\Genre GenreId
-     * @var Genre
+     * @association Chinook\Valid\Annotated\Album
+     * @type one AlbumId
+     * @var Album $album
+     */
+    protected $album;
+    /**
+     * @association Chinook\Valid\Annotated\Genre
+     * @type one GenreId
+     * @var Album $genre
      */
     protected $genre;
     /**
-     * @association MediaTypeId one Chinook\Valid\Annotated\MediaType MediaTypeId
-     * @var MediaType
+     * @association Chinook\Valid\Annotated\MediaType
+     * @type one MediaTypeId
+     * @var MediaType $media
      */
     protected $media;
     /**
      * @field Composer
      * @type string
-     * @var string
+     * @var string $composer
      */
     protected $composer;
     /**
-     * @field Milliseconds nullable
+     * @field Milliseconds
      * @type integer
-     * @var int
+     * @var integer $milliseconds
      */
     protected $milliseconds;
     /**
-     * @field Bytes nullable
+     * @field Bytes
      * @type integer
-     * @var int
+     * @var integer $bytes
      */
     protected $bytes;
     /**
      * @field UnitPrice
      * @type float
-     * @var float
+     * @var float $unitPrice
      */
     protected $unitPrice;
 
@@ -93,6 +98,22 @@ class Track extends Entity
     }
 
     /**
+     * @return mixed
+     */
+    public function getAlbum()
+    {
+        return $this->album;
+    }
+
+    /**
+     * @param mixed $album
+     */
+    public function setAlbum($album)
+    {
+        $this->album = $album;
+    }
+
+    /**
      * @return Genre
      */
     public function getGenre()
@@ -101,7 +122,7 @@ class Track extends Entity
     }
 
     /**
-     * @param Genre $genre
+     * @param \Chinook\Valid\Annotated\Genre $genre
      */
     public function setGenre($genre)
     {

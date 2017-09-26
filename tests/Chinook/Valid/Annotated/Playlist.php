@@ -4,24 +4,28 @@ namespace Chinook\Valid\Annotated;
 
 use Bitmap\AnnotatedEntity;
 
-/**
- * Class MediaType
- * @package Chinook\Valid\Annotated
- */
-class MediaType extends AnnotatedEntity
+class Playlist extends AnnotatedEntity
 {
+
     /**
-     * @primary MediaTypeId
+     * @primary PlaylistId
      * @type integer
-     * @var int
+     * @var integer $id
      */
     protected $id;
     /**
      * @field Name
      * @type string
-     * @var string
+     * @var string $name
      */
     protected $name;
+    /**
+     * @association Chinook\Valid\Annotated\Track
+     * @type many-to-many tracks PlaylistId TrackId
+     * @via PlaylistTrack(PlaylistId,TrackId)
+     * @var Track[] $tracks
+     */
+    protected $tracks;
 
     /**
      * @return mixed
@@ -53,5 +57,21 @@ class MediaType extends AnnotatedEntity
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return Track[]
+     */
+    public function getTracks()
+    {
+        return $this->tracks;
+    }
+
+    /**
+     * @param Track[] $tracks
+     */
+    public function setTracks($tracks)
+    {
+        $this->tracks = $tracks;
     }
 }

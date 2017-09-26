@@ -37,7 +37,7 @@ class Invoice extends Entity
             ->addField('state', Bitmap::TYPE_STRING, 'BillingState')
             ->addField('country', Bitmap::TYPE_STRING, 'BillingCountry')
             ->addField('postalCode', Bitmap::TYPE_STRING, 'BillingPostalCode')
-            ->addField('total', Bitmap::TYPE_INTEGER, 'Total');
+            ->addField('total', Bitmap::TYPE_FLOAT, 'Total');
     }
 
     /**

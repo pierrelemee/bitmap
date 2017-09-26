@@ -2,16 +2,16 @@
 
 namespace Chinook\Valid\Annotated;
 
-use Bitmap\Entity;
+use Bitmap\AnnotatedEntity;
 
 /**
  * Class Artist
  * @package Chinook\Valid\Annotated
  */
-class Artist extends Entity
+class Artist extends AnnotatedEntity
 {
     /**
-     * @field ArtistId primary
+     * @primary ArtistId
      * @type integer
      * @var int
      */
@@ -21,7 +21,13 @@ class Artist extends Entity
      * @type string
      * @var string
      */
-    protected $name;
+    public $name;
+    /**
+     * @association Chinook\Valid\Annotated\Album
+     * @type one-to-many albums ArtistId
+     * @var Album[]
+     */
+    protected $albums;
 
     /**
      * @return mixed
@@ -53,5 +59,21 @@ class Artist extends Entity
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return Album[]
+     */
+    public function getAlbums()
+    {
+        return $this->albums;
+    }
+
+    /**
+     * @param mixed $albums
+     */
+    public function setAlbums($albums)
+    {
+        $this->albums = $albums;
     }
 }

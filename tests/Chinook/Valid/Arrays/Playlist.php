@@ -21,7 +21,7 @@ class Playlist extends ArrayMappedEntity
         return [
             'primary' => [
                 'name'   => 'id',
-                'column' => 'GenreId',
+                'column' => 'PlaylistId',
                 'type'   => Bitmap::TYPE_INTEGER
             ],
             'fields' => [
@@ -31,13 +31,16 @@ class Playlist extends ArrayMappedEntity
                 ]
             ],
             'associations' => [
-                'artist' => [
+                'tracks' => [
                     'type'   => 'many-to-many',
                     'class'  => Track::class,
-                    'via' => 'PlaylistTrack',
-                    'column' => 'ArtistId',
-                    'via-source' => 'PlaylistId',
-                    'via-target' => 'TrackId'
+                    'via' => [
+                        'table'  => 'PlaylistTrack',
+                        'source' => 'PlaylistId',
+                        'target' => 'TrackId'
+                    ],
+                    'column' => 'PlaylistId',
+                    'target' => 'TrackId'
                 ],
             ]
         ];
