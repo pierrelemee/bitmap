@@ -21,7 +21,8 @@ class Playlist extends AnnotatedEntity
     protected $name;
     /**
      * @association Chinook\Valid\Annotated\Track
-     * @type many-to-many PlaylistTrack PlaylistId PlaylistId TrackId
+     * @type many-to-many tracks PlaylistId TrackId
+     * @via PlaylistTrack(PlaylistId,TrackId)
      * @var Track[] $tracks
      */
     protected $tracks;

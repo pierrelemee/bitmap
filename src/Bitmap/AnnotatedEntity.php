@@ -2,6 +2,7 @@
 
 namespace Bitmap;
 
+use Bitmap\Associations\ManyToMany\Via;
 use Bitmap\Exceptions\MapperException;
 use Bitmap\Fields\MethodField;
 use Bitmap\Reflection\Annotations;
@@ -96,7 +97,14 @@ class AnnotatedEntity extends ArrayMappedEntity
                         break;
                 }
 
-                break;
+                return [
+                    'name' => $name,
+                    'type' => $type,
+                    'column' => $column,
+                    'class' => $class,
+                    'getter' => $annotations->get('getter', 0),
+                    'setter' => $annotations->get('setter', 0)
+                ];
             case 'one-to-many':
                 switch (count($annotations->get('type'))) {
                     case 2:
@@ -107,20 +115,47 @@ class AnnotatedEntity extends ArrayMappedEntity
                         $column = $annotations->get('type', 2);
                         break;
                 }
-                break;
+                return [
+                    'name' => $name,
+                    'type' => $type,
+                    'column' => $column,
+                    'class' => $class,
+                    'getter' => $annotations->get('getter', 0),
+                    'setter' => $annotations->get('setter', 0)
+                ];
             case 'many-to-many':
-                break;
+                $target = null;
+
+                switch (count($annotations->get('type'))) {
+                    case 3:
+                        $column = $annotations->get('type', 1);
+                        $target = $annotations->get('type', 2);
+                        break;
+                    case 4:
+                        $name = $annotations->get('type', 1);
+                        $column = $annotations->get('type', 2);
+                        $target = $annotations->get('type', 3);
+                        break;
+                }
+
+                $via = Via::fromAnnotation($annotations->get('via', 0, ''));
+
+                if (null === $via) {
+                    throw new MapperException("Invalid via directive annotation for association many-to-many $name");
+                }
+
+                return [
+                    'name'   => $name,
+                    'type'   => $type,
+                    'via'    => $via,
+                    'column' => $column,
+                    'target' => $target,
+                    'class'  => $class,
+                    'getter' => $annotations->get('getter', 0),
+                    'setter' => $annotations->get('setter', 0)
+                ];
             default:
                 throw new MapperException("Invalid association type '$type' for association annotation $name");
         }
-
-        return [
-            'name' => $name,
-            'type' => $type,
-            'column' => $column,
-            'class' => $class,
-            'getter' => $annotations->get('getter', 0),
-            'setter' => $annotations->get('setter', 0)
-        ];
     }
 }

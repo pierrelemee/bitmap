@@ -2,6 +2,8 @@
 
 namespace Bitmap;
 
+use Bitmap\Associations\ManyToMany\Via;
+use Bitmap\Exceptions\MapperException;
 use Exception;
 
 abstract class ArrayMappedEntity extends Entity
@@ -56,13 +58,26 @@ abstract class ArrayMappedEntity extends Entity
                     );
                     break;
                 case 'many-to-many':
+
+                    $viaConfig = self::getMandatoryConfig($association, 'via', "Missing key via in association $name config");
+                    if ($viaConfig instanceof Via) {
+                        $via = $viaConfig;
+                    } else {
+                        if (is_array($viaConfig)) {
+                            if (null === $via = Via::fromArray($viaConfig)) {
+                                throw new MapperException(sprintf("Unable to create via directive from array [%s]", implode(", ", array_keys($viaConfig))));
+                            }
+                        } else {
+                            throw new MapperException("Unable to create via directive from not array 'via'");
+                        }
+                    }
+
                     $mapper->addAssociationManyToMany(
                         $name,
                         self::getMandatoryConfig($association, 'class', "Missing key class in association $name config"),
-                        self::getMandatoryConfig($association, 'via', "Missing key via in association $name config"),
-                        self::getConfig($association, 'via-source', null),
-                        self::getConfig($association, 'via-target', null),
+                        $via,
                         self::getConfig($association, 'column', null),
+                        self::getConfig($association, 'target', null),
                         self::getConfig($association, 'getter', null),
                         self::getConfig($association, 'setter', null)
                     );

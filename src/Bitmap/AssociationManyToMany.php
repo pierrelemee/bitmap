@@ -4,21 +4,23 @@ namespace Bitmap;
 
 
 
+use Bitmap\Associations\ManyToMany\Via;
+
 abstract class AssociationManyToMany extends Association
 {
     /**
-     * @var $via
+     * @var string $via the name of the table to join through
      */
     protected $via;
     protected $viaSourceColumn;
     protected $viaTargetColumn;
+    protected $targetColumn;
     
-    public function __construct($name, $class, $column, $via, $viaSourceColumn, $viaTargetColumn)
+    public function __construct($name, $class, $column, Via $via, $targetColumn = null)
     {
         parent::__construct($name, $class, $column);
         $this->via = $via;
-        $this->viaSourceColumn = $viaSourceColumn;
-        $this->viaTargetColumn = $viaTargetColumn;
+        $this->targetColumn = $targetColumn;
     }
 
     protected function getDefaultAutoload()
@@ -34,8 +36,8 @@ abstract class AssociationManyToMany extends Association
     public function joinClauses(Mapper $mapper, $name)
     {
         return [
-            $this->joinClause($mapper->getTable(), $this->column, $this->via, $this->via, $this->viaSourceColumn),
-            $this->joinClause($this->via, $this->viaTargetColumn, $this->getMapper()->getTable(), $name, Bitmap::current()->getMapper($this->class)->getPrimary()->getColumn())
+            $this->joinClause($mapper->getTable(), $this->column, $this->via->getTable(), $this->via->getTable(), $this->via->getSourceColumn()),
+            $this->joinClause($this->via->getTable(), $this->via->getTargetColumn(), $this->getMapper()->getTable(), $name, $this->targetColumn ? : Bitmap::current()->getMapper($this->class)->getPrimary()->getColumn())
         ];
     }
 

@@ -2,6 +2,7 @@
 
 namespace Chinook\Valid\Inline;
 
+use Bitmap\Associations\ManyToMany\Via;
 use Bitmap\Associations\MethodAssociationManyToMany;
 use Bitmap\Entity;
 use Bitmap\Fields\PropertyField;
@@ -25,7 +26,10 @@ class Playlist extends Entity
         $mapper
             ->addPrimary('id', Bitmap::TYPE_INTEGER, 'PlaylistId')
             ->addField('name', Bitmap::TYPE_STRING, 'Name')
-            ->addAssociationManyToMany('tracks', Track::class, 'PlaylistTrack', 'PlaylistId', 'PlaylistId', 'TrackId');
+            ->addAssociationManyToMany('tracks', Track::class,
+                Via::fromTable('PlaylistTrack')
+                    ->setSourceColumn('PlaylistId')
+                    ->setTargetColumn('TrackId'), 'PlaylistId', 'TrackId');
     }
 
     /**
