@@ -7,6 +7,6 @@ service:
   - postgresl
 before_install:
   - mysql -u root --default-character-set=utf8 < tests/Bitmap/resources/Chinook_MySql_AutoIncrementPKs.sql
-  - psql postgres -f tests/Bitmap/resources/Chinook_PostgreSql.sql
+  - psql postgres -f tests/Bitmap/resources/Chinook_PostgreSql.sql > /dev/null 2>&1
 install:
   - composer install
