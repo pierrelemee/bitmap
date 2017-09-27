@@ -10,8 +10,9 @@ use PDO;
 
 abstract class EntityTest extends TestCase
 {
-    const CONNECTION_SQLITE = 'chinook_sqlite';
-    const CONNECTION_MYSQL  = 'chinook_mysql';
+    const CONNECTION_SQLITE     = 'chinook_sqlite';
+    const CONNECTION_MYSQL      = 'chinook_mysql';
+    const CONNECTION_POSTGRESQL = 'chinook_postgresql';
 
     public static function setUpBeforeClass()
     {
@@ -48,14 +49,15 @@ abstract class EntityTest extends TestCase
     private static function connections()
     {
         return [
-            self::CONNECTION_SQLITE => ['sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite'],
-            self::CONNECTION_MYSQL  => ['mysql://host=localhost;dbname=Chinook;', "root"],
+            self::CONNECTION_SQLITE     => ['sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite'],
+            self::CONNECTION_MYSQL      => ['mysql://host=localhost;dbname=Chinook;', "root"],
+            self::CONNECTION_POSTGRESQL => ['pgsql:host=localhost;dbname=Chinook', "postgres"],
         ];
     }
 
     protected function getConnectionNames()
     {
-        return [self::CONNECTION_MYSQL, self::CONNECTION_SQLITE];
+        return [self::CONNECTION_MYSQL, self::CONNECTION_SQLITE, self::CONNECTION_POSTGRESQL];
     }
 
     /**
