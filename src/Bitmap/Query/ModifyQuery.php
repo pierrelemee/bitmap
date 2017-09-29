@@ -18,7 +18,7 @@ abstract class ModifyQuery extends Query
      */
     public function execute(PDO $connection)
     {
-        $sql = $this->sql();
+        $sql = $this->sql($connection);
         Bitmap::current()->getLogger()->info("Running query",
             [
                 'mapper' => $this->mapper->getClass(),

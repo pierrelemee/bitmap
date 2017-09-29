@@ -3,6 +3,7 @@
 namespace Bitmap\Query;
 
 use Bitmap\Entity;
+use PDO;
 
 class Delete extends ModifyQuery
 {
@@ -26,7 +27,7 @@ class Delete extends ModifyQuery
     }
 
 
-    public function sql()
+    public function sql(PDO $connection)
     {
         return sprintf(
             "delete from `%s` where `%s` = %s",

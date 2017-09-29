@@ -3,6 +3,7 @@
 namespace Bitmap\Query;
 
 use Bitmap\Entity;
+use PDO;
 
 class Update extends ModifyEntityQuery
 {
@@ -30,7 +31,7 @@ class Update extends ModifyEntityQuery
         return implode(self::VALUES_LIST_DELIMITER, $sql);
     }
 
-    public function sql()
+    public function sql(PDO $connection)
     {
         return sprintf(
             "update `%s` set %s where `%s` = %s",

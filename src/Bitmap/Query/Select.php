@@ -3,6 +3,7 @@
 namespace Bitmap\Query;
 
 use Bitmap\Bitmap;
+use Bitmap\Query\Clauses\Where;
 use Bitmap\Query\Context\Context;
 use Bitmap\Query\Context\LoadContext;
 use Bitmap\Strategies\PrefixStrategy;
@@ -19,6 +20,9 @@ class Select extends Query
      * @var FieldMappingStrategy
      */
     protected $strategy;
+    /**
+     * @var Where[] $where
+     */
     protected $where;
 	protected $order;
 	protected $limit;
@@ -46,7 +50,7 @@ class Select extends Query
 
     public function execute(PDO $connection)
     {
-        $sql = $this->sql();
+        $sql = $this->sql($connection);
         Bitmap::current()->getLogger()->info("Running query",
             [
                 'mapper' => $this->mapper->getClass(),
@@ -154,7 +158,7 @@ class Select extends Query
 		return sizeof($this->order) > 0 ? ' order by ' . implode(', ', $this->order) : '';
 	}
 
-    public function sql()
+    public function sql(PDO $connection)
     {
         return sprintf('select %s from `%s`%s %s%s%s',
             implode(", ", $this->context->getFields($this->strategy)),
