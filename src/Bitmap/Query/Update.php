@@ -2,58 +2,84 @@
 
 namespace Bitmap\Query;
 
+use Bitmap\Bitmap;
 use Bitmap\Entity;
+use Bitmap\Mapper;
+use Bitmap\Query\Context\Context;
+use Exception;
 use PDO;
-use PDOStatement;
 
-class Update extends ModifyEntityQuery
+class Update extends Query
 {
-    const VALUES_LIST_DELIMITER = ", ";
-
+    protected $entity;
     /**
-     * @{@inheritdoc}
-     * @param string $class
-     *
-     * @return Update
+     * @var Context
      */
-    public static function fromEntity(Entity $entity)
+    protected $context;
+
+    public function __construct(Mapper $mapper, Entity $entity, Context $context)
     {
-        return new Update($entity);
+        parent::__construct($mapper);
+        $this->entity = $entity;
+        $this->context = $context;
     }
 
-    protected function fieldValueClause()
+    public function execute(PDO $connection)
     {
-        $sql = [];
+        $values = [];
 
-        foreach ($this->fieldValues() as $name => $value) {
-            $sql[] = sprintf("`%s` = ?", $name, $value);
+        foreach ($this->mapper->getFields() as $name => $field) {
+            if ($field !== $this->mapper->getPrimary()) {
+                $key = self::escapeName($field->getColumn(), $connection);
+                if (!isset($values[$key])) {
+                    if (null !== $value = $field->getValue($this->entity)) {
+                        $values[$key] = $value;
+                    } else {
+                        if (!$field->isIncremented() && !$field->hasDefault()) {
+                            $values[$key] = null;
+                        }
+                    }
+                }
+            }
         }
 
-        return implode(self::VALUES_LIST_DELIMITER, $sql);
-    }
+        foreach ($this->mapper->associations() as $name => $association) {
+            if ($association->hasLocalValue() && ($association->getMapper()->hasPrimary() || $this->context->hasDependency($association->getName()))) {
+                $entities = is_array($association->get($this->entity)) ? $association->get($this->entity) : [$association->get($this->entity)];
+                foreach ($entities as $entity) {
+                    if (null !== $entity && null !== $value = $association->getMapper()->getPrimary()->get($entity)) {
+                        $values[$this->escapeName($association->getColumn(), $connection)] = $value;
+                    }
+                }
+            }
+        }
 
-    protected function getStatement(PDO $connection)
-    {
-        $statement = $connection->prepare($this->sql($connection));
-
-        $statement->execute(
-            array_merge(
-                array_values($this->fieldValues()),
-                [$this->mapper->getPrimary()->get($this->entity)]
-            )
+        $sql = sprintf(
+            "update %s set %s where %s = ?",
+            self::escapeName($this->mapper->getTable(), $connection),
+            implode(", ", array_map(function ($column) { return "$column = ?";}, array_keys($values))),
+            self::escapeName($this->mapper->getPrimary()->getColumn(), $connection)
         );
 
-        return $statement;
-    }
+        Bitmap::current()->getLogger()->info("Running query",
+            [
+                'mapper' => $this->mapper->getClass(),
+                'sql'    => $sql,
+                'values' => array_values($values)
+            ]
+        );
 
+        $statement = $connection->prepare($sql);
+
+        if (!$statement->execute(array_merge(array_values($values), [$this->mapper->getPrimary()->getValue($this->entity)]))) {
+            throw new Exception(sprintf("[%s]", implode(", ", array_values($statement->errorInfo())),  $statement->errorCode()));
+        }
+
+        return $statement->rowCount() === 1;
+    }
 
     public function sql(PDO $connection)
     {
-        return sprintf(
-            "update `%s` set %s where `%s` = ?",
-            $this->mapper->getTable(),
-            $this->fieldValueClause(),
-            $this->mapper->getPrimary()->getColumn()
-        );
+        return "";
     }
 }

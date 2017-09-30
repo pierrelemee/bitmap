@@ -17,10 +17,11 @@ class Insert extends Query
      */
     protected $context;
 
-    public function __construct(Mapper $mapper, Entity $entity)
+    public function __construct(Mapper $mapper, Entity $entity, Context $context)
     {
         parent::__construct($mapper);
         $this->entity = $entity;
+        $this->context = $context;
     }
 
     public function execute(PDO $connection)

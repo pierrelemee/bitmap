@@ -2,10 +2,12 @@
 
 namespace Bitmap\Query;
 
+use Bitmap\Bitmap;
 use Bitmap\Entity;
+use Exception;
 use PDO;
 
-class Delete extends ModifyQuery
+class Delete extends Query
 {
     protected $entity;
 
@@ -15,32 +17,34 @@ class Delete extends ModifyQuery
         $this->entity = $entity;
     }
 
-    /**
-     * @{@inheritdoc}
-     * @param string $class
-     *
-     * @return self
-     */
-    public static function fromEntity(Entity $entity)
+    public function execute(PDO $connection)
     {
-        return new Delete($entity);
+        $sql = sprintf(
+            "delete from %s where %s = ?",
+            self::escapeName($this->mapper->getTable(), $connection),
+            self::escapeName($this->mapper->getPrimary()->getColumn(), $connection)
+        );
+
+        $statement = $connection->prepare($sql);
+
+        Bitmap::current()->getLogger()->info("Running query",
+            [
+                'mapper' => $this->mapper->getClass(),
+                'sql'    => $sql,
+                'values' => [$this->mapper->getPrimary()->getValue($this->entity)]
+            ]
+        );
+
+        if (!$statement->execute([$this->mapper->getPrimary()->getValue($this->entity)])) {
+            throw new Exception(sprintf("[%s]", implode(", ", array_values($statement->errorInfo())),  $statement->errorCode()));
+        }
+
+        return $statement->rowCount() === 1;
     }
 
-    protected function getStatement(PDO $connection)
-    {
-        $statement = $connection->prepare($this->sql($connection));
-
-        $statement->execute([$this->mapper->getPrimary()->get($this->entity)]);
-
-        return $statement;
-    }
 
     public function sql(PDO $connection)
     {
-        return sprintf(
-            "delete from `%s` where `%s` = ?",
-            $this->mapper->getTable(),
-            $this->mapper->getPrimary()->getColumn()
-        );
+        return "";
     }
 }
