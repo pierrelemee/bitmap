@@ -397,7 +397,8 @@ class Mapper
     public function delete(Entity $entity, $connection = null)
     {
         if ($this->hasPrimary()) {
-            return Delete::fromEntity($entity)->execute(Bitmap::current()->connection($connection)) > 0;
+            $query = new Delete($entity);
+            return $query->execute($connection);
         }
 
         throw new Exception("No primary declared for class {$this->class}");

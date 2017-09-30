@@ -102,6 +102,11 @@ class Bitmap
         return self::$BITMAP;
     }
 
+    public static function clear()
+    {
+        self::$BITMAP = null;
+    }
+
     /**
      * Declares a PDO connection by its name and DSN
      *
@@ -209,7 +214,11 @@ class Bitmap
         if (null !== $name) {
             if (isset($this->connections[$name])) {
                 if (is_array($this->connections[$name])) {
-                    $connection = new PDO($this->connections[$name]['dsn'], $this->connections[$name]['user'], $this->connections[$name]['password']);
+                    $connection = new PDO(
+                        $this->default['dsn'],
+                        isset($this->default['user']) ? $this->default['user'] : null,
+                        isset($this->default['password']) ? $this->default['password'] : null
+                    );
                     $this->connections[$name] = $connection;
                 }
 
@@ -220,7 +229,11 @@ class Bitmap
         }
 
         if (is_array($this->default)) {
-            $this->default = new PDO($this->default['dsn'], $this->default['user'], $this->default['password']);
+            $this->default = new PDO(
+                $this->default['dsn'],
+                isset($this->default['user']) ? $this->default['user'] : null,
+                isset($this->default['password']) ? $this->default['password'] : null
+            );
         }
 
         return $this->default;

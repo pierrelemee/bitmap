@@ -21,9 +21,8 @@ abstract class EntityTest extends TestCase
             Bitmap::current()->setLogger(new Logger(new StreamHandler(fopen('php://stdout', 'a'), strtoupper(getenv('PHPUNIT_LOGGING')))));
         }
 
-        foreach (self::connections() as $name => $arguments) {
-            Bitmap::current()->addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
-        }
+        Bitmap::clear();
+        Bitmap::current(self::connections());
     }
 
     /**
@@ -49,9 +48,17 @@ abstract class EntityTest extends TestCase
     private static function connections()
     {
         return [
-            self::CONNECTION_SQLITE     => ['sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite'],
-            self::CONNECTION_MYSQL      => ['mysql://host=localhost;dbname=Chinook;', "root"],
-            self::CONNECTION_POSTGRESQL => ['pgsql:host=localhost;dbname=Chinook', "postgres"],
+            self::CONNECTION_SQLITE     => [
+                'dsn'  => 'sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite'
+            ],
+            self::CONNECTION_MYSQL      => [
+                'dsn'  => 'mysql://host=localhost;dbname=Chinook;',
+                'user' => "root"
+            ],
+            self::CONNECTION_POSTGRESQL => [
+                'dsn'  => 'pgsql:host=localhost;dbname=Chinook',
+                'user' => "postgres"
+            ],
         ];
     }
 
