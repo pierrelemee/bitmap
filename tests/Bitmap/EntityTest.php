@@ -100,6 +100,11 @@ abstract class EntityTest extends TestCase
 
     protected function queryCount($connection, $table)
     {
-        return $this->queryValue($connection, "select count(*) from $table", 0);
+        $connection = Bitmap::current()->connection($connection);
+        $table = $connection->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql' ? sprintf('"%s"', $table) : $table;
+
+        $result = $connection->query("select count(*) from $table")->fetch(PDO::FETCH_NUM);
+
+        return count($result) > 0 ? $result[0] : $default;
     }
 }

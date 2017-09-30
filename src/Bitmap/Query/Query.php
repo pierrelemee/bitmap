@@ -29,14 +29,13 @@ abstract class Query
      *
      * @return string
      */
-    protected function escapeName($name, PDO $connection)
+    public static function escapeName($name, PDO $connection)
     {
-        return "{$this->getEscapeCharacter($connection)}$name{$this->getEscapeCharacter($connection)}";
+        return self::getEscapeCharacter($connection) . $name . self::getEscapeCharacter($connection);
     }
 
-    private function getEscapeCharacter(PDO $connection)
+    private static function getEscapeCharacter(PDO $connection)
     {
-        var_dump($connection->getAttribute(PDO::ATTR_DRIVER_NAME));
         return $connection->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql' ? '"' : '`';
     }
 }

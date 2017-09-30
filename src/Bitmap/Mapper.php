@@ -343,7 +343,7 @@ class Mapper
 	        }
         }
 
-        $query = new Insert($entity, $context);
+        $query = new Insert($this, $entity);
         $count = $query->execute(Bitmap::current()->connection($connection));
 
         if ($count > 0) {

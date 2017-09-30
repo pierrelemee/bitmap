@@ -26,15 +26,21 @@ class Delete extends ModifyQuery
         return new Delete($entity);
     }
 
+    protected function getStatement(PDO $connection)
+    {
+        $statement = $connection->prepare($this->sql($connection));
+
+        $statement->execute([$this->mapper->getPrimary()->get($this->entity)]);
+
+        return $statement;
+    }
 
     public function sql(PDO $connection)
     {
         return sprintf(
-            "delete from `%s` where `%s` = %s",
+            "delete from `%s` where `%s` = ?",
             $this->mapper->getTable(),
             $this->mapper->getPrimary()->getColumn()
-		        ,
-            $this->mapper->getPrimary()->get($this->entity)
         );
     }
 }
