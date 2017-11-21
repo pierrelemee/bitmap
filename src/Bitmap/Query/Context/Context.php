@@ -3,9 +3,11 @@
 namespace Bitmap\Query\Context;
 
 use Bitmap\Association;
+use Bitmap\Field;
 use Bitmap\Mapper;
 use Exception;
 use Bitmap\FieldMappingStrategy;
+use PDO;
 
 abstract class Context
 {
@@ -54,11 +56,9 @@ abstract class Context
     public abstract function getTables();
 
     /**
-     * @param $strategy FieldMappingStrategy
-     *
-     * @return string[]
+     * @return Field[]
      */
-    public abstract function getFields(FieldMappingStrategy $strategy);
+    public abstract function getFields();
 
     /**
      * @return string[]

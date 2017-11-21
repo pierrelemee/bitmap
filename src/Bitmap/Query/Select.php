@@ -3,9 +3,11 @@
 namespace Bitmap\Query;
 
 use Bitmap\Bitmap;
+use Bitmap\Query\Clauses\Join;
 use Bitmap\Query\Clauses\Where;
 use Bitmap\Query\Context\Context;
 use Bitmap\Query\Context\LoadContext;
+use Bitmap\Query\Context\QueryContext;
 use Bitmap\Strategies\PrefixStrategy;
 use Bitmap\Mapper;
 use PDO;
@@ -143,15 +145,26 @@ class Select extends Query
     public function execute(PDO $connection)
     {
         $columns = [];
+        $queue = [$this->context];
 
-        foreach ($this->mapper->getFields() as $name => $field) {
-            $columns[$field->getName()] = sprintf('%s.%s as %s',
-                self::escapeName($this->context->getTableName(), $connection),
-                self::escapeName($field->getColumn(), $connection),
-                self::escapeName("{$this->context->getTableName()}.{$field->getColumn()}", $connection)
-            );
+        while (!empty($queue)) {
+            /** @var QueryContext $context */
+            $context = array_shift($queue);
+            foreach ($context->getFields() as $name => $field) {
+                $columns[] = sprintf('%s.%s as %s',
+                    self::escapeName($context->getTableName(), $connection),
+                    self::escapeName($field->getColumn(), $connection),
+                    self::escapeName("{$context->getTableName()}.{$field->getColumn()}", $connection)
+                );
+            }
 
+            foreach ($context->getDependencies() as $dependency) {
+                $queue[] = $dependency;
+            }
         }
+
+        /** @var Join[] $joins */
+        $joins = $this->context->getJoins();
 
         $whereClause = "";
         $params = [];
@@ -169,14 +182,29 @@ class Select extends Query
             }
         }
 
-        $sql = sprintf('select %s from %s%s',
+        $joinClause = "";
+        foreach ($joins as $join) {
+            $joinClause .= sprintf(
+                " left join %s %s on %s.%s = %s.%s",
+                self::escapeName($join->getToTable(), $connection),
+                $join->getToTableAlias(),
+                self::escapeName($join->getToTable(), $connection),
+                self::escapeName($join->getToColumn(), $connection),
+                self::escapeName($join->getFromTable(), $connection),
+                self::escapeName($join->getFromColumn(), $connection)
+            );
+        }
+
+        $sql = sprintf('select %s from %s%s%s',
             implode(", ", array_values($columns)),
             self::escapeName($this->context->getTableName(), $connection),
-            //(implode("", $this->context->getJoins())),
+            $joinClause,
             $whereClause
             //$this->orders(),
             //null !== $this->limit ? " limit " .(sizeof($this->limit) === 2 ? "{$this->limit[1]}, " : ''). "{$this->limit[0]}"  : ''
         );
+
+        echo "*** SQL *** $sql" . PHP_EOL;
 
         Bitmap::current()->getLogger()->info("Running query",
             [

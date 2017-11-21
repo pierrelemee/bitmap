@@ -2,6 +2,8 @@
 
 namespace Bitmap;
 
+use Bitmap\Query\Clauses\Join;
+
 abstract class Association
 {
     const OPTION_LOAD = 'load';
@@ -86,11 +88,11 @@ abstract class Association
      * Return the list of join clauses from the class managed by the mapper $left
      *
      * @param Mapper $mapper
-     * @param string $name
+     * @param string $alias
      *
-     * @return string[]
+     * @return Join[]
      */
-    public abstract function joinClauses(Mapper $mapper, $name);
+    public abstract function joinClauses(Mapper $mapper, $alias);
 
     protected function joinClause($tableFrom, $columnFrom, $tableTo, $aliasTableTo, $columnTo)
     {

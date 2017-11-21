@@ -2,8 +2,6 @@
 
 namespace Bitmap\Query\Context;
 
-use Bitmap\FieldMappingStrategy;
-
 class ReferenceContext extends Context
 {
     protected $source;
@@ -20,7 +18,7 @@ class ReferenceContext extends Context
         return [];
     }
 
-    public function getFields(FieldMappingStrategy $strategy)
+    public function getFields()
     {
         return [];
     }

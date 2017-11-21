@@ -3,6 +3,7 @@
 namespace Bitmap\Query\Context;
 
 use Bitmap\Association;
+use Bitmap\Field;
 use Bitmap\FieldMappingStrategy;
 use Bitmap\Mapper;
 use Exception;
@@ -20,21 +21,37 @@ abstract class QueryContext extends Context
 
         $this->depth = $this->getRoot()->depths[$this->mapper->getClass()];
 
-        foreach ($this->mapper->associations() as $association) {
-            if (is_array($with)) {
-                if (is_int(array_search($name = $association->getName(), $with)) || isset($with[$name])) {
-                    $this->dependencies[$association->getName()] = $this->children($association->getMapper(), $this, isset($with[$name]) ? $with[$name] : null);
-                } else if (is_int(array_search($name = "@{$association->getName()}", $with)) || isset($with[$name])) {
-                    if (null === $source = $this->findParentWithMapper($association->getMapper())) {
-                        throw new Exception("Undefined source mapper in hierarchy for reference $name");
+        if (is_array($with)) {
+            foreach ($with as $name => $value) {
+                if (is_int($name)) {
+                    $name = $value;
+                    $subcontext = [];
+                } else {
+                    $subcontext = $value;
+                }
+                if (strpos($name, '@') === 0) {
+                    $association = $this->getMapper()->getAssociation(substr($name, 1));
+                    if (null !== $association) {
+                        if (null === $source = $this->findParentWithMapper($association->getMapper())) {
+                            throw new Exception("Undefined source mapper in hierarchy for reference $name");
+                        }
+                        $this->dependencies[$association->getName()] = new ReferenceContext($association->getMapper(), $source, $this);
                     }
-
-                    $this->dependencies[$association->getName()] = new ReferenceContext($association->getMapper(), $source, $this);
+                } else {
+                    $association = $this->getMapper()->getAssociation($name);
+                    if (null !== $association) {
+                        $this->dependencies[$association->getName()] = $this->children($association->getMapper(), $this, $subcontext);
+                    }
                 }
             }
-            if (is_null($with)){
-                if ($this->isAssociationDefaultIncluded($association)) {
-                    $this->dependencies[$association->getName()] = $this->children($association->getMapper(), $this, []);
+        }
+
+        if (is_null($with)) {
+            foreach ($this->mapper->associations() as $association) {
+                if (!isset($this->dependencies[$association->getName()])) {
+                    if ($this->isAssociationDefaultIncluded($association)) {
+                        $this->dependencies[$association->getName()] = $this->children($association->getMapper(), $this, []);
+                    }
                 }
             }
         }
@@ -66,24 +83,12 @@ abstract class QueryContext extends Context
         return $tables;
     }
 
-    public function getFields(FieldMappingStrategy $strategy)
+    /**
+     * @return Field[]
+     */
+    public function getFields()
     {
-        $fields = [];
-
-        foreach ($this->mapper->getFields() as $name => $field) {
-            $fields[] = sprintf(
-                "`%s`.`%s` as `%s`",
-                $this->getTableName(),
-                $field->getColumn(),
-                $strategy->getFieldLabel($this->mapper, $field->getColumn(), $this->depth)
-            );
-        }
-
-        foreach ($this->dependencies as $dependency) {
-            $fields = array_merge($fields, $dependency->getFields($strategy));
-        }
-
-        return $fields;
+        return $this->mapper->getFields();
     }
 
     public function getJoins()
