@@ -268,7 +268,7 @@ class SelectTest extends EntityTest
 
         /* @var Character[] $characters */
         $characters = Character::select()
-            ->where('id', 'in', '(3,4,5)')
+            ->where('id', 'in', [3,4,5])
             ->all(null, $connection);
 
         $this->assertEquals(3, count($characters));

@@ -2,11 +2,11 @@
 
 namespace Bitmap\Query\Context;
 
-class ReferenceContext extends Context
+class ReferenceContext extends LoadContext
 {
     protected $source;
 
-    public function __construct($mapper, Context $source, $parent = null)
+    public function __construct($mapper, LoadContext $source, LoadContext $parent = null)
     {
         parent::__construct($mapper, $parent);
 
@@ -33,5 +33,9 @@ class ReferenceContext extends Context
         return $this->source->depth;
     }
 
+    public function getJoinsOn(LoadContext $context, $name)
+    {
+        return [];
+    }
 
 }

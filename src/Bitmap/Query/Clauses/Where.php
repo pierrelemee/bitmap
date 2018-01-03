@@ -69,6 +69,10 @@ class Where
         return $this;
     }
 
+    public function getNumberOfParameters() {
+        return is_array($this->value) ? count($this->value) : 1;
+    }
+
     /**
      * @return mixed
      */

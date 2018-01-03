@@ -62,8 +62,8 @@ class Select extends Query
         $connection = Bitmap::current()->connection($connection);
         $stmt = $this->execute($connection);
         $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
-
-        return $this->mapper->loadOne($result, $this->context);
+        $e = $this->mapper->loadOne($result, $this->context);
+        return $e;
     }
 
     /**
@@ -173,12 +173,21 @@ class Select extends Query
 
             foreach ($this->where as /** @var Where */$where) {
                 $whereClause .= sprintf(
-                    '%s.%s %s ?',
+                    '%s.%s %s %s',
                     self::escapeName($where->getTable(), $connection),
                     self::escapeName($where->getColumn(), $connection),
-                    $where->getOperation()
+                    $where->getOperation(),
+                    $where->getNumberOfParameters() > 1 ? '(' . implode(',', array_fill(0, $where->getNumberOfParameters(), '?')) . ')' : '?'
                 );
-                $params[] = $where->getValue();
+
+                if (is_array($where->getValue())) {
+                    foreach ($where->getValue() as $value) {
+                        $params[] = $value;
+                    }
+                } else {
+                    $params[] = $where->getValue();
+                }
+
             }
         }
 
@@ -203,8 +212,6 @@ class Select extends Query
             //$this->orders(),
             //null !== $this->limit ? " limit " .(sizeof($this->limit) === 2 ? "{$this->limit[1]}, " : ''). "{$this->limit[0]}"  : ''
         );
-
-        echo "*** SQL *** $sql" . PHP_EOL;
 
         Bitmap::current()->getLogger()->info("Running query",
             [
