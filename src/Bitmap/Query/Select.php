@@ -228,9 +228,4 @@ class Select extends Query
 
         return $statement;
     }
-
-    public function sql(PDO $connection)
-    {
-
-    }
 }

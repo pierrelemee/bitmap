@@ -75,11 +75,4 @@ class Insert extends Query
 
         return $statement->rowCount();
     }
-
-    public function sql(PDO $connection)
-    {
-        return "";
-    }
-
-
 }

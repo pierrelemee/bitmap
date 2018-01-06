@@ -17,13 +17,6 @@ abstract class Query
     public abstract function execute(PDO $connection);
 
     /**
-     * @param PDO $connection
-     *
-     * @return string
-     */
-    public abstract function sql(PDO $connection);
-
-    /**
      * @param $name
      * @param PDO $connection
      *

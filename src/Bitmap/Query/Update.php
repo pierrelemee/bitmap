@@ -77,9 +77,4 @@ class Update extends Query
 
         return $statement->rowCount() === 1;
     }
-
-    public function sql(PDO $connection)
-    {
-        return "";
-    }
 }

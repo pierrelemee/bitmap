@@ -41,10 +41,4 @@ class Delete extends Query
 
         return $statement->rowCount() === 1;
     }
-
-
-    public function sql(PDO $connection)
-    {
-        return "";
-    }
 }
