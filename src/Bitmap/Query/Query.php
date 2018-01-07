@@ -17,7 +17,18 @@ abstract class Query
     public abstract function execute(PDO $connection);
 
     /**
+     * @param $name
+     * @param PDO $connection
+     *
      * @return string
      */
-    public abstract function sql();
+    public static function escapeName($name, PDO $connection)
+    {
+        return self::getEscapeCharacter($connection) . $name . self::getEscapeCharacter($connection);
+    }
+
+    private static function getEscapeCharacter(PDO $connection)
+    {
+        return $connection->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql' ? '"' : '`';
+    }
 }

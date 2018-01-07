@@ -3,8 +3,11 @@
 namespace Bitmap\Query;
 
 use Bitmap\Bitmap;
+use Bitmap\Query\Clauses\Join;
+use Bitmap\Query\Clauses\Where;
 use Bitmap\Query\Context\Context;
 use Bitmap\Query\Context\LoadContext;
+use Bitmap\Query\Context\QueryContext;
 use Bitmap\Strategies\PrefixStrategy;
 use Bitmap\Mapper;
 use PDO;
@@ -19,6 +22,9 @@ class Select extends Query
      * @var FieldMappingStrategy
      */
     protected $strategy;
+    /**
+     * @var Where[] $where
+     */
     protected $where;
 	protected $order;
 	protected $limit;
@@ -44,18 +50,6 @@ class Select extends Query
         $this->strategy = new PrefixStrategy();
     }
 
-    public function execute(PDO $connection)
-    {
-        $sql = $this->sql();
-        Bitmap::current()->getLogger()->info("Running query",
-            [
-                'mapper' => $this->mapper->getClass(),
-                'sql'    => $sql
-            ]
-        );
-        return $connection->query($sql, $this->strategy->getPdoFetchingType());
-    }
-
     /**
      * @param array|null $with
      * @param null $connection
@@ -68,8 +62,8 @@ class Select extends Query
         $connection = Bitmap::current()->connection($connection);
         $stmt = $this->execute($connection);
         $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
-
-        return $this->mapper->loadOne($result, $this->context);
+        $e = $this->mapper->loadOne($result, $this->context);
+        return $e;
     }
 
     /**
@@ -90,23 +84,19 @@ class Select extends Query
     public function where($field, $operation, $value)
     {
     	if ($this->mapper->hasField($field)) {
-		    $this->where[] = sprintf(
-			    "`%s`.`%s` %s %s",
-			    $this->mapper->getTable(),
-			    $this->mapper->getField($field)->getColumn(),
-			    $operation,
-			    $this->mapper->getField($field)->getTransformer()->fromObject($value)
-		    );
+		    $this->where[] = (new Where())
+                ->setTable($this->mapper->getTable())
+                ->setColumn($this->mapper->getField($field)->getColumn())
+                ->setOperation($operation)
+                ->setValue($value);
 
 		    return $this;
 	    } else if ($this->mapper->hasFieldByColumn($field)) {
-		    $this->where[] = sprintf(
-			    "`%s`.`%s` %s %s",
-			    $this->mapper->getTable(),
-			    $this->mapper->getFieldByColumn($field)->getColumn(),
-			    $operation,
-			    $this->mapper->getFieldByColumn($field)->getTransformer()->fromObject($value)
-		    );
+            $this->where[] = (new Where())
+                ->setTable($this->mapper->getTable())
+                ->setColumn($this->mapper->getFieldByColumn($field)->getColumn())
+                ->setOperation($operation)
+                ->setValue($value);
 
 		    return $this;
 	    }
@@ -114,13 +104,11 @@ class Select extends Query
 	    foreach ($this->mapper->associations() as $association) {
             if ($association->getName() === $field || $association->getColumn() === $field) {
                 if ($association->hasLocalValue()) {
-                    $this->where[] = sprintf(
-                        "`%s`.`%s` %s %s",
-                        $this->mapper->getTable(),
-                        $association->getColumn(),
-                        $operation,
-                        $value
-                    );
+                    $this->where[] = (new Where())
+                        ->setTable($this->mapper->getTable())
+                        ->setColumn($association->getColumn())
+                        ->setOperation($operation)
+                        ->setValue($value);
 
                     return $this;
                 }
@@ -154,15 +142,90 @@ class Select extends Query
 		return sizeof($this->order) > 0 ? ' order by ' . implode(', ', $this->order) : '';
 	}
 
-    public function sql()
+    public function execute(PDO $connection)
     {
-        return sprintf('select %s from `%s`%s %s%s%s',
-            implode(", ", $this->context->getFields($this->strategy)),
-            $this->context->getTableName(),
-            (implode("", $this->context->getJoins())),
-            sizeof($this->where) > 0 ? " where " . implode(" and ", $this->where) : "",
+        $columns = [];
+        $queue = [$this->context];
+
+        while (!empty($queue)) {
+            /** @var LoadContext $context */
+            $context = array_shift($queue);
+            foreach ($context->getFields() as $name => $field) {
+                $columns[] = sprintf('%s.%s as %s',
+                    self::escapeName($context->getTableName(), $connection),
+                    self::escapeName($field->getColumn(), $connection),
+                    self::escapeName("{$context->getTableName()}.{$field->getColumn()}", $connection)
+                );
+            }
+
+            foreach ($context->getDependencies() as $dependency) {
+                $queue[] = $dependency;
+            }
+        }
+
+        /** @var Join[] $joins */
+        $joins = $this->context->getJoins();
+
+        $whereClause = "";
+        $params = [];
+        if (count($this->where)) {
+            $whereClause = " where ";
+
+            foreach ($this->where as /** @var Where */$where) {
+                $whereClause .= sprintf(
+                    '%s.%s %s %s',
+                    self::escapeName($where->getTable(), $connection),
+                    self::escapeName($where->getColumn(), $connection),
+                    $where->getOperation(),
+                    $where->getNumberOfParameters() > 1 ? '(' . implode(',', array_fill(0, $where->getNumberOfParameters(), '?')) . ')' : '?'
+                );
+
+                if (is_array($where->getValue())) {
+                    foreach ($where->getValue() as $value) {
+                        $params[] = $value;
+                    }
+                } else {
+                    $params[] = $where->getValue();
+                }
+
+            }
+        }
+
+        $joinClause = "";
+        foreach ($joins as $join) {
+            $joinClause .= sprintf(
+                " left join %s %s on %s.%s = %s.%s",
+                self::escapeName($join->getToTable(), $connection),
+                $join->getToTableAlias(),
+                self::escapeName($join->getFromTable(), $connection),
+                self::escapeName($join->getFromColumn(), $connection),
+                self::escapeName($join->getToTableAlias(), $connection),
+                self::escapeName($join->getToColumn(), $connection)
+            );
+        }
+
+        $sql = sprintf('select %s from %s%s%s%s%s',
+            implode(", ", array_values($columns)),
+            self::escapeName($this->context->getTableName(), $connection),
+            $joinClause,
+            $whereClause,
             $this->orders(),
             null !== $this->limit ? " limit " .(sizeof($this->limit) === 2 ? "{$this->limit[1]}, " : ''). "{$this->limit[0]}"  : ''
         );
+
+        Bitmap::current()->getLogger()->info("Running query",
+            [
+                'mapper' => $this->mapper->getClass(),
+                'sql'    => $sql
+            ]
+        );
+
+        $statement = $connection->prepare($sql);
+
+        if (!$statement->execute($params)) {
+            throw new Exception(sprintf("[%s]", implode(", ", array_values($statement->errorInfo())),  $statement->errorCode()));
+        }
+
+        return $statement;
     }
 }

@@ -3,6 +3,7 @@
 namespace Bitmap;
 
 use Bitmap\Query\Context\Context;
+use Bitmap\Query\Context\LoadContext;
 use Misc\Character;
 use PDOStatement;
 
@@ -14,7 +15,7 @@ class ResultSet
     protected $values;
     protected $entities;
 
-    public function __construct(PDOStatement $statement, Mapper $mapper, FieldMappingStrategy $strategy, Context $context)
+    public function __construct(PDOStatement $statement, Mapper $mapper, FieldMappingStrategy $strategy, LoadContext $context)
     {
         $this->values = [];
 
@@ -32,7 +33,7 @@ class ResultSet
         return null;
     }
 
-    protected function read(Mapper $mapper, array $data, FieldMappingStrategy $strategy, Context $context)
+    protected function read(Mapper $mapper, array $data, FieldMappingStrategy $strategy, LoadContext $context)
     {
         $primary = $this->value($mapper, $mapper->getPrimary(), $data, $strategy, $context->getDepth());
 

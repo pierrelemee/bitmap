@@ -2,13 +2,11 @@
 
 namespace Bitmap\Query\Context;
 
-use Bitmap\FieldMappingStrategy;
-
-class ReferenceContext extends Context
+class ReferenceContext extends LoadContext
 {
     protected $source;
 
-    public function __construct($mapper, Context $source, $parent = null)
+    public function __construct($mapper, LoadContext $source, LoadContext $parent = null)
     {
         parent::__construct($mapper, $parent);
 
@@ -20,7 +18,7 @@ class ReferenceContext extends Context
         return [];
     }
 
-    public function getFields(FieldMappingStrategy $strategy)
+    public function getFields()
     {
         return [];
     }
@@ -35,5 +33,9 @@ class ReferenceContext extends Context
         return $this->source->depth;
     }
 
+    public function getJoinsOn(LoadContext $context, $name)
+    {
+        return [];
+    }
 
 }

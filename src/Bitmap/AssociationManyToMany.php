@@ -5,6 +5,7 @@ namespace Bitmap;
 
 
 use Bitmap\Associations\ManyToMany\Via;
+use Bitmap\Query\Clauses\Join;
 
 abstract class AssociationManyToMany extends Association
 {
@@ -33,11 +34,20 @@ abstract class AssociationManyToMany extends Association
         return false;
     }
 
-    public function joinClauses(Mapper $mapper, $name)
+    public function joinClauses(Mapper $mapper, $alias)
     {
         return [
-            $this->joinClause($mapper->getTable(), $this->column, $this->via->getTable(), $this->via->getTable(), $this->via->getSourceColumn()),
-            $this->joinClause($this->via->getTable(), $this->via->getTargetColumn(), $this->getMapper()->getTable(), $name, $this->targetColumn ? : Bitmap::current()->getMapper($this->class)->getPrimary()->getColumn())
+            Join::create()
+                ->setFromTable($mapper->getTable())
+                ->setFromColumn($this->column)
+                ->setToTable($this->via->getTable())
+                ->setToColumn($this->via->getSourceColumn()),
+            Join::create()
+                ->setFromTable($this->via->getTable())
+                ->setFromColumn($this->via->getTargetColumn())
+                ->setToTable($this->getMapper()->getTable())
+                ->setToTable($alias)
+                ->setToColumn($this->targetColumn ? : Bitmap::current()->getMapper($this->class)->getPrimary()->getColumn())
         ];
     }
 

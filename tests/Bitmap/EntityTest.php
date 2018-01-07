@@ -10,18 +10,16 @@ use PDO;
 
 abstract class EntityTest extends TestCase
 {
-    const CONNECTION_SQLITE = 'chinook_sqlite';
-    const CONNECTION_MYSQL  = 'chinook_mysql';
+    const CONNECTION_SQLITE     = 'chinook_sqlite';
+    const CONNECTION_MYSQL      = 'chinook_mysql';
+    const CONNECTION_POSTGRESQL = 'chinook_postgresql';
 
     public static function setUpBeforeClass()
     {
+        Bitmap::current(self::connections());
 
         if (isset(Logger::getLevels()[strtoupper(getenv('PHPUNIT_LOGGING'))])) {
-            Bitmap::current()->setLogger(new Logger(new StreamHandler(fopen('php://stdout', 'a'), strtoupper(getenv('PHPUNIT_LOGGING')))));
-        }
-
-        foreach (self::connections() as $name => $arguments) {
-            Bitmap::current()->addConnection($name, $arguments[0], false, isset($arguments[1]) ? $arguments[1] : null, isset($arguments[2]) ? $arguments[2] : null);
+            Bitmap::current()->setLogger( new Logger("console", [new StreamHandler(fopen('php://stdout', 'a'), strtoupper(getenv('PHPUNIT_LOGGING')))]));
         }
     }
 
@@ -48,14 +46,23 @@ abstract class EntityTest extends TestCase
     private static function connections()
     {
         return [
-            self::CONNECTION_SQLITE => ['sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite'],
-            self::CONNECTION_MYSQL  => ['mysql://host=localhost;dbname=Chinook;', "root"],
+            self::CONNECTION_SQLITE     => [
+                'dsn'  => 'sqlite://' . __DIR__ . '/resources/Chinook_Sqlite_AutoIncrementPKs.sqlite'
+            ],
+            self::CONNECTION_MYSQL      => [
+                'dsn'  => 'mysql://host=localhost;dbname=Chinook;',
+                'user' => "root"
+            ],
+            self::CONNECTION_POSTGRESQL => [
+                'dsn'  => 'pgsql:host=localhost;dbname=Chinook',
+                'user' => "postgres"
+            ],
         ];
     }
 
     protected function getConnectionNames()
     {
-        return [self::CONNECTION_MYSQL, self::CONNECTION_SQLITE];
+        return [self::CONNECTION_MYSQL, self::CONNECTION_SQLITE, self::CONNECTION_POSTGRESQL];
     }
 
     /**
@@ -98,6 +105,11 @@ abstract class EntityTest extends TestCase
 
     protected function queryCount($connection, $table)
     {
-        return $this->queryValue($connection, "select count(*) from $table", 0);
+        $connection = Bitmap::current()->connection($connection);
+        $table = $connection->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql' ? sprintf('"%s"', $table) : $table;
+
+        $result = $connection->query("select count(*) from $table")->fetch(PDO::FETCH_NUM);
+
+        return count($result) > 0 ? $result[0] : $default;
     }
 }

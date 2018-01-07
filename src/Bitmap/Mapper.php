@@ -343,7 +343,7 @@ class Mapper
 	        }
         }
 
-        $query = new Insert($entity, $context);
+        $query = new Insert($this, $entity, $context);
         $count = $query->execute(Bitmap::current()->connection($connection));
 
         if ($count > 0) {
@@ -385,7 +385,7 @@ class Mapper
 	            }
             }
 
-            $query = new Update($entity, $context);
+            $query = new Update($this, $entity, $context);
             $count = $query->execute(Bitmap::current()->connection($connection));
 
 	        return $count > 0;
@@ -397,7 +397,8 @@ class Mapper
     public function delete(Entity $entity, $connection = null)
     {
         if ($this->hasPrimary()) {
-            return Delete::fromEntity($entity)->execute(Bitmap::current()->connection($connection)) > 0;
+            $query = new Delete($entity);
+            return $query->execute(Bitmap::current()->connection($connection));
         }
 
         throw new Exception("No primary declared for class {$this->class}");

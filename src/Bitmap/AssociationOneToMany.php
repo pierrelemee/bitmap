@@ -2,12 +2,19 @@
 
 namespace Bitmap;
 
+use Bitmap\Query\Clauses\Join;
+
 abstract class AssociationOneToMany extends Association
 {
-    public function joinClauses(Mapper $mapper, $name)
+    public function joinClauses(Mapper $mapper, $alias)
     {
         return [
-            $this->joinClause($mapper->getTable(), $mapper->getPrimary()->getColumn(), $this->getMapper()->getTable(), $name, $this->column)
+            Join::create()
+                ->setFromTable($mapper->getTable())
+                ->setFromColumn($mapper->getPrimary()->getColumn())
+                ->setToTable($this->getMapper()->getTable())
+                ->setToTableAlias($alias)
+                ->setToColumn($this->column)
         ];
     }
 
