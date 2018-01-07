@@ -23,15 +23,15 @@ class Select extends Query
      */
     protected $strategy;
     /**
+     * @var LoadContext
+     */
+    protected $context;
+    /**
      * @var Where[] $where
      */
     protected $where;
 	protected $order;
 	protected $limit;
-    /**
-     * @var Context
-     */
-    protected $context;
     protected $tables;
     protected $links;
     protected $fields;
@@ -48,37 +48,37 @@ class Select extends Query
         $this->fields = [];
         $this->joins = [];
         $this->strategy = new PrefixStrategy();
+        $this->context = new LoadContext($this->mapper);
     }
 
     /**
-     * @param array|null $with
      * @param null $connection
      *
      * @return Entity|null
      */
-    public function one($with = null, $connection = null)
+    public function one($connection = null)
     {
-        $this->context = new LoadContext($this->mapper, $with);
-        $connection = Bitmap::current()->connection($connection);
-        $stmt = $this->execute($connection);
+        $stmt = $this->execute(Bitmap::current()->connection($connection));
         $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
-        $e = $this->mapper->loadOne($result, $this->context);
-        return $e;
+        return $this->mapper->loadOne($result, $this->context);
     }
 
     /**
-     * @param array|null $with
      * @param null $connection
      *
      * @return Entity[]
      */
-    public function all($with = null, $connection = null)
+    public function all($connection = null)
     {
-        $this->context = new LoadContext($this->mapper, $with);
         $stmt = $this->execute(Bitmap::current()->connection($connection));
         $result = new ResultSet($stmt, $this->mapper, $this->strategy, $this->context);
-
         return $this->mapper->loadAll($result, $this->context);
+    }
+
+    public function with($context) {
+        $this->context->addSubContext($context);
+
+        return $this;
     }
 
     public function where($field, $operation, $value)

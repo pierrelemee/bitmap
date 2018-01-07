@@ -11,7 +11,7 @@ class LoadContext extends Context
     protected $depth;
     protected $depths;
 
-    public function __construct($mapper = null, $with = null, $parent = null)
+    public function __construct($mapper = null, $parent = null, $subContext = null)
     {
         parent::__construct($mapper, $parent);
 
@@ -26,14 +26,17 @@ class LoadContext extends Context
         }
 
         $this->depth = $this->getRoot()->depths[$this->mapper->getClass()];
+        $this->addSubContext($subContext);
+    }
 
-        if (is_array($with)) {
-            foreach ($with as $name => $value) {
+    public function addSubContext($subContext) {
+        if (is_array($subContext)) {
+            foreach ($subContext as $name => $value) {
                 if (is_int($name)) {
                     $name = $value;
-                    $subcontext = [];
+                    $s = [];
                 } else {
-                    $subcontext = $value;
+                    $s = $value;
                 }
                 if (strpos($name, '@') === 0) {
                     $association = $this->getMapper()->getAssociation(substr($name, 1));
@@ -46,17 +49,17 @@ class LoadContext extends Context
                 } else {
                     $association = $this->getMapper()->getAssociation($name);
                     if (null !== $association) {
-                        $this->dependencies[$association->getName()] = new LoadContext($association->getMapper(), $subcontext, $this);
+                        $this->dependencies[$association->getName()] = new LoadContext($association->getMapper(), $this, $s);
                     }
                 }
             }
         }
 
-        if (is_null($with)) {
+        if (is_null($subContext)) {
             foreach ($this->mapper->associations() as $association) {
                 if (!isset($this->dependencies[$association->getName()])) {
                     if ($association->isAutoloaded()) {
-                        $this->dependencies[$association->getName()] = new LoadContext($association->getMapper(), [], $this);
+                        $this->dependencies[$association->getName()] = new LoadContext($association->getMapper(), $this, []);
                     }
                 }
             }

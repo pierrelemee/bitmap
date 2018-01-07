@@ -56,7 +56,9 @@ class SelectTest extends EntityTest
      */
     public function testGetNoArtist($artistClass, $connection)
     {
-        $artist = $artistClass::select()->where('Name', '=', "Justin Bieber")->one(null, $connection);
+        $artist = $artistClass::select()
+            ->where('Name', '=', "Justin Bieber")
+            ->one($connection);
         $this->assertNull($artist);
     }
 
@@ -71,7 +73,9 @@ class SelectTest extends EntityTest
 	 */
     public function testGetArtistById($artistClass, $connection, $field, $id, $expected)
     {
-        $artist = $artistClass::select()->where($field, '=', $id)->one(null, $connection);
+        $artist = $artistClass::select()
+            ->where($field, '=', $id)
+            ->one($connection);
 
         $this->assertNotNull($artist);
         $this->assertSame($expected, $artist->name);
@@ -96,7 +100,10 @@ class SelectTest extends EntityTest
      */
     public function testGetArtistAndItsArtWork($artistClass, $connection)
     {
-        $artist = $artistClass::select()->where('ArtistId', '=', 22)->one(['albums' => ['tracks', '@artist']], $connection);
+        $artist = $artistClass::select()
+            ->where('ArtistId', '=', 22)
+            ->with(['albums' => ['tracks', '@artist']])
+            ->one($connection);
 
         $this->assertNotNull($artist);
         $this->assertEquals(14, sizeof($artist->getAlbums()));
@@ -112,7 +119,7 @@ class SelectTest extends EntityTest
      */
     public function testGetAlbumsByArtist($albumClass, $connection)
     {
-        $albums = $albumClass::select()->where('ArtistId', '=', 131)->all(null, $connection);
+        $albums = $albumClass::select()->where('ArtistId', '=', 131)->all($connection);
 
         $this->assertEquals(2, count($albums));
     }
@@ -125,7 +132,7 @@ class SelectTest extends EntityTest
      */
     public function testGetArtists($artistClass, $connection)
     {
-        $artists = $artistClass::select()->where('Name', 'like', 'The%')->all(['albums' => ['@artist']], $connection);
+        $artists = $artistClass::select()->where('Name', 'like', 'The%')->with(['albums' => ['@artist']])->all($connection);
 
         $expected = [
             137 => 'The Black Crowes',
@@ -162,7 +169,7 @@ class SelectTest extends EntityTest
      * @dataProvider getPlaylistDataClasses
      */
     public function testGetPlaylistAndTracks($playlistClass) {
-        $playlist = $playlistClass::select()->where('id', '=', 16)->one(['tracks'], EntityTest::CONNECTION_MYSQL);
+        $playlist = $playlistClass::select()->where('id', '=', 16)->with(['tracks'])->one(EntityTest::CONNECTION_MYSQL);
         $this->assertNotNull($playlist);
         $this->assertEquals($playlistClass, get_class($playlist));
         $this->assertEquals('Grunge', $playlist->getName());
@@ -177,7 +184,7 @@ class SelectTest extends EntityTest
      */
     public function testGetAlbumById($albumClass, $connection)
     {
-        $album = $albumClass::select()->where('AlbumId', '=', 148)->one(['artist', 'tracks'], $connection);
+        $album = $albumClass::select()->where('AlbumId', '=', 148)->with(['artist', 'tracks'])->one($connection);
 
         $this->assertNotNull($album);
         $this->assertSame('Black Album', $album->getTitle());
@@ -201,7 +208,7 @@ class SelectTest extends EntityTest
 		    ->where('album', '=', 164)
 		    ->order('Milliseconds', $asc)
 		    ->limit($limit, $offset)
-		    ->all(null, $connection);
+		    ->all($connection);
 
 	    $this->assertSameSize($expected, $tracks);
 
@@ -231,7 +238,10 @@ class SelectTest extends EntityTest
      */
     public function testGetEmployeeAndSuperior($employeeClass, $connection)
     {
-        $employee= $employeeClass::select()->where('EmployeeId', '=', 8)->one(['superior' => []], $connection);
+        $employee= $employeeClass::select()
+            ->where('EmployeeId', '=', 8)
+            ->with(['superior' => []])
+            ->one($connection);
 
         $this->assertNotNull($employee);
         $this->assertNotNull($employee->getSuperior());
@@ -269,7 +279,7 @@ class SelectTest extends EntityTest
         /* @var Character[] $characters */
         $characters = Character::select()
             ->where('id', 'in', [3,4,5])
-            ->all(null, $connection);
+            ->all($connection);
 
         $this->assertEquals(3, count($characters));
 
