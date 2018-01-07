@@ -84,7 +84,7 @@ abstract class Context
     }
 
     /**
-     * @return Context[]
+     * @return static[]
      */
     public function getDependencies()
     {

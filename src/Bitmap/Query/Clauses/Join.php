@@ -45,6 +45,7 @@ class Join
      */
     public function setToTable($toTable)
     {
+        $this->toTableAlias = $toTable;
         $this->toTable = $toTable;
 
         return $this;

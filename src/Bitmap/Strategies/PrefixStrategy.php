@@ -16,7 +16,7 @@ class PrefixStrategy extends FieldMappingStrategy
 
     public function getFieldLabel(Mapper $mapper, $field, $depth = 0)
     {
-        $suffix = $depth > 0 ? $depth : '';
+        $suffix = $depth > 0 ? $depth + 1 : '';
         return "{$mapper->getTable()}{$suffix}.{$field}";
     }
 }

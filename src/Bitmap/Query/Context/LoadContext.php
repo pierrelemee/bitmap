@@ -3,6 +3,7 @@
 namespace Bitmap\Query\Context;
 
 use Bitmap\Field;
+use Bitmap\Query\Clauses\Join;
 use Exception;
 
 class LoadContext extends Context
@@ -105,6 +106,9 @@ class LoadContext extends Context
         return $this->mapper->getFields();
     }
 
+    /**
+     * @return Join[]
+     */
     public function getJoins()
     {
         $joins = [];

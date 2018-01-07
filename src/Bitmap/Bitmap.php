@@ -96,7 +96,7 @@ class Bitmap
     public static function current($connections = null)
     {
         if (null === self::$BITMAP) {
-            self::$BITMAP = $connections ? new Bitmap(null, $connections) : new Bitmap();
+            self::$BITMAP = ($connections ? new Bitmap(null, $connections) : new Bitmap());
         }
 
         return self::$BITMAP;

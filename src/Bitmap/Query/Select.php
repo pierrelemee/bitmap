@@ -148,7 +148,7 @@ class Select extends Query
         $queue = [$this->context];
 
         while (!empty($queue)) {
-            /** @var QueryContext $context */
+            /** @var LoadContext $context */
             $context = array_shift($queue);
             foreach ($context->getFields() as $name => $field) {
                 $columns[] = sprintf('%s.%s as %s',
@@ -197,20 +197,20 @@ class Select extends Query
                 " left join %s %s on %s.%s = %s.%s",
                 self::escapeName($join->getToTable(), $connection),
                 $join->getToTableAlias(),
-                self::escapeName($join->getToTable(), $connection),
-                self::escapeName($join->getToColumn(), $connection),
                 self::escapeName($join->getFromTable(), $connection),
-                self::escapeName($join->getFromColumn(), $connection)
+                self::escapeName($join->getFromColumn(), $connection),
+                self::escapeName($join->getToTableAlias(), $connection),
+                self::escapeName($join->getToColumn(), $connection)
             );
         }
 
-        $sql = sprintf('select %s from %s%s%s',
+        $sql = sprintf('select %s from %s%s%s%s%s',
             implode(", ", array_values($columns)),
             self::escapeName($this->context->getTableName(), $connection),
             $joinClause,
-            $whereClause
-            //$this->orders(),
-            //null !== $this->limit ? " limit " .(sizeof($this->limit) === 2 ? "{$this->limit[1]}, " : ''). "{$this->limit[0]}"  : ''
+            $whereClause,
+            $this->orders(),
+            null !== $this->limit ? " limit " .(sizeof($this->limit) === 2 ? "{$this->limit[1]}, " : ''). "{$this->limit[0]}"  : ''
         );
 
         Bitmap::current()->getLogger()->info("Running query",

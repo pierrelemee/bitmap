@@ -16,13 +16,11 @@ abstract class EntityTest extends TestCase
 
     public static function setUpBeforeClass()
     {
+        Bitmap::current(self::connections());
 
         if (isset(Logger::getLevels()[strtoupper(getenv('PHPUNIT_LOGGING'))])) {
-            Bitmap::current()->setLogger(new Logger(new StreamHandler(fopen('php://stdout', 'a'), strtoupper(getenv('PHPUNIT_LOGGING')))));
+            Bitmap::current()->setLogger( new Logger("console", [new StreamHandler(fopen('php://stdout', 'a'), strtoupper(getenv('PHPUNIT_LOGGING')))]));
         }
-
-        Bitmap::clear();
-        Bitmap::current(self::connections());
     }
 
     /**
